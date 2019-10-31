@@ -47,7 +47,8 @@ def main():
     for _ in range(SIMULATION_ITERATIONS):
         ca = simulation_step(ca)
 
-    visualize_ca(ca)
+    save_ca_to_file(ca)
+    # visualize_ca(ca)
 
 
 def simulation_step(ca):
@@ -72,6 +73,12 @@ def visualize_ca(ca):
 
     ax.view_init(-10, 35)
     plt.show()
+
+
+def save_ca_to_file(ca):
+    with open("heads_ca2.txt", "w") as f:
+        for row in ca:
+            f.write(str([cell.head for cell in row]) + "\n")
 
 
 def transition_function(ca, ca2, x, y):
