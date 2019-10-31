@@ -101,11 +101,11 @@ def transition_function(ca, ca2, x, y):
 
 def get_neighbor_cells(ca, x, y) -> List[Cell]:
     neighbors = []
-    if y - 1 > 0:
+    if y - 1 >= 0:
         neighbors.append(ca[y - 1][x])
     if y + 1 < ROWS:
         neighbors.append(ca[y + 1][x])
-    if x - 1 > 0:
+    if x - 1 >= 0:
         neighbors.append(ca[y][x - 1])
     if x + 1 < COLS:
         neighbors.append(ca[y][x + 1])
