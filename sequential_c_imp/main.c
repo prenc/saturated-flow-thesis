@@ -51,7 +51,7 @@ int main() {
 
 void write_heads_to_file() {
     FILE *fp;
-    fp = fopen("heads_ca.txt", "w");
+    fp = fopen("heads_no_rw_cas.txt", "w");
 
     for (int i = 0; i < ROWS; i++) {
         for (int j = 0; j < COLS; j++) {
