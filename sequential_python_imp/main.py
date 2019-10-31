@@ -29,8 +29,8 @@ qw = 0.001
 
 convergence = ((CELL_SIZE_X * CELL_SIZE_Y) * Syinitial) / (Kinitial * 4)
 
-posSx = int((COLS - 1) / 2)
-posSy = int((ROWS - 1) / 2)
+posSx = int(COLS / 2)
+posSy = int(ROWS / 2)
 
 
 class Cell:
@@ -42,23 +42,23 @@ class Cell:
 
 
 def main():
-    ca = init_ca()
+    read_ca = init_ca()
 
     for _ in range(SIMULATION_ITERATIONS):
-        ca = simulation_step(ca)
+        read_ca = simulation_step(read_ca)
 
-    save_ca_to_file(ca)
-    # visualize_ca(ca)
+    save_ca_to_file(read_ca)
+    # visualize_ca(read_ca)
 
 
-def simulation_step(ca):
-    ca2 = ca.copy()
+def simulation_step(read_ca):
+    write_ca = read_ca.copy()
     for y in range(ROWS):
         if y == 0 or y == ROWS - 1:
             continue
         for x in range(COLS):
-            transition_function(ca, ca2, x, y)
-    return ca2
+            transition_function(read_ca, write_ca, x, y)
+    return write_ca
 
 
 def visualize_ca(ca):
@@ -76,15 +76,15 @@ def visualize_ca(ca):
 
 
 def save_ca_to_file(ca):
-    with open("heads_ca2.txt", "w") as f:
+    with open("heads_with_wr_cas.txt", "w") as f:
         for row in ca:
             f.write(str([cell.head for cell in row]) + "\n")
 
 
-def transition_function(ca, ca2, x, y):
-    neighbors = get_neighbor_cells(ca, x, y)
+def transition_function(read_ca, write_ca, x, y):
+    neighbors = get_neighbor_cells(read_ca, x, y)
 
-    cell = ca[y][x]
+    cell = read_ca[y][x]
     Q = 0
     for neighbor in neighbors:
         diff_head = neighbor.head - cell.head
@@ -96,7 +96,7 @@ def transition_function(ca, ca2, x, y):
     area = CELL_SIZE_X * CELL_SIZE_Y
     ht1 = (Q * delta_t) / (area * cell.Sy)
 
-    ca2[y][x].head += ht1
+    write_ca[y][x].head += ht1
 
 
 def get_neighbor_cells(ca, x, y) -> List[Cell]:
