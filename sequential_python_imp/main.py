@@ -52,7 +52,7 @@ def main():
 
 
 def simulation_step(read_ca):
-    write_ca = read_ca.copy()
+    write_ca = init_ca()
     for y in range(ROWS):
         if y == 0 or y == ROWS - 1:
             continue
@@ -84,6 +84,7 @@ def save_ca_to_file(ca):
 def transition_function(read_ca, write_ca, x, y):
     neighbors = get_neighbor_cells(read_ca, x, y)
 
+    write_ca[y][x].head = read_ca[y][x].head
     cell = read_ca[y][x]
     Q = 0
     for neighbor in neighbors:
