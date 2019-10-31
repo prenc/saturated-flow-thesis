@@ -84,7 +84,6 @@ def save_ca_to_file(ca):
 def transition_function(read_ca, write_ca, x, y):
     neighbors = get_neighbor_cells(read_ca, x, y)
 
-    write_ca[y][x].head = read_ca[y][x].head
     cell = read_ca[y][x]
     Q = 0
     for neighbor in neighbors:
@@ -97,7 +96,7 @@ def transition_function(read_ca, write_ca, x, y):
     area = CELL_SIZE_X * CELL_SIZE_Y
     ht1 = (Q * delta_t) / (area * cell.Sy)
 
-    write_ca[y][x].head += ht1
+    write_ca[y][x].head = cell.head + ht1
 
 
 def get_neighbor_cells(ca, x, y) -> List[Cell]:
