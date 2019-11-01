@@ -58,37 +58,38 @@ static void CheckCudaErrorAux(const char *, unsigned, const char *, cudaError_t)
  */
 __global__ void simulation_step_kernel(struct CA *d_ca, double *d_write_head) {
     unsigned idx = blockIdx.x * blockDim.x + threadIdx.x;
-    if (idx < ROWS * COLS) {
-        double Q = 0;
+    if (idx < ROWS * COLS)
+        if (idx / COLS != 0 && idx / COLS != ROWS - 1) {
+            double Q = 0;
 
-        if (idx % COLS >= 1) {
-            double diff_head = d_ca->head[idx - 1] - d_ca->head[idx];
-            double tmp_t = d_ca->K[idx] * THICKNESS;
-            Q += diff_head * tmp_t;
-        }
-        if (idx >= COLS) {
-            double diff_head = d_ca->head[idx - COLS] - d_ca->head[idx];
-            double tmp_t = d_ca->K[idx] * THICKNESS;
-            Q += diff_head * tmp_t;
-        }
-        if (idx % COLS + 1 < COLS) {
-            double diff_head = d_ca->head[idx + 1] - d_ca->head[idx];
-            double tmp_t = d_ca->K[idx] * THICKNESS;
-            Q += diff_head * tmp_t;
-        }
-        if (idx + COLS < COLS * ROWS) {
-            double diff_head = d_ca->head[idx + COLS] - d_ca->head[idx];
-            double tmp_t = d_ca->K[idx] * THICKNESS;
-            Q += diff_head * tmp_t;
-        }
+            if (idx % COLS >= 1) {
+                double diff_head = d_ca->head[idx - 1] - d_ca->head[idx];
+                double tmp_t = d_ca->K[idx] * THICKNESS;
+                Q += diff_head * tmp_t;
+            }
+            if (idx >= COLS) {
+                double diff_head = d_ca->head[idx - COLS] - d_ca->head[idx];
+                double tmp_t = d_ca->K[idx] * THICKNESS;
+                Q += diff_head * tmp_t;
+            }
+            if (idx % COLS + 1 < COLS) {
+                double diff_head = d_ca->head[idx + 1] - d_ca->head[idx];
+                double tmp_t = d_ca->K[idx] * THICKNESS;
+                Q += diff_head * tmp_t;
+            }
+            if (idx + COLS < COLS * ROWS) {
+                double diff_head = d_ca->head[idx + COLS] - d_ca->head[idx];
+                double tmp_t = d_ca->K[idx] * THICKNESS;
+                Q += diff_head * tmp_t;
+            }
 
-        Q -= d_ca->Source[idx];
+            Q -= d_ca->Source[idx];
 
-        double ht1 = Q * DELTA_T;
-        double ht2 = AREA * d_ca->Sy[idx];
+            double ht1 = Q * DELTA_T;
+            double ht2 = AREA * d_ca->Sy[idx];
 
-        d_write_head[idx] += ht1 / ht2;
-    }
+            d_write_head[idx] += ht1 / ht2;
+        }
 }
 
 /**
@@ -129,13 +130,8 @@ void perform_simulation_on_GPU() {
     for (int i = 0; i < SIMULATION_ITERATIONS; i++) {
         simulation_step_kernel << < blockCount, BLOCK_SIZE >> > (d_ca, d_write_head);
 
-        double *tmp1, *tmp2;
-        CUDA_CHECK_RETURN(cudaMemcpy(&tmp1, &d_write_head, sizeof(tmp1), cudaMemcpyDeviceToHost));
-        CUDA_CHECK_RETURN(cudaMemcpy(&tmp2, &d_ca->head, sizeof(tmp2), cudaMemcpyDeviceToHost));
-
-        CUDA_CHECK_RETURN(cudaMemcpy(&(d_ca->head), &tmp1, sizeof(d_ca->head), cudaMemcpyHostToDevice));
-        CUDA_CHECK_RETURN(cudaMemcpy(&d_write_head, &tmp2, sizeof(d_write_head), cudaMemcpyHostToDevice));
-
+        CUDA_CHECK_RETURN(cudaMemcpy(&d_write_head, &(d_ca->head), sizeof(d_ca->head), cudaMemcpyDeviceToHost));
+//        CUDA_CHECK_RETURN(cudaMemcpy(d_write_head, &tmp2, sizeof(tmp2), cudaMemcpyHostToDevice));
     }
 }
 
