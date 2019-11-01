@@ -11,6 +11,44 @@
 #include <iostream>
 #include <numeric>
 #include <stdlib.h>
+#include <stdio.h>
+
+//MODEL PARAMS
+
+#define ROWS 100
+#define COLS 100
+#define CELL_SIZE_X 10
+#define CELL_SIZE_Y 10
+#define THICKNESS 50
+
+#define Syinitial 0.1
+#define Kinitial  0.0000125
+
+#define headFixed 50
+#define headCalculated 50
+
+#define SIMULATION_ITERATIONS 1000
+
+double delta_t_ = 4000;
+double qw = 0.001;
+
+int posSy = ROWS / 2;
+int posSx = COLS / 2;
+
+struct CA {
+    double *head;
+    double *Sy;
+    double *K;
+    double *Source;
+} h_ca, d_read, d_write;
+
+double *d_write_head;
+
+//GPU EXEC PARAMS
+#define BLOCK_SIZE 256
+
+
+void init_host_ca();
 
 static void CheckCudaErrorAux (const char *, unsigned, const char *, cudaError_t);
 #define CUDA_CHECK_RETURN(value) CheckCudaErrorAux(__FILE__,__LINE__, #value, value)
@@ -18,67 +56,80 @@ static void CheckCudaErrorAux (const char *, unsigned, const char *, cudaError_t
 /**
  * CUDA kernel that computes reciprocal values for a given vector
  */
-__global__ void reciprocalKernel(float *data, unsigned vectorSize) {
+__global__ void simulation_step_kernel(struct CA *data, double *d_write_head) {
 	unsigned idx = blockIdx.x*blockDim.x+threadIdx.x;
-	if (idx < vectorSize)
-		data[idx] = 1.0/data[idx];
+	printf("ELO");
 }
 
 /**
- * Host function that copies the data and launches the work on GPU
+ * Host function that copies the data
  */
-float *gpuReciprocal(float *data, unsigned size)
+void copy_data_from_CPU_to_GPU()
 {
-	float *rc = new float[size];
-	float *gpuData;
+	double *d_read_head, *d_read_Sy, *d_read_K, *d_read_Source;
+	CUDA_CHECK_RETURN(cudaMalloc(&d_read_head, sizeof(double)*ROWS*COLS));
+	CUDA_CHECK_RETURN(cudaMalloc(&d_write_head, sizeof(double)*ROWS*COLS));
+	CUDA_CHECK_RETURN(cudaMalloc(&d_read_Sy, sizeof(double)*ROWS*COLS));
+	CUDA_CHECK_RETURN(cudaMalloc(&d_read_K, sizeof(double)*ROWS*COLS));
+	CUDA_CHECK_RETURN(cudaMalloc(&d_read_Source, sizeof(double)*ROWS*COLS));
 
-	CUDA_CHECK_RETURN(cudaMalloc((void **)&gpuData, sizeof(float)*size));
-	CUDA_CHECK_RETURN(cudaMemcpy(gpuData, data, sizeof(float)*size, cudaMemcpyHostToDevice));
-	
-	static const int BLOCK_SIZE = 256;
-	const int blockCount = (size+BLOCK_SIZE-1)/BLOCK_SIZE;
-	reciprocalKernel<<<blockCount, BLOCK_SIZE>>> (gpuData, size);
+	CUDA_CHECK_RETURN(cudaMemcpy(d_read_head, h_ca.head,  sizeof(double)*ROWS*COLS, cudaMemcpyHostToDevice));
+	CUDA_CHECK_RETURN(cudaMemcpy(d_write_head, h_ca.head,  sizeof(double)*ROWS*COLS, cudaMemcpyHostToDevice));
+	CUDA_CHECK_RETURN(cudaMemcpy(d_read_Sy, h_ca.Sy,  sizeof(double)*ROWS*COLS, cudaMemcpyHostToDevice));
+	CUDA_CHECK_RETURN(cudaMemcpy(d_read_K, h_ca.K,  sizeof(double)*ROWS*COLS, cudaMemcpyHostToDevice));
+	CUDA_CHECK_RETURN(cudaMemcpy(d_read_Source, h_ca.Source,  sizeof(double)*ROWS*COLS, cudaMemcpyHostToDevice));
 
-	CUDA_CHECK_RETURN(cudaMemcpy(rc, gpuData, sizeof(float)*size, cudaMemcpyDeviceToHost));
-	CUDA_CHECK_RETURN(cudaFree(gpuData));
-	return rc;
+	CUDA_CHECK_RETURN(cudaMalloc((void **)&d_read, sizeof(d_read)));
+
+    //TODO: Binding vectors memory to struct members
+
+	CUDA_CHECK_RETURN(cudaMemcpy(d_read.head, &d_read_head, sizeof(d_read.head), cudaMemcpyHostToDevice));
+/*
+	CUDA_CHECK_RETURN(cudaMemcpy(d_read.Source, &d_read_Source, sizeof(d_read.Source), cudaMemcpyHostToDevice));
+	CUDA_CHECK_RETURN(cudaMemcpy(d_read.K, &d_read_K, sizeof(d_read.K), cudaMemcpyHostToDevice));
+	CUDA_CHECK_RETURN(cudaMemcpy(d_read.Sy, &d_read_Sy, sizeof(d_read.Sy), cudaMemcpyHostToDevice));
+*/
+
+
 }
 
-float *cpuReciprocal(float *data, unsigned size)
-{
-	float *rc = new float[size];
-	for (unsigned cnt = 0; cnt < size; ++cnt) rc[cnt] = 1.0/data[cnt];
-	return rc;
-}
-
-
-void initialize(float *data, unsigned size)
-{
-	for (unsigned i = 0; i < size; ++i)
-		data[i] = .5*(i+1);
+void perform_simulation_on_GPU(){
+	const int blockCount = (ROWS*COLS)/BLOCK_SIZE + 1;
+    for (int i = 0; i < SIMULATION_ITERATIONS; i++) {
+        simulation_step_kernel<<<blockCount, BLOCK_SIZE >>>(&d_read, d_write_head);
+    }
 }
 
 int main(void)
 {
-	static const int WORK_SIZE = 65530;
-	float *data = new float[WORK_SIZE];
+	h_ca.head = new double[ROWS*COLS]();
+	h_ca.Sy= new double[ROWS*COLS]();
+	h_ca.K = new double[ROWS*COLS]();
+	h_ca.Source = new double[ROWS*COLS]();
 
-	initialize (data, WORK_SIZE);
+    init_host_ca();
 
-	float *recCpu = cpuReciprocal(data, WORK_SIZE);
-	float *recGpu = gpuReciprocal(data, WORK_SIZE);
-	float cpuSum = std::accumulate (recCpu, recCpu+WORK_SIZE, 0.0);
-	float gpuSum = std::accumulate (recGpu, recGpu+WORK_SIZE, 0.0);
+    copy_data_from_CPU_to_GPU();
 
-	/* Verify the results */
-	std::cout<<"gpuSum = "<<gpuSum<< " cpuSum = " <<cpuSum<<std::endl;
+    perform_simulation_on_GPU();
 
-	/* Free memory */
-	delete[] data;
-	delete[] recCpu;
-	delete[] recGpu;
 
 	return 0;
+}
+
+void init_host_ca() {
+    for (int i = 0; i < ROWS; i++)
+        for (int j = 0; j < COLS; j++) {
+        	h_ca.head[i*ROWS+j] = headFixed;
+            if (j == COLS - 1) {
+            	h_ca.head[i*ROWS+j] = headCalculated;
+            }
+            h_ca.Sy[i*ROWS+j] = Syinitial;
+            h_ca.K[i*ROWS+j] = Kinitial;
+            h_ca.Source[i*ROWS+j] = 0;
+        }
+
+    h_ca.Source[posSy*ROWS+posSx] = qw;
 }
 
 /**
