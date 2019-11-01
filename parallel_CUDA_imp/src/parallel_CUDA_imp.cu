@@ -19,6 +19,7 @@
 #define COLS 100
 #define CELL_SIZE_X 10
 #define CELL_SIZE_Y 10
+#define AREA CELL_SIZE_X*CELL_SIZE_Y
 #define THICKNESS 50
 
 #define Syinitial 0.1
@@ -30,7 +31,7 @@
 #define SIMULATION_ITERATIONS 1000
 #define BLOCK_SIZE 256
 
-double delta_t_ = 4000;
+#define DELTA_T 4000;
 double qw = 0.001;
 
 int posSy = ROWS / 2;
@@ -44,7 +45,7 @@ struct CA {
 } h_ca, d_read, d_write;
 
 double *d_write_head;
-CA * d_ca;
+CA *d_ca;
 
 void init_host_ca();
 
@@ -58,7 +59,35 @@ static void CheckCudaErrorAux(const char *, unsigned, const char *, cudaError_t)
 __global__ void simulation_step_kernel(struct CA *d_ca, double *d_write_head) {
     unsigned idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx < ROWS * COLS) {
-        d_write_head[idx] = d_ca->head[idx] * 2;
+        double Q = 0;
+
+        if (idx % COLS >= 1) {
+            double diff_head = d_ca->head[idx - 1] - d_ca->head[idx];
+            double tmp_t = d_ca->K[idx] * THICKNESS;
+            Q += diff_head * tmp_t;
+        }
+        if (idx >= COLS) {
+            double diff_head = d_ca->head[idx - COLS] - d_ca->head[idx];
+            double tmp_t = d_ca->K[idx] * THICKNESS;
+            Q += diff_head * tmp_t;
+        }
+        if (idx % COLS + 1 < COLS) {
+            double diff_head = d_ca->head[idx + 1] - d_ca->head[idx];
+            double tmp_t = d_ca->K[idx] * THICKNESS;
+            Q += diff_head * tmp_t;
+        }
+        if (idx + COLS < COLS * ROWS) {
+            double diff_head = d_ca->head[idx + COLS] - d_ca->head[idx];
+            double tmp_t = d_ca->K[idx] * THICKNESS;
+            Q += diff_head * tmp_t;
+        }
+
+        Q -= d_ca->Source[idx];
+
+        double ht1 = Q * DELTA_T;
+        double ht2 = AREA * d_ca->Sy[idx];
+
+        d_write_head[idx] += ht1 / ht2;
     }
 }
 
@@ -71,17 +100,23 @@ void copy_data_from_CPU_to_GPU() {
     CUDA_CHECK_RETURN(cudaMalloc((void **) &d_ca, sizeof(*d_ca)));
     CUDA_CHECK_RETURN(cudaMalloc((void **) &d_read_head, sizeof(*d_read_head) * ROWS * COLS));
     CUDA_CHECK_RETURN(cudaMalloc((void **) &d_write_head, sizeof(double) * ROWS * COLS));
-//    CUDA_CHECK_RETURN(cudaMalloc(&d_read_Sy, sizeof(double) * ROWS * COLS));
-//    CUDA_CHECK_RETURN(cudaMalloc(&d_read_K, sizeof(double) * ROWS * COLS));
-//    CUDA_CHECK_RETURN(cudaMalloc(&d_read_Source, sizeof(double) * ROWS * COLS));
+    CUDA_CHECK_RETURN(cudaMalloc(&d_read_Sy, sizeof(double) * ROWS * COLS));
+    CUDA_CHECK_RETURN(cudaMalloc(&d_read_K, sizeof(double) * ROWS * COLS));
+    CUDA_CHECK_RETURN(cudaMalloc(&d_read_Source, sizeof(double) * ROWS * COLS));
 
-    CUDA_CHECK_RETURN(cudaMemcpy(d_read_head, h_ca.head, sizeof(*d_read_head)* ROWS * COLS, cudaMemcpyHostToDevice));
+    CUDA_CHECK_RETURN(cudaMemcpy(d_read_head, h_ca.head, sizeof(*d_read_head) * ROWS * COLS, cudaMemcpyHostToDevice));
     CUDA_CHECK_RETURN(cudaMemcpy(&(d_ca->head), &d_read_head, sizeof(d_ca->head), cudaMemcpyHostToDevice));
 
+    CUDA_CHECK_RETURN(cudaMemcpy(d_read_Sy, h_ca.Sy, sizeof(double) * ROWS * COLS, cudaMemcpyHostToDevice));
+    CUDA_CHECK_RETURN(cudaMemcpy(&(d_ca->Sy), &d_read_Sy, sizeof(d_ca->head), cudaMemcpyHostToDevice));
+
+    CUDA_CHECK_RETURN(cudaMemcpy(d_read_K, h_ca.K, sizeof(double) * ROWS * COLS, cudaMemcpyHostToDevice));
+    CUDA_CHECK_RETURN(cudaMemcpy(&(d_ca->K), &d_read_K, sizeof(d_ca->head), cudaMemcpyHostToDevice));
+
+    CUDA_CHECK_RETURN(cudaMemcpy(d_read_Source, h_ca.Source, sizeof(double) * ROWS * COLS, cudaMemcpyHostToDevice));
+    CUDA_CHECK_RETURN(cudaMemcpy(&(d_ca->Source), &d_read_Source, sizeof(d_ca->head), cudaMemcpyHostToDevice));
+
     CUDA_CHECK_RETURN(cudaMemcpy(d_write_head, h_ca.head, sizeof(double) * ROWS * COLS, cudaMemcpyHostToDevice));
-//    CUDA_CHECK_RETURN(cudaMemcpy(d_read_Sy, h_ca.Sy, sizeof(double) * ROWS * COLS, cudaMemcpyHostToDevice));
-//    CUDA_CHECK_RETURN(cudaMemcpy(d_read_K, h_ca.K, sizeof(double) * ROWS * COLS, cudaMemcpyHostToDevice));
-//    CUDA_CHECK_RETURN(cudaMemcpy(d_read_Source, h_ca.Source, sizeof(double) * ROWS * COLS, cudaMemcpyHostToDevice));
 
 }
 
@@ -93,8 +128,21 @@ void perform_simulation_on_GPU() {
     const int blockCount = (ROWS * COLS) / BLOCK_SIZE + 1;
     for (int i = 0; i < SIMULATION_ITERATIONS; i++) {
         simulation_step_kernel << < blockCount, BLOCK_SIZE >> > (d_ca, d_write_head);
-        cudaDeviceSynchronize();
     }
+}
+
+void write_heads_to_file() {
+    FILE *fp;
+    fp = fopen("heads_ca.txt", "w");
+
+    for (int i = 0; i < ROWS; i++) {
+        for (int j = 0; j < COLS; j++) {
+            fprintf(fp, "%lf, ", h_ca.head[i * ROWS + j]);
+        }
+        fprintf(fp, "\n");
+    }
+
+    fclose(fp);
 }
 
 int main(void) {
@@ -102,12 +150,12 @@ int main(void) {
 
     copy_data_from_CPU_to_GPU();
 
-    printf("%lf\n", h_ca.head[100]);
     perform_simulation_on_GPU();
-    cudaDeviceSynchronize();
 
     copy_data_from_GPU_to_CPU();
-    printf("%lf\n", h_ca.head[100]);
+
+    write_heads_to_file();
+
     return 0;
 }
 
