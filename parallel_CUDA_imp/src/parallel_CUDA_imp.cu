@@ -11,85 +11,190 @@
 #include <iostream>
 #include <numeric>
 #include <stdlib.h>
+#include <stdio.h>
 
-static void CheckCudaErrorAux (const char *, unsigned, const char *, cudaError_t);
+//MODEL PARAMS
+
+#define ROWS 100
+#define COLS 100
+#define CELL_SIZE_X 10
+#define CELL_SIZE_Y 10
+#define AREA CELL_SIZE_X*CELL_SIZE_Y
+#define THICKNESS 50
+
+#define Syinitial 0.1
+#define Kinitial  0.0000125
+
+#define headFixed 50
+#define headCalculated 50
+
+#define SIMULATION_ITERATIONS 1000
+#define BLOCK_SIZE 256
+
+#define DELTA_T 4000;
+double qw = 0.001;
+
+int posSy = ROWS / 2;
+int posSx = COLS / 2;
+
+struct CA {
+    double *head;
+    double *Sy;
+    double *K;
+    double *Source;
+} h_ca, d_read, d_write;
+
+double *d_write_head;
+CA *d_read_ca;
+
+void init_host_ca();
+
+static void CheckCudaErrorAux(const char *, unsigned, const char *, cudaError_t);
+
 #define CUDA_CHECK_RETURN(value) CheckCudaErrorAux(__FILE__,__LINE__, #value, value)
 
 /**
- * CUDA kernel that computes reciprocal values for a given vector
+ * CUDA kernel that computes simulation step
  */
-__global__ void reciprocalKernel(float *data, unsigned vectorSize) {
-	unsigned idx = blockIdx.x*blockDim.x+threadIdx.x;
-	if (idx < vectorSize)
-		data[idx] = 1.0/data[idx];
+__global__ void simulation_step_kernel(struct CA *d_ca, double *d_write_head) {
+    unsigned idx = blockIdx.x * blockDim.x + threadIdx.x;
+    if (idx < ROWS * COLS)
+        if (idx / COLS != 0 && idx / COLS != ROWS - 1) {
+            double Q = 0;
+
+            if (idx % COLS >= 1) {
+                double diff_head = d_ca->head[idx - 1] - d_ca->head[idx];
+                double tmp_t = d_ca->K[idx] * THICKNESS;
+                Q += diff_head * tmp_t;
+            }
+            if (idx >= COLS) {
+                double diff_head = d_ca->head[idx - COLS] - d_ca->head[idx];
+                double tmp_t = d_ca->K[idx] * THICKNESS;
+                Q += diff_head * tmp_t;
+            }
+            if (idx % COLS + 1 < COLS) {
+                double diff_head = d_ca->head[idx + 1] - d_ca->head[idx];
+                double tmp_t = d_ca->K[idx] * THICKNESS;
+                Q += diff_head * tmp_t;
+            }
+            if (idx + COLS < COLS * ROWS) {
+                double diff_head = d_ca->head[idx + COLS] - d_ca->head[idx];
+                double tmp_t = d_ca->K[idx] * THICKNESS;
+                Q += diff_head * tmp_t;
+            }
+
+            Q -= d_ca->Source[idx];
+
+            double ht1 = Q * DELTA_T;
+            double ht2 = AREA * d_ca->Sy[idx];
+
+            d_write_head[idx] = d_ca->head[idx] + ht1 / ht2;
+        }
 }
 
 /**
- * Host function that copies the data and launches the work on GPU
+ * Host function that copies the data
  */
-float *gpuReciprocal(float *data, unsigned size)
-{
-	float *rc = new float[size];
-	float *gpuData;
+void copy_data_from_CPU_to_GPU() {
+    double *d_read_head, *d_read_Sy, *d_read_K, *d_read_Source;
 
-	CUDA_CHECK_RETURN(cudaMalloc((void **)&gpuData, sizeof(float)*size));
-	CUDA_CHECK_RETURN(cudaMemcpy(gpuData, data, sizeof(float)*size, cudaMemcpyHostToDevice));
-	
-	static const int BLOCK_SIZE = 256;
-	const int blockCount = (size+BLOCK_SIZE-1)/BLOCK_SIZE;
-	reciprocalKernel<<<blockCount, BLOCK_SIZE>>> (gpuData, size);
+    CUDA_CHECK_RETURN(cudaMalloc((void **) &d_read_ca, sizeof(*d_read_ca)));
+    CUDA_CHECK_RETURN(cudaMalloc((void **) &d_read_head, sizeof(*d_read_head) * ROWS * COLS));
+    CUDA_CHECK_RETURN(cudaMalloc((void **) &d_write_head, sizeof(double) * ROWS * COLS));
+    CUDA_CHECK_RETURN(cudaMalloc(&d_read_Sy, sizeof(double) * ROWS * COLS));
+    CUDA_CHECK_RETURN(cudaMalloc(&d_read_K, sizeof(double) * ROWS * COLS));
+    CUDA_CHECK_RETURN(cudaMalloc(&d_read_Source, sizeof(double) * ROWS * COLS));
 
-	CUDA_CHECK_RETURN(cudaMemcpy(rc, gpuData, sizeof(float)*size, cudaMemcpyDeviceToHost));
-	CUDA_CHECK_RETURN(cudaFree(gpuData));
-	return rc;
+    CUDA_CHECK_RETURN(cudaMemcpy(d_read_head, h_ca.head, sizeof(*d_read_head) * ROWS * COLS, cudaMemcpyHostToDevice));
+    CUDA_CHECK_RETURN(cudaMemcpy(&(d_read_ca->head), &d_read_head, sizeof(d_read_ca->head), cudaMemcpyHostToDevice));
+
+    CUDA_CHECK_RETURN(cudaMemcpy(d_read_Sy, h_ca.Sy, sizeof(double) * ROWS * COLS, cudaMemcpyHostToDevice));
+    CUDA_CHECK_RETURN(cudaMemcpy(&(d_read_ca->Sy), &d_read_Sy, sizeof(d_read_ca->Sy), cudaMemcpyHostToDevice));
+
+    CUDA_CHECK_RETURN(cudaMemcpy(d_read_K, h_ca.K, sizeof(double) * ROWS * COLS, cudaMemcpyHostToDevice));
+    CUDA_CHECK_RETURN(cudaMemcpy(&(d_read_ca->K), &d_read_K, sizeof(d_read_ca->K), cudaMemcpyHostToDevice));
+
+    CUDA_CHECK_RETURN(cudaMemcpy(d_read_Source, h_ca.Source, sizeof(double) * ROWS * COLS, cudaMemcpyHostToDevice));
+    CUDA_CHECK_RETURN(cudaMemcpy(&(d_read_ca->Source), &d_read_Source, sizeof(d_read_ca->Source), cudaMemcpyHostToDevice));
+
+    CUDA_CHECK_RETURN(cudaMemcpy(d_write_head, h_ca.head, sizeof(double) * ROWS * COLS, cudaMemcpyHostToDevice));
+
 }
 
-float *cpuReciprocal(float *data, unsigned size)
-{
-	float *rc = new float[size];
-	for (unsigned cnt = 0; cnt < size; ++cnt) rc[cnt] = 1.0/data[cnt];
-	return rc;
+void copy_data_from_GPU_to_CPU() {
+    CUDA_CHECK_RETURN(cudaMemcpy(h_ca.head, d_write_head, sizeof(double) * ROWS * COLS, cudaMemcpyDeviceToHost));
 }
 
+void perform_simulation_on_GPU() {
+    const int blockCount = (ROWS * COLS) / BLOCK_SIZE + 1;
+    for (int i = 0; i < SIMULATION_ITERATIONS; i++) {
+        simulation_step_kernel << < blockCount, BLOCK_SIZE >> > (d_read_ca, d_write_head);
 
-void initialize(float *data, unsigned size)
-{
-	for (unsigned i = 0; i < size; ++i)
-		data[i] = .5*(i+1);
+        cudaDeviceSynchronize();
+
+        double *tmp1 = d_write_head;
+        CUDA_CHECK_RETURN(cudaMemcpy(&d_write_head, &(d_read_ca->head), sizeof(d_read_ca->head), cudaMemcpyDeviceToHost));
+        CUDA_CHECK_RETURN(cudaMemcpy(&(d_read_ca->head), &tmp1, sizeof(tmp1), cudaMemcpyHostToDevice));
+    }
 }
 
-int main(void)
-{
-	static const int WORK_SIZE = 65530;
-	float *data = new float[WORK_SIZE];
+void write_heads_to_file() {
+    FILE *fp;
+    fp = fopen("heads_ca.txt", "w");
 
-	initialize (data, WORK_SIZE);
+    for (int i = 0; i < ROWS; i++) {
+        for (int j = 0; j < COLS; j++) {
+            fprintf(fp, "%lf, ", h_ca.head[i * ROWS + j]);
+        }
+        fprintf(fp, "\n");
+    }
 
-	float *recCpu = cpuReciprocal(data, WORK_SIZE);
-	float *recGpu = gpuReciprocal(data, WORK_SIZE);
-	float cpuSum = std::accumulate (recCpu, recCpu+WORK_SIZE, 0.0);
-	float gpuSum = std::accumulate (recGpu, recGpu+WORK_SIZE, 0.0);
+    fclose(fp);
+}
 
-	/* Verify the results */
-	std::cout<<"gpuSum = "<<gpuSum<< " cpuSum = " <<cpuSum<<std::endl;
+int main(void) {
+    init_host_ca();
 
-	/* Free memory */
-	delete[] data;
-	delete[] recCpu;
-	delete[] recGpu;
+    copy_data_from_CPU_to_GPU();
 
-	return 0;
+    perform_simulation_on_GPU();
+
+    copy_data_from_GPU_to_CPU();
+
+    write_heads_to_file();
+
+    return 0;
+}
+
+void init_host_ca() {
+    h_ca.head = new double[ROWS * COLS]();
+    h_ca.Sy = new double[ROWS * COLS]();
+    h_ca.K = new double[ROWS * COLS]();
+    h_ca.Source = new double[ROWS * COLS]();
+
+    for (int i = 0; i < ROWS; i++)
+        for (int j = 0; j < COLS; j++) {
+            h_ca.head[i * ROWS + j] = headFixed;
+            if (j == COLS - 1) {
+                h_ca.head[i * ROWS + j] = headCalculated;
+            }
+            h_ca.Sy[i * ROWS + j] = Syinitial;
+            h_ca.K[i * ROWS + j] = Kinitial;
+            h_ca.Source[i * ROWS + j] = 0;
+        }
+
+    h_ca.Source[posSy * ROWS + posSx] = qw;
 }
 
 /**
  * Check the return value of the CUDA runtime API call and exit
  * the application if the call has failed.
  */
-static void CheckCudaErrorAux (const char *file, unsigned line, const char *statement, cudaError_t err)
-{
-	if (err == cudaSuccess)
-		return;
-	std::cerr << statement<<" returned " << cudaGetErrorString(err) << "("<<err<< ") at "<<file<<":"<<line << std::endl;
-	exit (1);
+static void CheckCudaErrorAux(const char *file, unsigned line, const char *statement, cudaError_t err) {
+    if (err == cudaSuccess)
+        return;
+    std::cerr << statement << " returned " << cudaGetErrorString(err) << "(" << err << ") at " << file << ":" << line
+              << std::endl;
+    exit(1);
 }
 
