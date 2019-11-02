@@ -28,7 +28,7 @@
 #define headFixed 50
 #define headCalculated 50
 
-#define SIMULATION_ITERATIONS 10
+#define SIMULATION_ITERATIONS 1000
 #define BLOCK_SIZE 256
 
 #define DELTA_T 4000;
@@ -45,7 +45,7 @@ struct CA {
 } h_ca, d_read, d_write;
 
 double *d_write_head;
-CA *d_ca;
+CA *d_read_ca;
 
 void init_host_ca();
 
@@ -88,7 +88,7 @@ __global__ void simulation_step_kernel(struct CA *d_ca, double *d_write_head) {
             double ht1 = Q * DELTA_T;
             double ht2 = AREA * d_ca->Sy[idx];
 
-            d_write_head[idx] += ht1 / ht2;
+            d_write_head[idx] = d_ca->head[idx] + ht1 / ht2;
         }
 }
 
@@ -98,7 +98,7 @@ __global__ void simulation_step_kernel(struct CA *d_ca, double *d_write_head) {
 void copy_data_from_CPU_to_GPU() {
     double *d_read_head, *d_read_Sy, *d_read_K, *d_read_Source;
 
-    CUDA_CHECK_RETURN(cudaMalloc((void **) &d_ca, sizeof(*d_ca)));
+    CUDA_CHECK_RETURN(cudaMalloc((void **) &d_read_ca, sizeof(*d_read_ca)));
     CUDA_CHECK_RETURN(cudaMalloc((void **) &d_read_head, sizeof(*d_read_head) * ROWS * COLS));
     CUDA_CHECK_RETURN(cudaMalloc((void **) &d_write_head, sizeof(double) * ROWS * COLS));
     CUDA_CHECK_RETURN(cudaMalloc(&d_read_Sy, sizeof(double) * ROWS * COLS));
@@ -106,16 +106,16 @@ void copy_data_from_CPU_to_GPU() {
     CUDA_CHECK_RETURN(cudaMalloc(&d_read_Source, sizeof(double) * ROWS * COLS));
 
     CUDA_CHECK_RETURN(cudaMemcpy(d_read_head, h_ca.head, sizeof(*d_read_head) * ROWS * COLS, cudaMemcpyHostToDevice));
-    CUDA_CHECK_RETURN(cudaMemcpy(&(d_ca->head), &d_read_head, sizeof(d_ca->head), cudaMemcpyHostToDevice));
+    CUDA_CHECK_RETURN(cudaMemcpy(&(d_read_ca->head), &d_read_head, sizeof(d_read_ca->head), cudaMemcpyHostToDevice));
 
     CUDA_CHECK_RETURN(cudaMemcpy(d_read_Sy, h_ca.Sy, sizeof(double) * ROWS * COLS, cudaMemcpyHostToDevice));
-    CUDA_CHECK_RETURN(cudaMemcpy(&(d_ca->Sy), &d_read_Sy, sizeof(d_ca->Sy), cudaMemcpyHostToDevice));
+    CUDA_CHECK_RETURN(cudaMemcpy(&(d_read_ca->Sy), &d_read_Sy, sizeof(d_read_ca->Sy), cudaMemcpyHostToDevice));
 
     CUDA_CHECK_RETURN(cudaMemcpy(d_read_K, h_ca.K, sizeof(double) * ROWS * COLS, cudaMemcpyHostToDevice));
-    CUDA_CHECK_RETURN(cudaMemcpy(&(d_ca->K), &d_read_K, sizeof(d_ca->K), cudaMemcpyHostToDevice));
+    CUDA_CHECK_RETURN(cudaMemcpy(&(d_read_ca->K), &d_read_K, sizeof(d_read_ca->K), cudaMemcpyHostToDevice));
 
     CUDA_CHECK_RETURN(cudaMemcpy(d_read_Source, h_ca.Source, sizeof(double) * ROWS * COLS, cudaMemcpyHostToDevice));
-    CUDA_CHECK_RETURN(cudaMemcpy(&(d_ca->Source), &d_read_Source, sizeof(d_ca->Source), cudaMemcpyHostToDevice));
+    CUDA_CHECK_RETURN(cudaMemcpy(&(d_read_ca->Source), &d_read_Source, sizeof(d_read_ca->Source), cudaMemcpyHostToDevice));
 
     CUDA_CHECK_RETURN(cudaMemcpy(d_write_head, h_ca.head, sizeof(double) * ROWS * COLS, cudaMemcpyHostToDevice));
 
@@ -128,13 +128,13 @@ void copy_data_from_GPU_to_CPU() {
 void perform_simulation_on_GPU() {
     const int blockCount = (ROWS * COLS) / BLOCK_SIZE + 1;
     for (int i = 0; i < SIMULATION_ITERATIONS; i++) {
-        simulation_step_kernel << < blockCount, BLOCK_SIZE >> > (d_ca, d_write_head);
+        simulation_step_kernel << < blockCount, BLOCK_SIZE >> > (d_read_ca, d_write_head);
 
         cudaDeviceSynchronize();
 
         double *tmp1 = d_write_head;
-        CUDA_CHECK_RETURN(cudaMemcpy(&d_write_head, &(d_ca->head), sizeof(d_ca->head), cudaMemcpyDeviceToHost));
-        CUDA_CHECK_RETURN(cudaMemcpy(&(d_ca->head), &tmp1, sizeof(tmp1), cudaMemcpyHostToDevice));
+        CUDA_CHECK_RETURN(cudaMemcpy(&d_write_head, &(d_read_ca->head), sizeof(d_read_ca->head), cudaMemcpyDeviceToHost));
+        CUDA_CHECK_RETURN(cudaMemcpy(&(d_read_ca->head), &tmp1, sizeof(tmp1), cudaMemcpyHostToDevice));
     }
 }
 
