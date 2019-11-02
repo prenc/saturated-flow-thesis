@@ -28,7 +28,7 @@
 #define headFixed 50
 #define headCalculated 50
 
-#define SIMULATION_ITERATIONS 1000
+#define SIMULATION_ITERATIONS 10
 #define BLOCK_SIZE 256
 
 #define DELTA_T 4000;
@@ -130,8 +130,11 @@ void perform_simulation_on_GPU() {
     for (int i = 0; i < SIMULATION_ITERATIONS; i++) {
         simulation_step_kernel << < blockCount, BLOCK_SIZE >> > (d_ca, d_write_head);
 
+        cudaDeviceSynchronize();
+
+        double *tmp1 = d_write_head;
         CUDA_CHECK_RETURN(cudaMemcpy(&d_write_head, &(d_ca->head), sizeof(d_ca->head), cudaMemcpyDeviceToHost));
-//        CUDA_CHECK_RETURN(cudaMemcpy(d_write_head, &tmp2, sizeof(tmp2), cudaMemcpyHostToDevice));
+        CUDA_CHECK_RETURN(cudaMemcpy(&(d_ca->head), &tmp1, sizeof(tmp1), cudaMemcpyHostToDevice));
     }
 }
 
