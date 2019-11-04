@@ -2,6 +2,7 @@
 #include <numeric>
 #include <stdlib.h>
 #include <stdio.h>
+#include <math.h>
 
 //MODEL PARAMS
 
@@ -50,7 +51,7 @@ __global__ void simulation_step_kernel(struct CA *d_ca, double *d_write_head) {
     unsigned idx_y = blockIdx.y * blockDim.y + threadIdx.y;
     unsigned idx_g = idx_y * COLS + idx_x;
 
-    if (idx_g < ROWS * COLS)
+    if (idx_x < COLS && idx_y < ROWS)
         if (idx_y != 0 && idx_y != ROWS - 1) {
             double Q = 0;
             double diff_head;
@@ -82,8 +83,7 @@ __global__ void simulation_step_kernel(struct CA *d_ca, double *d_write_head) {
             double ht1 = Q * DELTA_T;
             double ht2 = AREA * d_ca->Sy[idx_g];
 
-            d_write_head[idx_g] = 15;
-//        d_write_head[idx_g] = d_ca->head[idx_g] + ht1 / ht2;
+          d_write_head[idx_g] = d_ca->head[idx_g] + ht1 / ht2;
         }
 }
 
@@ -122,9 +122,10 @@ void perform_simulation_on_GPU() {
 
     dim3 blockSize(BLOCK_SIZE, BLOCK_SIZE);
     const int blockCount = (ROWS * COLS) / (BLOCK_SIZE * BLOCK_SIZE) + 1;
-
+    double gridSize = sqrt(blockCount) + 1;
+    dim3 blockCount2D(gridSize, gridSize);
     for (int i = 0; i < SIMULATION_ITERATIONS; i++) {
-        simulation_step_kernel << < blockCount, blockSize >> > (d_read_ca, d_write_head);
+        simulation_step_kernel << < blockCount2D, blockSize >> > (d_read_ca, d_write_head);
 
         cudaDeviceSynchronize();
 
