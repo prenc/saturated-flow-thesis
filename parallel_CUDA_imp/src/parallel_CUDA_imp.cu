@@ -1,10 +1,8 @@
-// --unified-memory-profiling off
 #include <iostream>
 #include <numeric>
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
-#include "cuda_profiler_api.h"
 
 //MODEL PARAMS
 
@@ -104,9 +102,6 @@ int main(void) {
 
     free_allocated_memory();
 
-    cudaProfilerStop();
-    cudaDeviceReset();
-
     return 0;
 }
 
@@ -152,7 +147,6 @@ void perform_simulation_on_GPU() {
         d_write.head = d_read.head;
         d_read.head = tmp1;
     }
-
 }
 
 void write_heads_to_file() {
@@ -176,7 +170,6 @@ void free_allocated_memory(){
 	cudaFree(d_read.K);
 	cudaFree(d_read.Source);
 }
-
 
 /**
  * Check the return value of the CUDA runtime API call and exit
