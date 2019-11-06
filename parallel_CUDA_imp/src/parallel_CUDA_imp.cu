@@ -102,7 +102,7 @@ __global__ void simulation_step_kernel(struct CA *d_ca, double *d_write_head) {
             double ht1 = Q * DELTA_T;
             double ht2 = AREA * d_ca->Sy[idx_g];
 
-          d_write_head[idx_g] = s_heads[threadIdx.y][threadIdx.x] + ht1 / ht2;
+            d_write_head[idx_g] = s_heads[threadIdx.y][threadIdx.x] + ht1 / ht2;
         }
 }
 
@@ -140,8 +140,8 @@ void copy_data_from_GPU_to_CPU() {
 void perform_simulation_on_GPU() {
 
     dim3 blockSize(BLOCK_SIZE, BLOCK_SIZE);
-    const int blockCount = (ROWS * COLS) / (BLOCK_SIZE * BLOCK_SIZE) + 1;
-    double gridSize = sqrt(blockCount) + 1;
+    const int blockCount = ceil((ROWS * COLS) / (BLOCK_SIZE * BLOCK_SIZE));
+    double gridSize = ceil(sqrt(blockCount));
     dim3 blockCount2D(gridSize, gridSize);
     for (int i = 0; i < SIMULATION_ITERATIONS; i++) {
         simulation_step_kernel << < blockCount2D, blockSize >> > (d_read_ca, d_write_head);
