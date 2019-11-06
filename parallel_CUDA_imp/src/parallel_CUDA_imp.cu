@@ -1,8 +1,10 @@
+// --unified-memory-profiling off
 #include <iostream>
 #include <numeric>
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include "cuda_profiler_api.h"
 
 //MODEL PARAMS
 
@@ -38,9 +40,12 @@ struct CA {
 } d_read, d_write;
 
 void allocate_memory();
-void init_ca();
+void init_read_ca();
 void perform_simulation_on_GPU();
 void write_heads_to_file();
+void init_write_head();
+void free_allocated_memory();
+
 static void CheckCudaErrorAux(const char *, unsigned, const char *, cudaError_t);
 
 #define CUDA_CHECK_RETURN(value) CheckCudaErrorAux(__FILE__,__LINE__, #value, value)
@@ -89,17 +94,23 @@ __global__ void simulation_step_kernel(struct CA d_ca, double *d_write_head) {
 int main(void) {
     allocate_memory();
 
-    init_ca();
+    init_read_ca();
+
+    init_write_head();
 
     perform_simulation_on_GPU();
 
     write_heads_to_file();
 
+    free_allocated_memory();
+
+    cudaProfilerStop();
+    cudaDeviceReset();
+
     return 0;
 }
 
 void allocate_memory() {
-
     CUDA_CHECK_RETURN(cudaMallocManaged(&(d_read.head), sizeof(double) * ROWS * COLS));
     CUDA_CHECK_RETURN(cudaMallocManaged(&(d_write.head), sizeof(double) * ROWS * COLS));
     CUDA_CHECK_RETURN(cudaMallocManaged(&(d_read.Sy), sizeof(double) * ROWS * COLS));
@@ -107,13 +118,24 @@ void allocate_memory() {
     CUDA_CHECK_RETURN(cudaMallocManaged(&(d_read.Source), sizeof(double) * ROWS * COLS));
 }
 
-__global__
-void switch_read_write_heads_kernel(double *read, double *write){
-	double *tmp = write;
-	write = read;
-	read = tmp;
+void init_read_ca() {
+    for (int i = 0; i < ROWS; i++)
+        for (int j = 0; j < COLS; j++) {
+            d_read.head[i * ROWS + j] = headFixed;
+            if (j == COLS - 1) {
+                d_read.head[i * ROWS + j] = headCalculated;
+            }
+            d_read.Sy[i * ROWS + j] = Syinitial;
+            d_read.K[i * ROWS + j] = Kinitial;
+            d_read.Source[i * ROWS + j] = 0;
+        }
+
+    d_read.Source[posSy * ROWS + posSx] = qw;
 }
 
+void init_write_head(){
+	memcpy(d_write.head, d_read.head, sizeof(double)*ROWS*COLS);
+}
 
 void perform_simulation_on_GPU() {
 
@@ -126,11 +148,9 @@ void perform_simulation_on_GPU() {
 
         cudaDeviceSynchronize();
 
-        switch_read_write_heads_kernel <<<1, 1 >>> (d_read.head, d_write.head);
-/*
         double *tmp1 = d_write.head;
         d_write.head = d_read.head;
-        d_read.head = tmp1;*/
+        d_read.head = tmp1;
     }
 
 }
@@ -149,22 +169,14 @@ void write_heads_to_file() {
     fclose(fp);
 }
 
-
-
-void init_ca() {
-    for (int i = 0; i < ROWS; i++)
-        for (int j = 0; j < COLS; j++) {
-            d_read.head[i * ROWS + j] = headFixed;
-            if (j == COLS - 1) {
-                d_read.head[i * ROWS + j] = headCalculated;
-            }
-            d_read.Sy[i * ROWS + j] = Syinitial;
-            d_read.K[i * ROWS + j] = Kinitial;
-            d_read.Source[i * ROWS + j] = 0;
-        }
-
-    d_read.Source[posSy * ROWS + posSx] = qw;
+void free_allocated_memory(){
+	cudaFree(d_read.head);
+	cudaFree(d_write.head);
+	cudaFree(d_read.Sy);
+	cudaFree(d_read.K);
+	cudaFree(d_read.Source);
 }
+
 
 /**
  * Check the return value of the CUDA runtime API call and exit
