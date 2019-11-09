@@ -24,6 +24,8 @@
 #define SIMULATION_ITERATIONS 1000
 #define BLOCK_SIZE 16
 
+#define KERNEL_LOOP_SIZE 100
+
 #define DELTA_T 4000;
 double qw = 0.001;
 
@@ -58,52 +60,52 @@ __global__ void simulation_step_kernel(struct CA *d_ca, double *d_write_head) {
 
     __syncthreads();
 
-    if (idx_x < COLS && idx_y < ROWS)
-        if (idx_y != 0 && idx_y != ROWS - 1) {
-            double Q = 0;
-            double diff_head;
-            double tmp_t;
+    double Q = 0, diff_head, tmp_t, ht1, ht2;
 
-            if (idx_x >= 1) { // left neighbor
-                if (threadIdx.x >= 1)
-                    diff_head = s_heads[threadIdx.y][threadIdx.x - 1] - s_heads[threadIdx.y][threadIdx.x];
-                else
-                    diff_head = d_ca->head[idx_g - 1] - s_heads[threadIdx.y][threadIdx.x];
-                tmp_t = s_K[threadIdx.y][threadIdx.x] * THICKNESS;
-                Q += diff_head * tmp_t;
-            }
-            if (idx_y >= 1) { // upper neighbor
-                if (threadIdx.y >= 1)
-                    diff_head = s_heads[threadIdx.y - 1][threadIdx.x] - s_heads[threadIdx.y][threadIdx.x];
-                else
-                    diff_head = d_ca->head[(idx_y - 1) * COLS + idx_x] - s_heads[threadIdx.y][threadIdx.x];
-                tmp_t = s_K[threadIdx.y][threadIdx.x] * THICKNESS;
-                Q += diff_head * tmp_t;
-            }
-            if (idx_x + 1 < COLS) { // right neighbor
-                if (threadIdx.x < BLOCK_SIZE - 1)
-                    diff_head = s_heads[threadIdx.y][threadIdx.x + 1] - s_heads[threadIdx.y][threadIdx.x];
-                else
-                    diff_head = d_ca->head[idx_g + 1] - s_heads[threadIdx.y][threadIdx.x];
-                tmp_t = s_K[threadIdx.y][threadIdx.x] * THICKNESS;
-                Q += diff_head * tmp_t;
-            }
-            if (idx_y + 1 < ROWS) { // bottom neighbor
-                if (threadIdx.y < BLOCK_SIZE - 1)
-                    diff_head = s_heads[threadIdx.y + 1][threadIdx.x] - s_heads[threadIdx.y][threadIdx.x];
-                else
-                    diff_head = d_ca->head[(idx_y + 1) * COLS + idx_x] - s_heads[threadIdx.y][threadIdx.x];
-                tmp_t = s_K[threadIdx.y][threadIdx.x] * THICKNESS;
-                Q += diff_head * tmp_t;
-            }
+    for(int i = 0; i < KERNEL_LOOP_SIZE; i++){
+    	 if (idx_x < COLS && idx_y < ROWS)
+    	        if (idx_y != 0 && idx_y != ROWS - 1) {
+    	            if (idx_x >= 1) { // left neighbor
+    	                if (threadIdx.x >= 1)
+    	                    diff_head = s_heads[threadIdx.y][threadIdx.x - 1] - s_heads[threadIdx.y][threadIdx.x];
+    	                else
+    	                    diff_head = d_ca->head[idx_g - 1] - s_heads[threadIdx.y][threadIdx.x];
+    	                tmp_t = s_K[threadIdx.y][threadIdx.x] * THICKNESS;
+    	                Q += diff_head * tmp_t;
+    	            }
+    	            if (idx_y >= 1) { // upper neighbor
+    	                if (threadIdx.y >= 1)
+    	                    diff_head = s_heads[threadIdx.y - 1][threadIdx.x] - s_heads[threadIdx.y][threadIdx.x];
+    	                else
+    	                    diff_head = d_ca->head[(idx_y - 1) * COLS + idx_x] - s_heads[threadIdx.y][threadIdx.x];
+    	                tmp_t = s_K[threadIdx.y][threadIdx.x] * THICKNESS;
+    	                Q += diff_head * tmp_t;
+    	            }
+    	            if (idx_x + 1 < COLS) { // right neighbor
+    	                if (threadIdx.x < BLOCK_SIZE - 1)
+    	                    diff_head = s_heads[threadIdx.y][threadIdx.x + 1] - s_heads[threadIdx.y][threadIdx.x];
+    	                else
+    	                    diff_head = d_ca->head[idx_g + 1] - s_heads[threadIdx.y][threadIdx.x];
+    	                tmp_t = s_K[threadIdx.y][threadIdx.x] * THICKNESS;
+    	                Q += diff_head * tmp_t;
+    	            }
+    	            if (idx_y + 1 < ROWS) { // bottom neighbor
+    	                if (threadIdx.y < BLOCK_SIZE - 1)
+    	                    diff_head = s_heads[threadIdx.y + 1][threadIdx.x] - s_heads[threadIdx.y][threadIdx.x];
+    	                else
+    	                    diff_head = d_ca->head[(idx_y + 1) * COLS + idx_x] - s_heads[threadIdx.y][threadIdx.x];
+    	                tmp_t = s_K[threadIdx.y][threadIdx.x] * THICKNESS;
+    	                Q += diff_head * tmp_t;
+    	            }
 
-            Q -= d_ca->Source[idx_g];
+    	            Q -= d_ca->Source[idx_g];
 
-            double ht1 = Q * DELTA_T;
-            double ht2 = AREA * d_ca->Sy[idx_g];
+    	            ht1 = Q * DELTA_T;
+    	            ht2 = AREA * d_ca->Sy[idx_g];
 
-            d_write_head[idx_g] = s_heads[threadIdx.y][threadIdx.x] + ht1 / ht2;
-        }
+    	            d_write_head[idx_g] = s_heads[threadIdx.y][threadIdx.x] + ht1 / ht2;
+    	        }
+    }
 }
 
 void copy_data_from_CPU_to_GPU() {
