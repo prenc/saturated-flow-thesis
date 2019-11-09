@@ -6,8 +6,8 @@
 
 //MODEL PARAMS
 
-#define ROWS 100
-#define COLS 100
+#define ROWS 1000
+#define COLS 1000
 
 #define CELL_SIZE_X 10
 #define CELL_SIZE_Y 10
