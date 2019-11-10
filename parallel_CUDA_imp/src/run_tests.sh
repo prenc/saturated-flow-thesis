@@ -32,7 +32,7 @@ generate_params() {
       elif [[ $line =~ ^"${match_itarations}" ]]; then
         line="${match_itarations}${iterations}"
       elif [[ $line =~ ^"${match_block_size}" ]]; then
-        line="${match_itarations}${block_size}"
+        line="${match_block_size}${block_size}"
       fi
       printf "%s\n" "${line}" >> "${new_params_file}"
   done < "${params_file}"
