@@ -82,8 +82,7 @@ parse_profile_outputs () {
 }
 
 ## Script body
-len=${#ca_size_arr[@]}
-for (( i=1; i<="$len"; i++ )); do
+for i in "${!ca_size_arr[@]}"; do
   ca_size=${ca_size_arr[i]}
   iterations=${iterations_arr[i]}
   block_size=${block_size_arr[i]}
