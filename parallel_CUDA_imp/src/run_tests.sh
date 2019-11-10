@@ -64,6 +64,9 @@ profile_programs () {
 }
 
 parse_profile_outputs () {
+  output_file_name="prof_summary"
+  printf "" > "${output_file_name}"
+
   data=("memory_type" "ca_size" "iterations" "block_size" "total_time" "kernel_avg" "kernel_min"	"kernel_max")
 
   for prof in "${profiling_data[@]}"; do
@@ -77,7 +80,6 @@ parse_profile_outputs () {
     data+=("${prof##*/}" "$ca_size" "$iterations" "$block_size" "${values[3]}" "${values[5]}" "${values[6]}" "${values[7]}")
   done
 
-  output_file_name="prof_summary"
   printf "%s;%s;%s;%s;%s;%s;%s;%s\n" "${data[@]}" >> "${output_file_name}"
 }
 
@@ -91,7 +93,7 @@ for i in "${!ca_size_arr[@]}"; do
 
   compile_cuda_files
 
-  profiling_data
+  profile_programs
 
   parse_profile_outputs
 
