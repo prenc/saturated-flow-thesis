@@ -38,10 +38,15 @@ struct CA {
 } d_read, d_write;
 
 void allocate_memory();
+
 void init_read_ca();
+
 void perform_simulation_on_GPU();
+
 void write_heads_to_file();
+
 void init_write_head();
+
 void free_allocated_memory();
 
 static void CheckCudaErrorAux(const char *, unsigned, const char *, cudaError_t);
@@ -53,12 +58,12 @@ __global__ void simulation_step_kernel(struct CA d_ca, double *d_write_head) {
     unsigned idx_y = blockIdx.y * blockDim.y + threadIdx.y;
     unsigned idx_g = idx_y * COLS + idx_x;
 
+    double Q = 0;
+    double diff_head;
+    double tmp_t;
+
     if (idx_x < COLS && idx_y < ROWS)
         if (idx_y != 0 && idx_y != ROWS - 1) {
-            double Q = 0;
-            double diff_head;
-            double tmp_t;
-
             if (idx_x >= 1) {
                 diff_head = d_ca.head[idx_g - 1] - d_ca.head[idx_g];
                 tmp_t = d_ca.K[idx_g] * THICKNESS;
@@ -85,7 +90,7 @@ __global__ void simulation_step_kernel(struct CA d_ca, double *d_write_head) {
             double ht1 = Q * DELTA_T;
             double ht2 = AREA * d_ca.Sy[idx_g];
 
-          d_write_head[idx_g] = d_ca.head[idx_g] + ht1 / ht2;
+            d_write_head[idx_g] = d_ca.head[idx_g] + ht1 / ht2;
         }
 }
 
@@ -116,30 +121,31 @@ void allocate_memory() {
 void init_read_ca() {
     for (int i = 0; i < ROWS; i++)
         for (int j = 0; j < COLS; j++) {
-            d_read.head[i * ROWS + j] = headFixed;
+            d_read.head[i * COLS + j] = headFixed;
             if (j == COLS - 1) {
-                d_read.head[i * ROWS + j] = headCalculated;
+                d_read.head[i * COLS + j] = headCalculated;
             }
-            d_read.Sy[i * ROWS + j] = Syinitial;
-            d_read.K[i * ROWS + j] = Kinitial;
-            d_read.Source[i * ROWS + j] = 0;
+            d_read.Sy[i * COLS + j] = Syinitial;
+            d_read.K[i * COLS + j] = Kinitial;
+            d_read.Source[i * COLS + j] = 0;
         }
 
-    d_read.Source[posSy * ROWS + posSx] = qw;
+    d_read.Source[posSy * COLS + posSx] = qw;
 }
 
-void init_write_head(){
-	memcpy(d_write.head, d_read.head, sizeof(double)*ROWS*COLS);
+void init_write_head() {
+    memcpy(d_write.head, d_read.head, sizeof(double) * ROWS * COLS);
 }
 
 void perform_simulation_on_GPU() {
 
-    dim3 blockSize(BLOCK_SIZE, BLOCK_SIZE);
-    const int blockCount = (ROWS * COLS) / (BLOCK_SIZE * BLOCK_SIZE) + 1;
-    double gridSize = sqrt(blockCount) + 1;
-    dim3 blockCount2D(gridSize, gridSize);
+    dim3 blockDim(BLOCK_SIZE, BLOCK_SIZE);
+    const int blockCount = ceil((ROWS * COLS) / (BLOCK_SIZE * BLOCK_SIZE));
+    double gridSize = ceil(sqrt(blockCount));
+    dim3 gridDim(gridSize, gridSize);
+
     for (int i = 0; i < SIMULATION_ITERATIONS; i++) {
-        simulation_step_kernel << < blockCount2D, blockSize >> > (d_read, d_write.head);
+        simulation_step_kernel <<< gridDim, blockDim >>> (d_read, d_write.head);
 
         cudaDeviceSynchronize();
 
@@ -163,12 +169,12 @@ void write_heads_to_file() {
     fclose(fp);
 }
 
-void free_allocated_memory(){
-	cudaFree(d_read.head);
-	cudaFree(d_write.head);
-	cudaFree(d_read.Sy);
-	cudaFree(d_read.K);
-	cudaFree(d_read.Source);
+void free_allocated_memory() {
+    cudaFree(d_read.head);
+    cudaFree(d_write.head);
+    cudaFree(d_read.Sy);
+    cudaFree(d_read.K);
+    cudaFree(d_read.Source);
 }
 
 /**
