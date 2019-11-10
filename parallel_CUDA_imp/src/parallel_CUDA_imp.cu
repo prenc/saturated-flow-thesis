@@ -46,54 +46,54 @@ static void CheckCudaErrorAux(const char *, unsigned, const char *, cudaError_t)
 
 #define CUDA_CHECK_RETURN(value) CheckCudaErrorAux(__FILE__,__LINE__, #value, value)
 
-__global__ void simulation_step_kernel(struct CA *d_ca, double *d_write_head) {
-    __shared__ double s_heads[BLOCK_SIZE][BLOCK_SIZE];
-    __shared__ double s_K[BLOCK_SIZE][BLOCK_SIZE];
+__global__ void simulation_step_kernel(struct CA *d_ca, double *d_write_head, int grid_size) {
+    __shared__ double s_heads[BLOCK_SIZE + 2][BLOCK_SIZE + 2];
+    __shared__ double s_K[BLOCK_SIZE + 2][BLOCK_SIZE + 2];
     unsigned idx_x = blockIdx.x * blockDim.x + threadIdx.x;
     unsigned idx_y = blockIdx.y * blockDim.y + threadIdx.y;
     unsigned idx_g = idx_y * COLS + idx_x;
 
-    s_heads[threadIdx.y][threadIdx.x] = d_ca->head[idx_g];
-    s_K[threadIdx.y][threadIdx.x] = d_ca->K[idx_g];
+    unsigned x = threadIdx.x + 1;
+    unsigned y = threadIdx.y + 1;
+
+    s_heads[y][x] = d_ca->head[idx_g];
+    s_K[y][x] = d_ca->K[idx_g];
+
+    if (threadIdx.x == 0 && blockIdx.x != 0) // left
+        s_heads[y][x - 1] = d_ca->head[idx_g - 1];
+    if (threadIdx.x == BLOCK_SIZE - 1 && blockIdx.x != grid_size - 1) // right
+        s_heads[y][x + 1] = d_ca->head[idx_g + 1];
+    if (threadIdx.y == 0 && blockIdx.y != 0) // upper
+        s_heads[y - 1][x] = d_ca->head[idx_g - COLS];
+    if (threadIdx.y == BLOCK_SIZE - 1 && blockIdx.y != grid_size - 1) // bottom
+        s_heads[y + 1][x] = d_ca->head[idx_g + COLS];
 
     __syncthreads();
 
+    double Q = 0;
+    double diff_head;
+    double tmp_t;
+
     if (idx_x < COLS && idx_y < ROWS)
         if (idx_y != 0 && idx_y != ROWS - 1) {
-            double Q = 0;
-            double diff_head;
-            double tmp_t;
-
             if (idx_x >= 1) { // left neighbor
-                if (threadIdx.x >= 1)
-                    diff_head = s_heads[threadIdx.y][threadIdx.x - 1] - s_heads[threadIdx.y][threadIdx.x];
-                else
-                    diff_head = d_ca->head[idx_g - 1] - s_heads[threadIdx.y][threadIdx.x];
-                tmp_t = s_K[threadIdx.y][threadIdx.x] * THICKNESS;
+                diff_head = s_heads[y][x - 1] - s_heads[y][x];
+                tmp_t = s_K[y][x] * THICKNESS;
                 Q += diff_head * tmp_t;
             }
             if (idx_y >= 1) { // upper neighbor
-                if (threadIdx.y >= 1)
-                    diff_head = s_heads[threadIdx.y - 1][threadIdx.x] - s_heads[threadIdx.y][threadIdx.x];
-                else
-                    diff_head = d_ca->head[(idx_y - 1) * COLS + idx_x] - s_heads[threadIdx.y][threadIdx.x];
-                tmp_t = s_K[threadIdx.y][threadIdx.x] * THICKNESS;
+                diff_head = s_heads[y - 1][x] - s_heads[y][x];
+                tmp_t = s_K[y][x] * THICKNESS;
                 Q += diff_head * tmp_t;
             }
             if (idx_x + 1 < COLS) { // right neighbor
-                if (threadIdx.x < BLOCK_SIZE - 1)
-                    diff_head = s_heads[threadIdx.y][threadIdx.x + 1] - s_heads[threadIdx.y][threadIdx.x];
-                else
-                    diff_head = d_ca->head[idx_g + 1] - s_heads[threadIdx.y][threadIdx.x];
-                tmp_t = s_K[threadIdx.y][threadIdx.x] * THICKNESS;
+                diff_head = s_heads[y][x + 1] - s_heads[y][x];
+                tmp_t = s_K[y][x] * THICKNESS;
                 Q += diff_head * tmp_t;
             }
             if (idx_y + 1 < ROWS) { // bottom neighbor
-                if (threadIdx.y < BLOCK_SIZE - 1)
-                    diff_head = s_heads[threadIdx.y + 1][threadIdx.x] - s_heads[threadIdx.y][threadIdx.x];
-                else
-                    diff_head = d_ca->head[(idx_y + 1) * COLS + idx_x] - s_heads[threadIdx.y][threadIdx.x];
-                tmp_t = s_K[threadIdx.y][threadIdx.x] * THICKNESS;
+                diff_head = s_heads[y + 1][x] - s_heads[y][x];
+                tmp_t = s_K[y][x] * THICKNESS;
                 Q += diff_head * tmp_t;
             }
 
@@ -102,7 +102,7 @@ __global__ void simulation_step_kernel(struct CA *d_ca, double *d_write_head) {
             double ht1 = Q * DELTA_T;
             double ht2 = AREA * d_ca->Sy[idx_g];
 
-            d_write_head[idx_g] = s_heads[threadIdx.y][threadIdx.x] + ht1 / ht2;
+            d_write_head[idx_g] = s_heads[y][x] + ht1 / ht2;
         }
 }
 
@@ -143,7 +143,7 @@ void perform_simulation_on_GPU() {
     dim3 gridDim(gridSize, gridSize);
 
     for (int i = 0; i < SIMULATION_ITERATIONS; i++) {
-        simulation_step_kernel << < gridDim, blockDim >> > (d_read_ca, d_write_head);
+        simulation_step_kernel << < gridDim, blockDim >> > (d_read_ca, d_write_head, gridSize);
 
         cudaDeviceSynchronize();
 
