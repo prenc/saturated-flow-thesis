@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+CA_SIZE=100
+BLOCK_SIZE=16
+INTERATION_NO=1000
+
 files_to_compile=("${PWD}"/memory_*.cu)
 
 for file_name_path in "${files_to_compile[@]}"; do
@@ -14,3 +18,22 @@ for file_name_path in "${files_to_test[@]}"; do
   nvprof ./"${file_name}" 2> "${file_name}"_profiling
 done
 
+profiling_data=("${PWD}"/memory_*_profiling)
+
+data=("memory_type" "ca_size" "block_size" "iterations" "total_time" "kernel_avg" "kernel_min"	"kernel_max")
+
+for prof in "${profiling_data[@]}"; do
+  while read -r line; do
+      if [[ $line =~ ^"GPU activities:" ]]; then
+          values=(${line})
+          break
+      fi
+  done < "${prof}"
+
+  data+=("${prof}" "$CA_SIZE" "$BLOCK_SIZE" "$INTERATION_NO" "${values[3]}" "${values[5]}" "${values[6]}" "${values[7]}")
+done
+
+output_file_name="prof_summary"
+printf "%s;%s;%s;%s;%s;%s;%s;%s\n" "${data[@]}" > "$output_file_name"
+
+exit 0
