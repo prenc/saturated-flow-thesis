@@ -83,6 +83,7 @@ parse_profile_outputs () {
 }
 
 ## Script body
+start=$(date +%s)
 printf "" > "${output_file_name}"
 
 for i in "${!ca_size_arr[@]}"; do
@@ -99,5 +100,8 @@ for i in "${!ca_size_arr[@]}"; do
   parse_profile_outputs
 
 done
+
+end=$(date +%s)
+info "Script time: $((end-start))"
 
 exit 0
