@@ -11,6 +11,7 @@ ca_size_arr=("100" "100" "1000" "1000")
 block_size_arr=("16" "32" "16" "32")
 iterations_arr=("1000" "1000" "10000" "10000")
 params_file="params.h"
+output_file_name="prof_summary"
 ## Func definitions
 info () { #@ DESCRIPTION: print information about running process
           #@ USAGE: ok information
@@ -64,8 +65,6 @@ profile_programs () {
 }
 
 parse_profile_outputs () {
-  output_file_name="prof_summary"
-  printf "" > "${output_file_name}"
 
   data=("memory_type" "ca_size" "iterations" "block_size" "total_time" "kernel_avg" "kernel_min"	"kernel_max")
 
@@ -84,6 +83,8 @@ parse_profile_outputs () {
 }
 
 ## Script body
+printf "" > "${output_file_name}"
+
 for i in "${!ca_size_arr[@]}"; do
   ca_size=${ca_size_arr[i]}
   iterations=${iterations_arr[i]}
