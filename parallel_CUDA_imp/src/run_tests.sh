@@ -17,7 +17,7 @@ files_to_test=("${PWD}"/memory_*_compiled)
 for file_name_path in "${files_to_test[@]}"; do
   file_name=${file_name_path##*/}
   echo "Profiling ${file_name%%_*}..."
-  sudo nvprof ./"${file_name}" --unified-memory-profiling off 2> "${file_name%_compiled}"_profiling
+  sudo nvprof --unified-memory-profiling off ./"${file_name}" 2> "${file_name%_compiled}"_profiling
 done
 
 profiling_data=("${PWD}"/memory_*_profiling)
