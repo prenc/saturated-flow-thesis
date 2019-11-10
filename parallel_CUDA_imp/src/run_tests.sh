@@ -8,6 +8,7 @@ files_to_compile=("${PWD}"/memory_*.cu)
 
 for file_name_path in "${files_to_compile[@]}"; do
   file_name=${file_name_path##*/}
+  echo "Compiling $file_name..."
   nvcc "${file_name}" -o "${file_name%\.cu}"_compiled
 done
 
@@ -15,7 +16,8 @@ files_to_test=("${PWD}"/memory_*_compiled)
 
 for file_name_path in "${files_to_test[@]}"; do
   file_name=${file_name_path##*/}
-  sudo nvprof ./"${file_name}" --unified-memory-profiler off 2> "${file_name%_compiled}"_profiling
+  echo "Profiling ${file_name%%_*}..."
+  sudo nvprof ./"${file_name}" --unified-memory-profiling off 2> "${file_name%_compiled}"_profiling
 done
 
 profiling_data=("${PWD}"/memory_*_profiling)
