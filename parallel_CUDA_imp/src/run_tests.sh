@@ -9,7 +9,7 @@ scriptname=${0##*/}			# name that script is invoked with
 ## Constants
 ca_size_arr=("100" "100" "1000" "1000")
 block_size_arr=("16" "32" "16" "32")
-iterations_arr=("1000" "1000" "10000" "10000")
+iterations_arr=("1000" "1000" "1000" "1000")
 params_file="params.h"
 output_file_name="prof_summary"
 ## Func definitions
@@ -58,7 +58,7 @@ profile_programs () {
   for file_name_path in "${files_to_test[@]}"; do
     file_name=${file_name_path##*/}
     info "Profiling ${file_name%_*}... (${ca_size}, ${iterations}, ${block_size})"
-    sudo nvprof --unified-memory-profiling off ./"${file_name}" 2> "${file_name%_compiled}"_profiling
+    sudo /usr/local/cuda/bin/nvprof --unified-memory-profiling off ./"${file_name}" 2> "${file_name%_compiled}"_profiling
   done
 
   profiling_data=("${PWD}"/memory_*_profiling)

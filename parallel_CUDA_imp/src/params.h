@@ -10,9 +10,9 @@
 
 //MODEL PARAMS
 
-#define CA_SIZE 100
+#define CA_SIZE 1000
 #define SIMULATION_ITERATIONS 1000
-#define BLOCK_SIZE 16
+#define BLOCK_SIZE 32
 
 #define ROWS CA_SIZE
 #define COLS CA_SIZE
@@ -29,7 +29,8 @@
 #define headFixed 50
 #define headCalculated 50
 
-#define DELTA_T 4000;
+#define DELTA_T 4000
+#define KERNEL_LOOP_SIZE 100
 double qw = 0.001;
 
 int posSy = ROWS / 2;
