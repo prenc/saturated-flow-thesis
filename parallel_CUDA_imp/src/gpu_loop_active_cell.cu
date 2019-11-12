@@ -9,31 +9,7 @@
 #include <thrust/unique.h>
 #include <thrust/execution_policy.h>
 
-//MODEL PARAMS
-
-#define ROWS 100
-#define COLS 100
-
-#define CELL_SIZE_X 10
-#define CELL_SIZE_Y 10
-#define AREA CELL_SIZE_X*CELL_SIZE_Y
-
-#define THICKNESS 50
-
-#define Syinitial 0.1
-#define Kinitial  0.0000125
-
-#define headFixed 50
-#define headCalculated 50
-
-#define SIMULATION_ITERATIONS 1000
-#define BLOCK_SIZE 16
-
-#define DELTA_T 4000;
-double qw = 0.001;
-
-int posSy = ROWS / 2;
-int posSx = COLS / 2;
+#include "params.h"
 
 struct CA {
     double *head;
@@ -207,9 +183,9 @@ void perform_simulation_on_GPU() {
 			cudaDeviceSynchronize();
 		}
 		activeBlockCount = dev_count* dev_count/ (BLOCK_SIZE * BLOCK_SIZE);
-		activeGridSize = sqrt(blockCount) + 1;
-		dim3 activeBlockCount2D(gridSize, gridSize);
-		simulation_step_kernel << < blockCount2D, blockSize >> > (d_read, d_write.head);
+		activeGridSize = sqrt(activeBlockCount) + 1;
+		dim3 activeBlockCount2D(activeGridSize, activeGridSize);
+		simulation_step_kernel << < activeBlockCount2D, blockSize >> > (d_read, d_write.head);
 		cudaDeviceSynchronize();
 
 		double *tmp1 = d_write.head;
