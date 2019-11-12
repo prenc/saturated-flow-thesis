@@ -62,7 +62,7 @@ profile_programs() {
 
   [[ -d "${profiling_dir}" ]] || mkdir "${profiling_dir}"
 
-  files_to_profile=("${PWD}"/"${profiling_dir}"/*)
+  files_to_profile=("${PWD}"/"${compiled_dir}"/*)
 
   for file_name_path in "${files_to_profile[@]}"; do
     file_name=${file_name_path##*/}
