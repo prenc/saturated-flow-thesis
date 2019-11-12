@@ -49,20 +49,30 @@ void write_heads_to_file();
 void init_write_head();
 void free_allocated_memory();
 
-thrust::device_vector<int> d_active_cells_vector;
 
+__device__ int active_cells_idx[ROWS*COLS];
+__managed__ int dev_count = 0;
+
+__device__ int my_push_back(int mt) {
+  int insert_pt = atomicAdd(&dev_count, 1);
+  if (insert_pt < ROWS*COLS){
+	 active_cells_idx[insert_pt] = mt;
+    return insert_pt;
+  }
+  else return -1;
+}
 
 static void CheckCudaErrorAux(const char *, unsigned, const char *, cudaError_t);
 
 #define CUDA_CHECK_RETURN(value) CheckCudaErrorAux(__FILE__,__LINE__, #value, value)
 
-__global__ void simulation_step_kernel(struct CA d_ca, double *d_write_head, int *ac_array, int ac_array_size) {
+__global__ void simulation_step_kernel(struct CA d_ca, double *d_write_head) {
     unsigned ac_idx_x = blockIdx.x * blockDim.x + threadIdx.x;
     unsigned ac_idx_y = blockIdx.y * blockDim.y + threadIdx.y;
     unsigned ac_idx_g = ac_idx_y * COLS + ac_idx_x;
 
-    if(ac_idx_g < ac_array_size){
-        unsigned idx_g = ac_array[ac_idx_g];
+    if(ac_idx_g < dev_count){
+        unsigned idx_g = active_cells_idx[ac_idx_g];
         unsigned idx_x = idx_g % COLS;
         unsigned idx_y = idx_g / COLS;
 		if (idx_y != 0 && idx_y != ROWS - 1) {
@@ -100,34 +110,43 @@ __global__ void simulation_step_kernel(struct CA d_ca, double *d_write_head, int
 		}
     }
 }
-void find_active_cells(){
-	thrust::host_vector<int> h_active_cells_vector;
-	for(int i = 0; i < ROWS; i++){
-		for(int j = 0; j < ROWS; j++){
-			int idx_g = j* COLS + i;
-			if(d_read.head[idx_g] < headFixed){
-				h_active_cells_vector.push_back(idx_g);
-				if(i + 1 < ROWS) h_active_cells_vector.push_back(idx_g + 1);
-				if(i - 1 >= 0 )   h_active_cells_vector.push_back(idx_g - 1);
-				if(j + 1 < COLS) h_active_cells_vector.push_back(idx_g + COLS);
-				if(j - 1 >= 0)    h_active_cells_vector.push_back(idx_g - COLS);
-			}else if(d_read.Source[idx_g] != 0){
-				h_active_cells_vector.push_back(idx_g);
+__global__ void find_active_cells_kernel(struct CA d_ca) {
+    unsigned idx_x = blockIdx.x * blockDim.x + threadIdx.x;
+    unsigned idx_y = blockIdx.y * blockDim.y + threadIdx.y;
+    unsigned idx_g = idx_y * COLS + idx_x;
+
+    if(idx_x < ROWS && idx_y < COLS ){
+		if(d_ca.head[idx_g]  < headFixed || d_ca.Source[idx_g] != 0 ){
+			my_push_back(idx_g);
+			return;
+		}
+		if (idx_x >= 1) {
+			if(d_ca.head[idx_g - 1] < headFixed){
+				my_push_back(idx_g);
+				return;
 			}
 		}
-	}
-	thrust::host_vector<int> h_active_cells_vector_result;
-	thrust::sort(h_active_cells_vector.begin(),h_active_cells_vector.end());
-	int previous_value = h_active_cells_vector[0];
-	h_active_cells_vector_result.push_back(previous_value);
-	for(int i = 1; i< h_active_cells_vector.size(); i++){
-		if(h_active_cells_vector[i] != previous_value){
-			previous_value = h_active_cells_vector[i];
-			h_active_cells_vector_result.push_back(previous_value);
+		if (idx_y >= 1) {
+			if(d_ca.head[idx_g - COLS] < headFixed){
+				my_push_back(idx_g);
+				return;
+			}
 		}
-	}
-	d_active_cells_vector = h_active_cells_vector_result;
+		if (idx_x + 1 < COLS) {
+			if(d_ca.head[idx_g + 1] < headFixed){
+				my_push_back(idx_g);
+				return;
+			}
+		}
+		if (idx_y + 1 < ROWS) {
+			if(d_ca.head[idx_g + COLS] < headFixed){
+				my_push_back(idx_g);
+				return;
+			}
+		}
+    }
 }
+
 int main(void) {
     allocate_memory();
 
@@ -173,21 +192,22 @@ void init_write_head(){
 
 
 void perform_simulation_on_GPU() {
-    dim3 blockSize(BLOCK_SIZE, BLOCK_SIZE);
-    for (int i = 0; i < SIMULATION_ITERATIONS; i++) {
-    	find_active_cells();
-    	int* active_cells_array = thrust::raw_pointer_cast( &d_active_cells_vector[0] );
-    	int size = d_active_cells_vector.size();
-        const int blockCount = size * size / (BLOCK_SIZE * BLOCK_SIZE);
-        double gridSize = sqrt(blockCount) + 1;
-        dim3 blockCount2D(gridSize, gridSize);
-        simulation_step_kernel << < blockCount2D, blockSize >> > (d_read, d_write.head, active_cells_array, size );
 
-        cudaDeviceSynchronize();
+	dim3 blockSize(BLOCK_SIZE, BLOCK_SIZE);
+	const int blockCount = (ROWS * COLS) / (BLOCK_SIZE * BLOCK_SIZE) + 1;
+	double gridSize = sqrt(blockCount) + 1;
+	dim3 blockCount2D(gridSize, gridSize);
+	for (int i = 0; i < SIMULATION_ITERATIONS; i++) {
+		find_active_cells_kernel << < blockCount2D, blockSize >> > (d_read);
+		cudaDeviceSynchronize();
 
-        double *tmp1 = d_write.head;
-        d_write.head = d_read.head;
-        d_read.head = tmp1;
+		simulation_step_kernel << < blockCount2D, blockSize >> > (d_read, d_write.head);
+		cudaDeviceSynchronize();
+		dev_count = 0;
+
+		double *tmp1 = d_write.head;
+		d_write.head = d_read.head;
+		d_read.head = tmp1;
     }
 }
 
