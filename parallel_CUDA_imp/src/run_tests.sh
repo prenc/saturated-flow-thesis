@@ -74,13 +74,13 @@ profile_programs() {
   for file_name_path in "${files_to_profile[@]}"; do
     file_name=${file_name_path##*/}
     info "Profiling ${file_name}... (${ca_size}, ${iterations}, ${block_size})"
-    command time -f "%E" ./"${compiled_dir}/${file_name}" 2>"${profiling_dir}/${file_name}"
+    time -f "%E" ./"${compiled_dir}/${file_name}" 2>"${profiling_dir}/${file_name}"
 
   done
 }
 
 parse_profile_outputs() {
-  profiling_data=("${PWD}"/"${profiling_dir}"/*)
+  profiling_data=("${PWD}"/"${profiling_dir}"/*{file_name_attachement})
 
   data=("memory_type" "ca_size" "iterations" "block_size" "total_time")
 
