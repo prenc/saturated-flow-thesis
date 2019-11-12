@@ -197,13 +197,18 @@ void perform_simulation_on_GPU() {
 	const int blockCount = (ROWS * COLS) / (BLOCK_SIZE * BLOCK_SIZE) + 1;
 	double gridSize = sqrt(blockCount) + 1;
 	dim3 blockCount2D(gridSize, gridSize);
+	double activeBlockCount, activeGridSize;
 	for (int i = 0; i < SIMULATION_ITERATIONS; i++) {
-		find_active_cells_kernel << < blockCount2D, blockSize >> > (d_read);
-		cudaDeviceSynchronize();
-
+		if(dev_count < ROWS*COLS ){
+			dev_count = 0;
+			find_active_cells_kernel << < blockCount2D, blockSize >> > (d_read);
+			cudaDeviceSynchronize();
+		}
+		activeBlockCount = dev_count* dev_count/ (BLOCK_SIZE * BLOCK_SIZE);
+		activeGridSize = sqrt(blockCount) + 1;
+		dim3 activeBlockCount2D(gridSize, gridSize);
 		simulation_step_kernel << < blockCount2D, blockSize >> > (d_read, d_write.head);
 		cudaDeviceSynchronize();
-		dev_count = 0;
 
 		double *tmp1 = d_write.head;
 		d_write.head = d_read.head;
