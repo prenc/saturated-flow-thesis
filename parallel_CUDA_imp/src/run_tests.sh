@@ -54,7 +54,7 @@ compile_cuda_files() {
 
   for file_name_path in "${files_to_compile[@]}"; do
     file_name_in=${file_name_path##*/}
-    file_name_out=${file_name%\.cu}${file_name_attachement}
+    file_name_out=${file_name_in%\.cu}${file_name_attachement}
 
     if [[ ! -f "${compiled_dir}/${file_name_out}" ]]; then
       info "Compiling ${file_name_in}... (${ca_size}, ${iterations}, ${block_size})"
