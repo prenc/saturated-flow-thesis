@@ -4,6 +4,7 @@
 #:        Date: 2019-10-10
 #:      Author: Paweł Renc
 #:     Options: none
+shopt -s nullglob 			# allow globs to return null string
 ## Script metadata
 scriptname=${0##*/} # name that script is invoked with
 ## Constants
@@ -52,9 +53,15 @@ compile_cuda_files() {
   files_to_compile=("${PWD}"/*.cu)
 
   for file_name_path in "${files_to_compile[@]}"; do
-    file_name=${file_name_path##*/}
-    info "Compiling ${file_name}... (${ca_size}, ${iterations}, ${block_size})"
-    nvcc "${file_name}" -o "${compiled_dir}/${file_name%\.cu}${file_name_attachement}"
+    file_name_in=${file_name_path##*/}
+    file_name_out=${file_name%\.cu}${file_name_attachement}
+
+    if [[ ! -f "${compiled_dir}/${file_name_out}" ]]; then
+      info "Compiling ${file_name_in}... (${ca_size}, ${iterations}, ${block_size})"
+      nvcc "${file_name_in}" -o "${compiled_dir}/${file_name_out}"
+    else
+      info "Found ${file_name_out}. No need to compile again..."
+    fi
   done
 }
 
@@ -66,9 +73,9 @@ profile_programs() {
 
   for file_name_path in "${files_to_profile[@]}"; do
     file_name=${file_name_path##*/}
-    info "Profiling ${file_name}... (${file_name_attachement})"
-    sudo nvprof --unified-memory-profiling off ./"${profiling_dir}/${file_name}" \
-        2>"${profiling_dir}/${file_name}${file_name_attachement}"
+    info "Profiling ${file_name}... (${ca_size}, ${iterations}, ${block_size})"
+    sudo nvprof --unified-memory-profiling off ./"${compiled_dir}/${file_name}" \
+        2>"${profiling_dir}/${file_name}"
   done
 }
 
