@@ -49,8 +49,7 @@ generate_params() {
 compile_cuda_files() {
 
   [[ -d "${compiled_dir}" ]] || mkdir "${compiled_dir}"
-
-  files_to_compile=("${PWD}"/"${compiled_dir}"/*.cu)
+  files_to_compile=("${PWD}"/*.cu)
 
   for file_name_path in "${files_to_compile[@]}"; do
     file_name=${file_name_path##*/}
