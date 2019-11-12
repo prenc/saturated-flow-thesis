@@ -5,17 +5,19 @@
 #:      Author: Paweł Renc
 #:     Options: none
 ## Script metadata
-scriptname=${0##*/}			# name that script is invoked with
+scriptname=${0##*/} # name that script is invoked with
 ## Constants
 ca_size_arr=("100" "100" "1000" "1000")
 block_size_arr=("16" "32" "16" "32")
-iterations_arr=("1000" "1000" "1000" "1000")
+iterations_arr=("1000" "1000" "10000" "10000")
 params_file="params.h"
 output_file_name="prof_summary"
+compiled_dir="compiled"
+profiling_dir="profiling"
 ## Func definitions
-info () { #@ DESCRIPTION: print information about running process
-          #@ USAGE: ok information
-          #@ REQUIRES: scriptname
+info() { #@ DESCRIPTION: print information about running process
+  #@ USAGE: ok information
+  #@ REQUIRES: scriptname
   printf "${scriptname}: [\e[34mINFO\e[0m] %s\n" "$1" >&2
 }
 
@@ -26,65 +28,73 @@ generate_params() {
 
   new_params_file="/tmp/new_params_ble_ble_ble"
 
-  printf "" > "${new_params_file}"
+  printf "" >"${new_params_file}"
   while read -r line; do
-      if [[ $line =~ ^"${match_ca_size}" ]]; then
-        line="${match_ca_size}${ca_size}"
-      elif [[ $line =~ ^"${match_itarations}" ]]; then
-        line="${match_itarations}${iterations}"
-      elif [[ $line =~ ^"${match_block_size}" ]]; then
-        line="${match_block_size}${block_size}"
-      fi
-      printf "%s\n" "${line}" >> "${new_params_file}"
-  done < "${params_file}"
+    if [[ $line =~ ^"${match_ca_size}" ]]; then
+      line="${match_ca_size}${ca_size}"
+    elif [[ $line =~ ^"${match_itarations}" ]]; then
+      line="${match_itarations}${iterations}"
+    elif [[ $line =~ ^"${match_block_size}" ]]; then
+      line="${match_block_size}${block_size}"
+    fi
+    printf "%s\n" "${line}" >>"${new_params_file}"
+  done <"${params_file}"
 
-  cat ${new_params_file} > ${params_file}
+  cat ${new_params_file} >${params_file}
   rm -f ${new_params_file}
+
+  file_name_attachement=_"${ca_size}"_"${iterations}"_"${block_size}"
 }
 
-compile_cuda_files () {
-  files_to_compile=("${PWD}"/memory_*.cu)
+compile_cuda_files() {
+
+  [[ -d "${compiled_dir}" ]] || mkdir "${compiled_dir}"
+
+  files_to_compile=("${PWD}"/"${compiled_dir}"/*.cu)
 
   for file_name_path in "${files_to_compile[@]}"; do
     file_name=${file_name_path##*/}
-    info "Compiling $file_name... (${ca_size}, ${iterations}, ${block_size})"
-    nvcc "${file_name}" -o "${file_name%\.cu}"_compiled
+    info "Compiling ${file_name}... (${ca_size}, ${iterations}, ${block_size})"
+    nvcc "${file_name}" -o "${compiled_dir}/${file_name%\.cu}${file_name_attachement}"
   done
-
-  files_to_test=("${PWD}"/memory_*_compiled)
 }
 
-profile_programs () {
-  for file_name_path in "${files_to_test[@]}"; do
+profile_programs() {
+
+  [[ -d "${profiling_dir}" ]] || mkdir "${profiling_dir}"
+
+  files_to_profile=("${PWD}"/"${profiling_dir}"/*)
+
+  for file_name_path in "${files_to_profile[@]}"; do
     file_name=${file_name_path##*/}
-    info "Profiling ${file_name%_*}... (${ca_size}, ${iterations}, ${block_size})"
-    sudo /usr/local/cuda/bin/nvprof --unified-memory-profiling off ./"${file_name}" 2> "${file_name%_compiled}"_profiling
+    info "Profiling ${file_name}... (${file_name_attachement})"
+    sudo nvprof --unified-memory-profiling off ./"${profiling_dir}/${file_name}" \
+        2>"${profiling_dir}/${file_name}${file_name_attachement}"
   done
-
-  profiling_data=("${PWD}"/memory_*_profiling)
 }
 
-parse_profile_outputs () {
+parse_profile_outputs() {
+  profiling_data=("${PWD}"/"${profiling_dir}"/*)
 
-  data=("memory_type" "ca_size" "iterations" "block_size" "total_time" "kernel_avg" "kernel_min"	"kernel_max")
+  data=("memory_type" "ca_size" "iterations" "block_size" "total_time" "kernel_avg" "kernel_min" "kernel_max")
 
   for prof in "${profiling_data[@]}"; do
     while read -r line; do
-        if [[ $line =~ ^"GPU activities:" ]]; then
-            values=(${line})
-            break
-        fi
-    done < "${prof}"
+      if [[ $line =~ ^"GPU activities:" ]]; then
+        read -r -a values <<<"${line}"
+        break
+      fi
+    done <"${prof}"
 
     data+=("${prof##*/}" "$ca_size" "$iterations" "$block_size" "${values[3]}" "${values[5]}" "${values[6]}" "${values[7]}")
   done
 
-  printf "%s;%s;%s;%s;%s;%s;%s;%s\n" "${data[@]}" >> "${output_file_name}"
+  printf "%s;%s;%s;%s;%s;%s;%s;%s\n" "${data[@]}" >>"${output_file_name}"
 }
 
 ## Script body
 start=$(date +%s)
-printf "" > "${output_file_name}"
+printf "" >"${output_file_name}"
 
 for i in "${!ca_size_arr[@]}"; do
   ca_size=${ca_size_arr[i]}
@@ -102,6 +112,6 @@ for i in "${!ca_size_arr[@]}"; do
 done
 
 end=$(date +%s)
-info "Script time: $((end-start))"
+info "Script time: $((end - start))s"
 
 exit 0
