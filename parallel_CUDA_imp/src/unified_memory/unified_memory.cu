@@ -1,7 +1,5 @@
 #include "unified_memory_common.cu"
 
-void perform_simulation_on_GPU();
-
 __global__ void simulation_step_kernel(struct CA d_ca, double *d_write_head) {
     unsigned idx_x = blockIdx.x * blockDim.x + threadIdx.x;
     unsigned idx_y = blockIdx.y * blockDim.y + threadIdx.y;
@@ -41,18 +39,6 @@ __global__ void simulation_step_kernel(struct CA d_ca, double *d_write_head) {
         }
 }
 
-int main(void) {
-    allocate_memory();
-    init_read_ca();
-    init_write_head();
-
-    perform_simulation_on_GPU();
-
-    write_heads_to_file(d_write.head);
-    free_allocated_memory();
-    return 0;
-}
-
 void perform_simulation_on_GPU() {
     dim3 blockDim(BLOCK_SIZE, BLOCK_SIZE);
     const int blockCount = ceil((ROWS * COLS) / (BLOCK_SIZE * BLOCK_SIZE));
@@ -70,3 +56,14 @@ void perform_simulation_on_GPU() {
     }
 }
 
+int main(void) {
+    allocate_memory();
+    init_read_ca();
+    init_write_head();
+
+    perform_simulation_on_GPU();
+
+    write_heads_to_file(d_write.head);
+    free_allocated_memory();
+    return 0;
+}

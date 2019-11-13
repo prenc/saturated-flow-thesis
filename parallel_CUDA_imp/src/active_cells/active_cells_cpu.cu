@@ -5,8 +5,6 @@
 #include <thrust/unique.h>
 #include <thrust/execution_policy.h>
 
-void perform_simulation_on_GPU();
-
 thrust::device_vector<int> d_active_cells_vector;
 
 __global__ void simulation_step_kernel(struct CA d_ca, double *d_write_head, int *ac_array, int ac_array_size) {
@@ -83,18 +81,6 @@ void find_active_cells(){
 	d_active_cells_vector = h_active_cells_vector_result;
 }
 
-int main(void) {
-    allocate_memory();
-    init_read_ca();
-    init_write_head();
-
-    perform_simulation_on_GPU();
-
-    write_heads_to_file(d_write.head);
-    free_allocated_memory();
-    return 0;
-}
-
 void perform_simulation_on_GPU() {
     dim3 blockSize(BLOCK_SIZE, BLOCK_SIZE);
     for (int i = 0; i < SIMULATION_ITERATIONS; i++) {
@@ -114,4 +100,15 @@ void perform_simulation_on_GPU() {
     }
 }
 
+int main(void) {
+    allocate_memory();
+    init_read_ca();
+    init_write_head();
+
+    perform_simulation_on_GPU();
+
+    write_heads_to_file(d_write.head);
+    free_allocated_memory();
+    return 0;
+}
 

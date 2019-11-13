@@ -5,8 +5,6 @@
 #include <thrust/unique.h>
 #include <thrust/execution_policy.h>
 
-void perform_simulation_on_GPU();
-
 __device__ int active_cells_idx[ROWS*COLS];
 __managed__ int dev_count = 0;
 
@@ -100,18 +98,6 @@ __global__ void find_active_cells_kernel(struct CA d_ca) {
     }
 }
 
-int main(void) {
-    allocate_memory();
-    init_read_ca();
-    init_write_head();
-
-    perform_simulation_on_GPU();
-
-    write_heads_to_file(d_write.head);
-    free_allocated_memory();
-    return 0;
-}
-
 void perform_simulation_on_GPU() {
 	dim3 blockSize(BLOCK_SIZE, BLOCK_SIZE);
 	const int blockCount = (ROWS * COLS) / (BLOCK_SIZE * BLOCK_SIZE) + 1;
@@ -131,5 +117,19 @@ void perform_simulation_on_GPU() {
 		d_read.head = tmp1;
     }
 }
+
+int main(void) {
+    allocate_memory();
+    init_read_ca();
+    init_write_head();
+
+    perform_simulation_on_GPU();
+
+    write_heads_to_file(d_write.head);
+    free_allocated_memory();
+    return 0;
+}
+
+
 
 
