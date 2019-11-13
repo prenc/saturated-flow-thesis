@@ -69,20 +69,22 @@ profile_programs() {
 
   [[ -d "${profiling_dir}" ]] || mkdir "${profiling_dir}"
 
-  files_to_profile=("${PWD}"/"${compiled_dir}"/*)
+  files_to_profile=("${PWD}"/"${compiled_dir}"/*"${file_name_attachement}")
 
   for file_name_path in "${files_to_profile[@]}"; do
     file_name=${file_name_path##*/}
     info "Profiling ${file_name}... (${ca_size}, ${iterations}, ${block_size})"
+    start=$(date +%s)
     sudo nvprof --unified-memory-profiling off ./"${compiled_dir}/${file_name}" \
         2>"${profiling_dir}/${file_name}"
+    printf "%s\n" $(($(date +%s) - start))s >> "${profiling_dir}/${file_name}"
   done
 }
 
 parse_profile_outputs() {
-  profiling_data=("${PWD}"/"${profiling_dir}"/*)
+  profiling_data=("${PWD}"/"${profiling_dir}"/*"${file_name_attachement}")
 
-  data=("memory_type" "ca_size" "iterations" "block_size" "total_time" "kernel_avg" "kernel_min" "kernel_max")
+  data=("memory_type" "ca_size" "iterations" "block_size" "total_time" "total_kernel_time" "kernel_min" "kernel_max")
 
   for prof in "${profiling_data[@]}"; do
     while read -r line; do
@@ -92,14 +94,19 @@ parse_profile_outputs() {
       fi
     done <"${prof}"
 
-    data+=("${prof##*/}" "$ca_size" "$iterations" "$block_size" "${values[3]}" "${values[5]}" "${values[6]}" "${values[7]}")
+    total_time=$(tail -n 1 "${prof}")
+
+    label_name="${prof##*/}"
+    label_name="${label_name%${file_name_attachement}}"
+
+    data+=("${label_name}" "$ca_size" "$iterations" "$block_size" "${total_time}" "${values[3]}" "${values[6]}" "${values[7]}")
   done
 
   printf "%s;%s;%s;%s;%s;%s;%s;%s\n" "${data[@]}" >>"${output_file_name}"
 }
 
 ## Script body
-start=$(date +%s)
+start_script=$(date +%s)
 printf "" >"${output_file_name}"
 
 for i in "${!ca_size_arr[@]}"; do
@@ -117,7 +124,6 @@ for i in "${!ca_size_arr[@]}"; do
 
 done
 
-end=$(date +%s)
-info "Script time: $((end - start))s"
+info "Script time: $(($(date +%s) - start_script))s"
 
 exit 0
