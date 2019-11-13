@@ -1,5 +1,4 @@
 #include "unified_memory_common.cu"
-#include "../common/write_heads_to_file.c"
 
 void perform_simulation_on_GPU();
 
