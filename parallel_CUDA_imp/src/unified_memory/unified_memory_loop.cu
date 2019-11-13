@@ -1,37 +1,4 @@
-// --unified-memory-profiling off
-#include <iostream>
-#include <numeric>
-#include <stdlib.h>
-#include <stdio.h>
-#include <math.h>
-#include "cuda_profiler_api.h"
-
-//MODEL PARAMS
-
-#define ROWS 100
-#define COLS 100
-
-#define CELL_SIZE_X 10
-#define CELL_SIZE_Y 10
-#define AREA CELL_SIZE_X*CELL_SIZE_Y
-
-#define THICKNESS 50
-
-#define Syinitial 0.1
-#define Kinitial  0.0000125
-
-#define headFixed 50
-#define headCalculated 50
-
-#define SIMULATION_ITERATIONS 1000
-#define BLOCK_SIZE 16
-#define KERNEL_LOOP_SIZE 100
-
-#define DELTA_T 4000;
-double qw = 0.001;
-
-int posSy = ROWS / 2;
-int posSx = COLS / 2;
+#include "../params.h"
 
 struct CA {
     double *head;
@@ -106,9 +73,6 @@ int main(void) {
     write_heads_to_file();
 
     free_allocated_memory();
-
-    cudaProfilerStop();
-    cudaDeviceReset();
 
     return 0;
 }
