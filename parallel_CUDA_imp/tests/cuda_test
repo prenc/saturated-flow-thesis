@@ -4,22 +4,82 @@
 #:        Date: 2019-10-10
 #:      Author: Paweł Renc
 #:     Options: none
-shopt -s nullglob 			# allow globs to return null string
+shopt -s nullglob   # allow globs to return null string
 ## Script metadata
 scriptname=${0##*/} # name that script is invoked with
+## Parse command-line options
+while (($#)); do
+  case $1 in
+  -h)
+    usage
+    ;;
+  *)
+    group="$1"
+    shift
+    ;;
+  esac
+done
 ## Constants
 ca_size_arr=("100" "100" "1000" "1000")
 block_size_arr=("16" "32" "16" "32")
 iterations_arr=("1000" "1000" "10000" "10000")
 params_file="params.h"
-output_file_name="prof_summary"
+summary_file="prof_summary"
 compiled_dir="compiled"
 profiling_dir="profiling"
+conf_file="cuda_test_conf.json"
 ## Func definitions
 info() { #@ DESCRIPTION: print information about running process
   #@ USAGE: ok information
   #@ REQUIRES: scriptname
   printf "${scriptname}: [\e[34mINFO\e[0m] %s\n" "$1" >&2
+}
+error() { #@ DESCRIPTION: print error message and exit with supplied return code
+  #@ USAGE: error information error_code
+  #@ REQUIRES: scriptname
+  printf "${scriptname}: [\e[31mERROR\e[0m] %s\n" "$1" >&2
+  exit "${2:-2}"
+}
+
+parse_conf() {
+  [[ -f "${conf_file}" ]] || error "No config file found!" 2
+
+  test_params=$(get_json "${group}" <"${conf_file}")
+  [[ -z "${test_params}" ]] && error "No such test group" 5
+
+  test_specs=$(echo "${test_params}" | get_json "test_specs")
+  [[ -z "${test_specs}" ]] && error "Conf file syntax error" 3
+
+
+  json_ar_to_bash_arr "$(get_json "ca_size" <<< "${test_specs}")"
+  mapfile -d" " ca_size_arr <<< "${bash_arr}"
+  (( "${#ca_size_arr[@]}" )) || error "Conf file syntax error in ca_size of ${group} group" 3
+
+  json_ar_to_bash_arr "$(get_json "block_size" <<< "${test_specs}")"
+  mapfile -d" " block_size_arr <<< "${bash_arr}"
+  (( "${#block_size_arr[@]}" )) || error "Conf file syntax error in block_size of ${group} group" 3
+
+  json_ar_to_bash_arr "$(get_json "iterations" <<< "${test_specs}")"
+  mapfile -d" " iterations_arr <<< "${bash_arr}"
+  (( "${#iterations_arr[@]}" )) || error "Conf file syntax error in iterations of ${group} group" 3
+
+  echo "${ca_size_arr[*]}--${#ca_size_arr[@]}"
+  echo "${block_size_arr[*]}--${#block_size_arr[@]}"
+  echo "${iterations_arr[*]}--${#iterations_arr[@]}"
+
+}
+
+json_ar_to_bash_arr() {
+  remove_spaces=${1// /}
+  remove_left_braces=${remove_spaces//[/}
+  remove_right_braces=${remove_left_braces//]/}
+  change_commas_to_spaces=${remove_right_braces//,/ }
+  remove_quotes=${change_commas_to_spaces//\"/}
+  bash_arr=$remove_quotes
+}
+
+get_json() {
+  python3 -c "import sys, json; print(str(json.load(sys.stdin)['${1}']).replace(\"'\", '\"'))" 2>/dev/null
 }
 
 generate_params() {
@@ -67,7 +127,7 @@ compile_cuda_files() {
 
 profile_programs() {
 
-  [[ -d "${profiling_dir}" ]] || mkdir "${profiling_dir}"
+  [[ -d "${profiling_dir}" ]] || mkdir "${profiling_dir}" && rm -f "${profiling_dir}/*"
 
   files_to_profile=("${PWD}"/"${compiled_dir}"/*"${file_name_attachement}")
 
@@ -76,8 +136,8 @@ profile_programs() {
     info "Profiling ${file_name}... (${ca_size}, ${iterations}, ${block_size})"
     start=$(date +%s)
     sudo nvprof --unified-memory-profiling off ./"${compiled_dir}/${file_name}" \
-        2>"${profiling_dir}/${file_name}"
-    printf "%s\n" $(($(date +%s) - start))s >> "${profiling_dir}/${file_name}"
+      2>"${profiling_dir}/${file_name}"
+    printf "%s\n" $(($(date +%s) - start))s >>"${profiling_dir}/${file_name}"
   done
 }
 
@@ -102,12 +162,14 @@ parse_profile_outputs() {
     data+=("${label_name}" "$ca_size" "$iterations" "$block_size" "${total_time}" "${values[3]}" "${values[6]}" "${values[7]}")
   done
 
-  printf "%s;%s;%s;%s;%s;%s;%s;%s\n" "${data[@]}" >>"${output_file_name}"
+  printf "%s;%s;%s;%s;%s;%s;%s;%s\n" "${data[@]}" >>"${summary_file}"
 }
 
 ## Script body
 start_script=$(date +%s)
-printf "" >"${output_file_name}"
+printf "" >"${summary_file}"
+
+[[ -z "$group" ]] || parse_conf
 
 for i in "${!ca_size_arr[@]}"; do
   ca_size=${ca_size_arr[i]}

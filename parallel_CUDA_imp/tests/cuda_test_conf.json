@@ -1,0 +1,57 @@
+{
+  "group_1": {
+    "test_specs": {
+      "block_size": [
+        16,
+        32,
+        16,
+        32
+      ],
+      "ca_size": [
+        100,
+        100,
+        1000,
+        1000
+      ],
+      "iterations": [
+        1000,
+        1000,
+        10000,
+        10000
+      ]
+    },
+    "tests_src": [
+      "global_memory.cu",
+      "global_memory_loop.cu",
+      "hybrid_memory_loop.cu",
+      "hybrid_memory.cu"
+    ]
+  },
+  "group_2": {
+    "test_specs": {
+      "block_size": [
+        16,
+        32,
+        16,
+        32
+      ],
+      "ca_size": [
+        100,
+        100,
+        1000,
+        1000
+      ],
+      "iterations": [
+        1000,
+        1000,
+        10000,
+        10000
+      ]
+    },
+    "tests_src": [
+      "shared_memory.cu",
+      "unified_memory.cu",
+      "unified_memory_loop.cu"
+    ]
+  }
+}
