@@ -96,7 +96,10 @@ parse_profile_outputs() {
 
     total_time=$(tail -n 1 "${prof}")
 
-    data+=("${prof##*/}" "$ca_size" "$iterations" "$block_size" "${total_time}" "${values[3]}" "${values[6]}" "${values[7]}")
+    label_name="${prof##*/}"
+    label_name="${label_name%${file_name_attachement}}"
+
+    data+=("${label_name}" "$ca_size" "$iterations" "$block_size" "${total_time}" "${values[3]}" "${values[6]}" "${values[7]}")
   done
 
   printf "%s;%s;%s;%s;%s;%s;%s;%s\n" "${data[@]}" >>"${output_file_name}"
