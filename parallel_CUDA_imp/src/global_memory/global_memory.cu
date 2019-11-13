@@ -1,11 +1,6 @@
 #include "../params.h"
 
-struct CA {
-    double *head;
-    double *Sy;
-    double *K;
-    double *Source;
-} h_ca;
+struct CA h_ca;
 
 double *d_write_head;
 CA *d_read_ca;

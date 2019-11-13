@@ -1,22 +1,11 @@
-#include <iostream>
-#include <numeric>
-#include <stdlib.h>
-#include <stdio.h>
-#include <math.h>
+#include "../params.h"
 
 #include <thrust/device_vector.h>
 #include <thrust/sort.h>
 #include <thrust/unique.h>
 #include <thrust/execution_policy.h>
 
-#include "params.h"
-
-struct CA {
-    double *head;
-    double *Sy;
-    double *K;
-    double *Source;
-} d_read, d_write;
+struct CA  d_read, d_write;
 
 void allocate_memory();
 void init_read_ca();
