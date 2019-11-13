@@ -34,10 +34,6 @@ void copy_data_from_CPU_to_GPU() {
 
 }
 
-void copy_data_from_GPU_to_CPU() {
-    CUDASAFECALL(cudaMemcpy(h_ca.head, d_write_head, sizeof(double) * ROWS * COLS, cudaMemcpyDeviceToHost));
-}
-
 void init_host_ca() {
     h_ca.head = new double[ROWS * COLS]();
     h_ca.Sy = new double[ROWS * COLS]();
@@ -65,3 +61,6 @@ void init_host_ca() {
     }
 }
 
+void copy_data_from_GPU_to_CPU() {
+    CUDASAFECALL(cudaMemcpy(h_ca.head, d_write_head, sizeof(double) * ROWS * COLS, cudaMemcpyDeviceToHost));
+}

@@ -1,7 +1,5 @@
 #include "shared_memory_common.cu"
 
-void perform_simulation_on_GPU();
-
 __global__ void simulation_step_kernel(struct CA *d_ca, double *d_write_head, int grid_size) {
     __shared__ double s_heads[BLOCK_SIZE + 2][BLOCK_SIZE + 2];
     __shared__ double s_K[BLOCK_SIZE + 2][BLOCK_SIZE + 2];
@@ -62,17 +60,6 @@ __global__ void simulation_step_kernel(struct CA *d_ca, double *d_write_head, in
     }
 }
 
-int main(void) {
-    init_host_ca();
-    copy_data_from_CPU_to_GPU();
-
-    perform_simulation_on_GPU();
-
-    copy_data_from_GPU_to_CPU();
-    write_heads_to_file(h_ca.head);
-    return 0;
-}
-
 void perform_simulation_on_GPU() {
     dim3 blockDim(BLOCK_SIZE, BLOCK_SIZE);
     const int blockCount = ceil((ROWS * COLS) / (BLOCK_SIZE * BLOCK_SIZE));
@@ -91,3 +78,13 @@ void perform_simulation_on_GPU() {
     }
 }
 
+int main(void) {
+    init_host_ca();
+    copy_data_from_CPU_to_GPU();
+
+    perform_simulation_on_GPU();
+
+    copy_data_from_GPU_to_CPU();
+    write_heads_to_file(h_ca.head);
+    return 0;
+}

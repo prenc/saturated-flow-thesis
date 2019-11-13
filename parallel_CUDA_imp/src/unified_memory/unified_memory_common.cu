@@ -24,7 +24,14 @@ void init_read_ca() {
             d_read.Source[i * ROWS + j] = 0;
         }
 
-    d_read.Source[posSy * ROWS + posSx] = qw;
+    int x,y;
+    double source;
+    for(int i = 0; i < NUMBER_OF_WELLS; i++){
+    	x = wellsRows[i];
+    	y = wellsCols[i];
+    	source = wellsQW[i];
+    	d_read.Source[y *ROWS + x] = source;
+    }
 }
 
 void init_write_head(){

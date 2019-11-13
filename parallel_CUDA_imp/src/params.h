@@ -31,10 +31,6 @@
 
 #define DELTA_T 4000
 #define KERNEL_LOOP_SIZE 100
-double qw = 0.001;
-
-int posSy = ROWS / 2;
-int posSx = COLS / 2;
 
 //multiple wells
 #define NUMBER_OF_WELLS 1
