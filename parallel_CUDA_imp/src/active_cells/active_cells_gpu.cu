@@ -205,9 +205,9 @@ void perform_simulation_on_GPU() {
 			cudaDeviceSynchronize();
 		}
 		activeBlockCount = dev_count* dev_count/ (BLOCK_SIZE * BLOCK_SIZE);
-		activeGridSize = sqrt(blockCount) + 1;
-		dim3 activeBlockCount2D(gridSize, gridSize);
-		simulation_step_kernel << < blockCount2D, blockSize >> > (d_read, d_write.head);
+		activeGridSize = sqrt(activeBlockCount) + 1;
+		dim3 activeBlockCount2D(activeGridSize, activeGridSize);
+		simulation_step_kernel << < activeBlockCount2D, blockSize >> > (d_read, d_write.head);
 		cudaDeviceSynchronize();
 
 		double *tmp1 = d_write.head;
