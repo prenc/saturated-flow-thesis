@@ -25,17 +25,18 @@
 #define BLOCK_SIZE 16
 
 #define DELTA_T 4000;
-double qw = 0.001;
 
-int posSy = ROWS / 2;
-int posSx = COLS / 2;
+#define NUMBER_OF_WELLS 1
+int wellsRows[NUMBER_OF_WELLS] = {ROWS / 2};
+int wellsCols[NUMBER_OF_WELLS] = {COLS / 2};
+double wellsQW[NUMBER_OF_WELLS] = {0.001};
 
 struct CA {
     double *head;
     double *Sy;
     double *K;
     double *Source;
-} h_ca, d_read, d_write;
+} h_ca;
 
 double *d_write_head;
 CA *d_read_ca;
@@ -51,12 +52,11 @@ __global__ void simulation_step_kernel(struct CA *d_ca, double *d_write_head) {
     unsigned idx_y = blockIdx.y * blockDim.y + threadIdx.y;
     unsigned idx_g = idx_y * COLS + idx_x;
 
+    double Q = 0;
+    double diff_head;
+    double tmp_t;
     if (idx_x < COLS && idx_y < ROWS)
         if (idx_y != 0 && idx_y != ROWS - 1) {
-            double Q = 0;
-            double diff_head;
-            double tmp_t;
-
             if (idx_x >= 1) {
                 diff_head = d_ca->head[idx_g - 1] - d_ca->head[idx_g];
                 tmp_t = d_ca->K[idx_g] * THICKNESS;
@@ -181,7 +181,14 @@ void init_host_ca() {
             h_ca.Source[i * ROWS + j] = 0;
         }
 
-    h_ca.Source[posSy * ROWS + posSx] = qw;
+    int x,y;
+    double source;
+    for(int i = 0; i < NUMBER_OF_WELLS; i++){
+    	x = wellsRows[i];
+    	y = wellsCols[i];
+    	source = wellsQW[i];
+    	h_ca.Source[y *ROWS + x] = source;
+    }
 }
 
 /**
