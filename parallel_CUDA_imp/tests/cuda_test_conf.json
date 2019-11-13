@@ -20,7 +20,7 @@
         10000
       ]
     },
-    "tests_src": [
+    "test_src": [
       "global_memory.cu",
       "global_memory_loop.cu",
       "hybrid_memory_loop.cu",
@@ -48,7 +48,7 @@
         10000
       ]
     },
-    "tests_src": [
+    "test_src": [
       "shared_memory.cu",
       "unified_memory.cu",
       "unified_memory_loop.cu"

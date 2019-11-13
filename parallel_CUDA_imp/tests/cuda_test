@@ -47,29 +47,29 @@ parse_conf() {
   test_params=$(get_json "${group}" <"${conf_file}")
   [[ -z "${test_params}" ]] && error "No such test group" 5
 
-  test_specs=$(echo "${test_params}" | get_json "test_specs")
+  test_specs=$(get_json "test_specs" <<< "${test_params}")
   [[ -z "${test_specs}" ]] && error "Conf file syntax error" 3
 
+  json_arr_to_bash_arr "$(get_json "ca_size" <<<"${test_specs}")"
+  mapfile -d" " ca_size_arr <<<"${bash_arr}"
+  (("${#ca_size_arr[@]}")) || error "Conf file syntax error in ca_size of ${group} group" 3
 
-  json_ar_to_bash_arr "$(get_json "ca_size" <<< "${test_specs}")"
-  mapfile -d" " ca_size_arr <<< "${bash_arr}"
-  (( "${#ca_size_arr[@]}" )) || error "Conf file syntax error in ca_size of ${group} group" 3
+  json_arr_to_bash_arr "$(get_json "block_size" <<<"${test_specs}")"
+  mapfile -d" " block_size_arr <<<"${bash_arr}"
+  (("${#block_size_arr[@]}")) || error "Conf file syntax error in block_size of ${group} group" 3
 
-  json_ar_to_bash_arr "$(get_json "block_size" <<< "${test_specs}")"
-  mapfile -d" " block_size_arr <<< "${bash_arr}"
-  (( "${#block_size_arr[@]}" )) || error "Conf file syntax error in block_size of ${group} group" 3
+  json_arr_to_bash_arr "$(get_json "iterations" <<<"${test_specs}")"
+  mapfile -d" " iterations_arr <<<"${bash_arr}"
+  (("${#iterations_arr[@]}")) || error "Conf file syntax error in iterations of ${group} group" 3
 
-  json_ar_to_bash_arr "$(get_json "iterations" <<< "${test_specs}")"
-  mapfile -d" " iterations_arr <<< "${bash_arr}"
-  (( "${#iterations_arr[@]}" )) || error "Conf file syntax error in iterations of ${group} group" 3
-
-  echo "${ca_size_arr[*]}--${#ca_size_arr[@]}"
-  echo "${block_size_arr[*]}--${#block_size_arr[@]}"
-  echo "${iterations_arr[*]}--${#iterations_arr[@]}"
-
+  test_src=$(get_json "test_src" <<< "${test_params}")
+  [[ -z "${test_src}" ]] && error "Conf file syntax error" 3
+  json_arr_to_bash_arr "${test_src}"
+  mapfile -d" " files_to_compile <<<"${bash_arr}"
+  (("${#files_to_compile[@]}")) || error "Cannot read test_src of ${group} group" 3
 }
 
-json_ar_to_bash_arr() {
+json_arr_to_bash_arr() {
   remove_spaces=${1// /}
   remove_left_braces=${remove_spaces//[/}
   remove_right_braces=${remove_left_braces//]/}
