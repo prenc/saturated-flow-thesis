@@ -82,7 +82,7 @@ profile_programs() {
 }
 
 parse_profile_outputs() {
-  profiling_data=("${PWD}"/"${profiling_dir}"/*)
+  profiling_data=("${PWD}"/"${profiling_dir}"/*"${file_name_attachement}")
 
   data=("memory_type" "ca_size" "iterations" "block_size" "total_time" "total_kernel_time" "kernel_min" "kernel_max")
 
@@ -103,7 +103,7 @@ parse_profile_outputs() {
 }
 
 ## Script body
-start=$(date +%s)
+start_script=$(date +%s)
 printf "" >"${output_file_name}"
 
 for i in "${!ca_size_arr[@]}"; do
@@ -121,8 +121,7 @@ for i in "${!ca_size_arr[@]}"; do
 
 done
 
-end=$(date +%s)
-info "Script time: $((end - start))s"
+info "Script time: $(($(date +%s) - start_script))s"
 
 exit 0
 
