@@ -25,10 +25,11 @@ ca_size_arr=("100" "100" "1000" "1000")
 block_size_arr=("16" "32" "16" "32")
 iterations_arr=("1000" "1000" "10000" "10000")
 params_file="../src/params.h"
-summary_file="prof_summary"
+summary_file="prof_summary_${script_start_time}"
 compiled_dir="compiled"
 profiling_dir="profiling"
 conf_file="cuda_test_conf.json"
+model_out_file="heads_ca.txt"
 ## Func definitions
 info() { #@ DESCRIPTION: print information about running process
   #@ USAGE: ok information
@@ -39,6 +40,7 @@ error() { #@ DESCRIPTION: print error message and exit with supplied return code
   #@ USAGE: error information error_code
   #@ REQUIRES: scriptname
   printf "${scriptname}: [\e[31mERROR\e[0m] %s\n" "$1" >&2
+  rm -f "${summary_file}"
   exit "${2:-2}"
 }
 
@@ -80,7 +82,9 @@ json_arr_to_bash_arr() {
 }
 
 get_json() {
-  python3 -c "import sys, json; print(str(json.load(sys.stdin)['${1}']).replace(\"'\", '\"'))" 2>/dev/null
+  if ! python3 -c "import sys, json; print(str(json.load(sys.stdin)['${1}']).replace(\"'\", '\"'))" 2>/dev/null; then
+    error "Cannot parse json for ${1} key." 4
+  fi
 }
 
 generate_params() {
@@ -146,42 +150,74 @@ profile_programs() {
   files_to_profile=("${PWD}"/"${compiled_dir}"/*"${file_name_attachement}")
 
   for file_name_path in "${files_to_profile[@]}"; do
-    file_name=${file_name_path##*/}
-    info "Profiling ${file_name}... (${ca_size}, ${iterations}, ${block_size})"
-    start=$(date +%s)
-    ./"${compiled_dir}/${file_name}"
-    printf "%s\n" $(($(date +%s) - start))s >>"${profiling_dir}/${file_name}"
+    profile_program "${file_name_path}"
   done
+}
+
+profile_program() {
+  file_name=${1##*/}
+
+  info "Profiling ${file_name}... (${ca_size}, ${iterations}, ${block_size})"
+  run_profiling
+
+  {
+    printf "{\n" >>"${profiling_dir}/${file_name}"
+    printf "\"program_time\": \"%s\",\n" "$(evaluate_mins "${program_elapsed_time}")"
+    printf "\"program_valid\": \"%d\"\n" "$(validate_program_execution)"
+    printf "}\n"
+  } >"${profiling_dir}/${file_name}"
+}
+
+run_profiling() {
+  [[ -f "${model_out_file}" ]] && rm -f "${model_out_file}"
+
+  program_start_time=$(date +%s)
+  ./"${compiled_dir}/${file_name}"
+  program_elapsed_time=$(($(date +%s) - program_start_time))
+}
+
+validate_program_execution() {
+  if [[ -s "${model_out_file}" ]]; then
+      return 1
+    else
+      return 0
+  fi
 }
 
 parse_profile_outputs() {
   profiling_data=("${PWD}"/"${profiling_dir}"/*"${file_name_attachement}")
 
-  data=("memory_type" "ca_size" "iterations" "block_size" "total_time")
+  data=("memory_type" "ca_size" "iterations" "block_size" "program_valid" "total_time")
 
   for prof in "${profiling_data[@]}"; do
 
-    total_time=$(tail -n 1 "${prof}")
+    program_time=$(get_json "program_time" < "${prof}")
+    program_valid=$(get_json "program_valid" < "${prof}")
 
     label_name="${prof##*/}"
     label_name="${label_name%${file_name_attachement}}"
 
-    data+=("${label_name}" "$ca_size" "$iterations" "$block_size" "${total_time}")
+    data+=("${label_name}" "$ca_size" "$iterations" "$block_size" "${program_valid}" "${program_time}")
   done
 
-  printf "%s;%s;%s;%s;%s\n" "${data[@]}" >>"${summary_file}"
+  printf "%s;%s;%s;%s;%s;%s\n" "${data[@]}" >>"${summary_file}"
 }
 
 print_elapsed_time() {
   script_elapsed_time=$(($(date +%s) - script_start_time))
-  min=$(("${script_elapsed_time}" / 60))
-  sec=$(("${script_elapsed_time}" % 60))
 
-  msg="Script time ${min}m${sec}s"
+  msg="Script time $(evaluate_mins ${script_elapsed_time})"
 
   info "${msg}"
 
-  printf "%s\n" "${msg}" >> "${summary_file}"
+  printf "%s\n" "${msg}" >>"${summary_file}"
+}
+
+evaluate_mins() {
+  min=$(("${1}" / 60))
+  sec=$(("${1}" % 60))
+
+  printf "%sm%ss" ${min} ${sec}
 }
 
 ## Script body
