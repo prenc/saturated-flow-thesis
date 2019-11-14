@@ -148,8 +148,7 @@ profile_programs() {
     file_name=${file_name_path##*/}
     info "Profiling ${file_name}... (${ca_size}, ${iterations}, ${block_size})"
     start=$(date +%s)
-    sudo nvprof --unified-memory-profiling off ./"${compiled_dir}/${file_name}" \
-      2>"${profiling_dir}/${file_name}"
+    ./"${compiled_dir}/${file_name}"
     printf "%s\n" $(($(date +%s) - start))s >>"${profiling_dir}/${file_name}"
   done
 }
@@ -157,25 +156,25 @@ profile_programs() {
 parse_profile_outputs() {
   profiling_data=("${PWD}"/"${profiling_dir}"/*"${file_name_attachement}")
 
-  data=("memory_type" "ca_size" "iterations" "block_size" "total_time" "total_kernel_time" "kernel_min" "kernel_max")
+  data=("memory_type" "ca_size" "iterations" "block_size" "total_time")
 
   for prof in "${profiling_data[@]}"; do
-    while read -r line; do
-      if [[ $line =~ ^"GPU activities:" ]]; then
-        read -r -a values <<<"${line}"
-        break
-      fi
-    done <"${prof}"
+#    while read -r line; do
+#      if [[ $line =~ ^"GPU activities:" ]]; then
+#        read -r -a values <<<"${line}"
+#        break
+#      fi
+#    done <"${prof}"
 
     total_time=$(tail -n 1 "${prof}")
 
     label_name="${prof##*/}"
     label_name="${label_name%${file_name_attachement}}"
 
-    data+=("${label_name}" "$ca_size" "$iterations" "$block_size" "${total_time}" "${values[3]}" "${values[6]}" "${values[7]}")
+    data+=("${label_name}" "$ca_size" "$iterations" "$block_size" "${total_time}")
   done
 
-  printf "%s;%s;%s;%s;%s;%s;%s;%s\n" "${data[@]}" >>"${summary_file}"
+  printf "%s;%s;%s;%s;%s\n" "${data[@]}" >>"${summary_file}"
 }
 
 ## Script body
