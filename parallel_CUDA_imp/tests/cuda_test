@@ -19,11 +19,11 @@ while (($#)); do
     ;;
   esac
 done
-## Constants
+## Constants and defaults
 ca_size_arr=("100" "100" "1000" "1000")
 block_size_arr=("16" "32" "16" "32")
 iterations_arr=("1000" "1000" "10000" "10000")
-params_file="params.h"
+params_file="../src/params.h"
 summary_file="prof_summary"
 compiled_dir="compiled"
 profiling_dir="profiling"
@@ -62,7 +62,9 @@ parse_conf() {
   mapfile -t iterations_arr <<<"${bash_arr}"
   (("${#iterations_arr[@]}")) || error "Conf file syntax error in iterations of ${group} group" 3
 
-  # todo check if arrs have the same length
+  if [[ ${#iterations_arr[@]} != "${#block_size_arr[@]}" ]] || [[ ${#ca_size_arr[@]} != "${#block_size_arr[@]}" ]]; then
+    error "Conf file syntax error of ${group} group. Test_specs sizes varies" 3
+  fi
 
   test_src=$(get_json "test_src" <<<"${test_params}")
   [[ -z "${test_src}" ]] && error "Conf file syntax error" 3
@@ -73,7 +75,7 @@ parse_conf() {
 
 json_arr_to_bash_arr() {
   remove_some_chars=${1//[$'\t\n\r \"\]\[']/}
-  bash_arr="$(tr "," "\n" <<< "${remove_some_chars}")"
+  bash_arr="$(tr "," "\n" <<<"${remove_some_chars}")"
 }
 
 get_json() {
@@ -112,7 +114,7 @@ compile_cuda_files() {
   mapfile -t all_cuda_files <<<"$(find ../src -type f -name "*.cu")"
 
   if [[ -z ${cuda_files_from_conf[*]} ]]; then
-     read -r -a files_to_compile <<< "${all_cuda_files[@]}"
+    read -r -a files_to_compile <<<"${all_cuda_files[@]}"
   else
     for cuda_file_conf in "${cuda_files_from_conf[@]}"; do
       for cuda_file in "${all_cuda_files[@]}"; do
@@ -179,6 +181,9 @@ parse_profile_outputs() {
 ## Script body
 start_script=$(date +%s)
 printf "" >"${summary_file}"
+
+# todo remove summary_file when exit no 0
+# todo remove params.h when exit no 0 and other cases when not needed
 
 [[ -z "$group" ]] || parse_conf
 
