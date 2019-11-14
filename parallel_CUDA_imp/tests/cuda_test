@@ -7,6 +7,7 @@
 shopt -s nullglob   # allow globs to return null string
 ## Script metadata
 scriptname=${0##*/} # name that script is invoked with
+script_start_time=$(date +%s)
 ## Parse command-line options
 while (($#)); do
   case $1 in
@@ -89,7 +90,6 @@ generate_params() {
 
   new_params_file="new_params_ble_ble_ble"
 
-
   printf "" >"${new_params_file}"
   while read -r line; do
     if [[ $line =~ ^"${match_ca_size}" ]]; then
@@ -160,12 +160,6 @@ parse_profile_outputs() {
   data=("memory_type" "ca_size" "iterations" "block_size" "total_time")
 
   for prof in "${profiling_data[@]}"; do
-#    while read -r line; do
-#      if [[ $line =~ ^"GPU activities:" ]]; then
-#        read -r -a values <<<"${line}"
-#        break
-#      fi
-#    done <"${prof}"
 
     total_time=$(tail -n 1 "${prof}")
 
@@ -178,9 +172,20 @@ parse_profile_outputs() {
   printf "%s;%s;%s;%s;%s\n" "${data[@]}" >>"${summary_file}"
 }
 
+print_elapsed_time() {
+  script_elapsed_time=$(($(date +%s) - script_start_time))
+  min=$(("${script_elapsed_time}" / 60))
+  sec=$(("${script_elapsed_time}" % 60))
+
+  msg="Script time ${min}m${sec}s"
+
+  info "${msg}"
+
+  printf "%s\n" "${msg}" >> "${summary_file}"
+}
+
 ## Script body
-start_script=$(date +%s)
-printf "" >"${summary_file}"
+[[ -f "${summary_file}" ]] && true >"${summary_file}"
 
 # todo remove summary_file when exit no 0
 # todo remove params.h when exit no 0 and other cases when not needed
@@ -202,6 +207,6 @@ for i in "${!ca_size_arr[@]}"; do
 
 done
 
-info "Script time: $(($(date +%s) - start_script))s"
+print_elapsed_time
 
 exit 0
