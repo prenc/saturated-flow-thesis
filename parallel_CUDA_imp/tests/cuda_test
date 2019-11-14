@@ -148,7 +148,7 @@ profile_programs() {
     file_name=${file_name_path##*/}
     info "Profiling ${file_name}... (${ca_size}, ${iterations}, ${block_size})"
     start=$(date +%s)
-    sudo nvprof --unified-memory-profiling off ./"${compiled_dir}/${file_name}" \
+    sudo -E nvprof --unified-memory-profiling off ./"${compiled_dir}/${file_name}" \
       2>"${profiling_dir}/${file_name}"
     printf "%s\n" $(($(date +%s) - start))s >>"${profiling_dir}/${file_name}"
   done
