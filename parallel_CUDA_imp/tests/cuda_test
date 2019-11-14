@@ -87,7 +87,7 @@ generate_params() {
   match_itarations="#define SIMULATION_ITERATIONS "
   match_block_size="#define BLOCK_SIZE "
 
-  new_params_file="/tmp/new_params_ble_ble_ble"
+  new_params_file="new_params_ble_ble_ble"
 
   printf "" >"${new_params_file}"
   while read -r line; do
