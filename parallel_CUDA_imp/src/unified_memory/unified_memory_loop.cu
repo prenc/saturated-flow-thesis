@@ -8,36 +8,36 @@ __global__ void simulation_step_kernel(struct CA d_ca, double *d_write_head) {
     double Q, diff_head, tmp_t, ht1, ht2;
     for(int i = 0; i < KERNEL_LOOP_SIZE; i++){
     	if (idx_x < COLS && idx_y < ROWS)
-    	        if (idx_y != 0 && idx_y != ROWS - 1) {
-    	            Q = 0;
-    	            if (idx_x >= 1) {
-    	                diff_head = d_ca.head[idx_g - 1] - d_ca.head[idx_g];
-    	                tmp_t = d_ca.K[idx_g] * THICKNESS;
-    	                Q += diff_head * tmp_t;
-    	            }
-    	            if (idx_y >= 1) {
-    	                diff_head = d_ca.head[(idx_y - 1) * COLS + idx_x] - d_ca.head[idx_g];
-    	                tmp_t = d_ca.K[idx_g] * THICKNESS;
-    	                Q += diff_head * tmp_t;
-    	            }
-    	            if (idx_x + 1 < COLS) {
-    	                diff_head = d_ca.head[idx_g + 1] - d_ca.head[idx_g];
-    	                tmp_t = d_ca.K[idx_g] * THICKNESS;
-    	                Q += diff_head * tmp_t;
-    	            }
-    	            if (idx_y + 1 < ROWS) {
-    	                diff_head = d_ca.head[(idx_y + 1) * COLS + idx_x] - d_ca.head[idx_g];
-    	                tmp_t = d_ca.K[idx_g] * THICKNESS;
-    	                Q += diff_head * tmp_t;
-    	            }
+            if (idx_y != 0 && idx_y != ROWS - 1) {
+                Q = 0;
+                if (idx_x >= 1) {
+                    diff_head = d_ca.head[idx_g - 1] - d_ca.head[idx_g];
+                    tmp_t = d_ca.K[idx_g] * THICKNESS;
+                    Q += diff_head * tmp_t;
+                }
+                if (idx_y >= 1) {
+                    diff_head = d_ca.head[(idx_y - 1) * COLS + idx_x] - d_ca.head[idx_g];
+                    tmp_t = d_ca.K[idx_g] * THICKNESS;
+                    Q += diff_head * tmp_t;
+                }
+                if (idx_x + 1 < COLS) {
+                    diff_head = d_ca.head[idx_g + 1] - d_ca.head[idx_g];
+                    tmp_t = d_ca.K[idx_g] * THICKNESS;
+                    Q += diff_head * tmp_t;
+                }
+                if (idx_y + 1 < ROWS) {
+                    diff_head = d_ca.head[(idx_y + 1) * COLS + idx_x] - d_ca.head[idx_g];
+                    tmp_t = d_ca.K[idx_g] * THICKNESS;
+                    Q += diff_head * tmp_t;
+                }
 
-    	            Q -= d_ca.Source[idx_g];
+                Q -= d_ca.Source[idx_g];
 
-    	            ht1 = Q * DELTA_T;
-    	            ht2 = AREA * d_ca.Sy[idx_g];
+                ht1 = Q * DELTA_T;
+                ht2 = AREA * d_ca.Sy[idx_g];
 
-    	          d_write_head[idx_g] = d_ca.head[idx_g] + ht1 / ht2;
-    	        }
+              d_write_head[idx_g] = d_ca.head[idx_g] + ht1 / ht2;
+            }
    }
 }
 
@@ -64,7 +64,6 @@ int main(void) {
 
     perform_simulation_on_GPU();
 
-    write_heads_to_file(d_write.head);
     free_allocated_memory();
     return 0;
 }
