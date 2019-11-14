@@ -89,6 +89,7 @@ generate_params() {
 
   new_params_file="new_params_ble_ble_ble"
 
+
   printf "" >"${new_params_file}"
   while read -r line; do
     if [[ $line =~ ^"${match_ca_size}" ]]; then
