@@ -1,57 +1,210 @@
 {
-  "group_1": {
+  "memory_imp_comp_ca_size_iter_16": {
     "test_specs": {
       "block_size": [
         16,
-        32,
         16,
-        32
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16
       ],
       "ca_size": [
-        100,
-        100,
+        1000,
+        2000,
+        4000,
+        6000,
+        8000,
+        10000,
+        1000,
+        1000,
+        1000,
+        1000,
         1000,
         1000
       ],
       "iterations": [
         1000,
         1000,
+        1000,
+        1000,
+        1000,
+        1000,
         10000,
-        10000
+        20000,
+        40000,
+        60000,
+        80000,
+        100000
       ]
     },
     "test_src": [
       "global_memory.cu",
-      "global_memory_loop.cu",
-      "hybrid_memory_loop.cu",
+      "shared_memory.cu",
+      "unified_memory.cu",
       "hybrid_memory.cu"
     ]
   },
-  "group_2": {
+  "memory_imp_comp_ca_size_iter_16_loop": {
     "test_specs": {
       "block_size": [
         16,
-        32,
         16,
-        32
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16
       ],
       "ca_size": [
         100,
+        200,
+        400,
+        600,
+        800,
+        1000,
         100,
+        100,
+        100,
+        100,
+        100,
+        100
+      ],
+      "iterations": [
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        2000,
+        4000,
+        6000,
+        8000,
+        10000
+      ]
+    },
+    "test_src": [
+      "global_memory_loop.cu",
+      "shared_memory_loop.cu",
+      "unified_memory_loop.cu",
+      "hybrid_memory_loop.cu"
+    ]
+  },
+  "memory_imp_comp_ca_size_iter_32": {
+    "test_specs": {
+      "block_size": [
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32
+      ],
+      "ca_size": [
+        1000,
+        2000,
+        4000,
+        6000,
+        8000,
+        10000,
+        1000,
+        1000,
+        1000,
+        1000,
         1000,
         1000
       ],
       "iterations": [
         1000,
         1000,
+        1000,
+        1000,
+        1000,
+        1000,
         10000,
+        20000,
+        40000,
+        60000,
+        80000,
+        100000
+      ]
+    },
+    "test_src": [
+      "global_memory.cu",
+      "shared_memory.cu",
+      "unified_memory.cu",
+      "hybrid_memory.cu"
+    ]
+  },
+  "memory_imp_comp_ca_size_iter_32_loop": {
+    "test_specs": {
+      "block_size": [
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32
+      ],
+      "ca_size": [
+        100,
+        200,
+        400,
+        600,
+        800,
+        1000,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100
+      ],
+      "iterations": [
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        2000,
+        4000,
+        6000,
+        8000,
         10000
       ]
     },
     "test_src": [
-      "shared_memory.cu",
-      "unified_memory.cu",
-      "unified_memory_loop.cu"
+      "global_memory_loop.cu",
+      "shared_memory_loop.cu",
+      "unified_memory_loop.cu",
+      "hybrid_memory_loop.cu"
     ]
   }
 }
