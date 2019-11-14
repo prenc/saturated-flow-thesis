@@ -47,35 +47,33 @@ parse_conf() {
   test_params=$(get_json "${group}" <"${conf_file}")
   [[ -z "${test_params}" ]] && error "No such test group" 5
 
-  test_specs=$(get_json "test_specs" <<< "${test_params}")
+  test_specs=$(get_json "test_specs" <<<"${test_params}")
   [[ -z "${test_specs}" ]] && error "Conf file syntax error" 3
 
   json_arr_to_bash_arr "$(get_json "ca_size" <<<"${test_specs}")"
-  mapfile -d" " ca_size_arr <<<"${bash_arr}"
+  mapfile -t ca_size_arr <<<"${bash_arr}"
   (("${#ca_size_arr[@]}")) || error "Conf file syntax error in ca_size of ${group} group" 3
 
   json_arr_to_bash_arr "$(get_json "block_size" <<<"${test_specs}")"
-  mapfile -d" " block_size_arr <<<"${bash_arr}"
+  mapfile -t block_size_arr <<<"${bash_arr}"
   (("${#block_size_arr[@]}")) || error "Conf file syntax error in block_size of ${group} group" 3
 
   json_arr_to_bash_arr "$(get_json "iterations" <<<"${test_specs}")"
-  mapfile -d" " iterations_arr <<<"${bash_arr}"
+  mapfile -t iterations_arr <<<"${bash_arr}"
   (("${#iterations_arr[@]}")) || error "Conf file syntax error in iterations of ${group} group" 3
 
-  test_src=$(get_json "test_src" <<< "${test_params}")
+  # todo check if arrs have the same length
+
+  test_src=$(get_json "test_src" <<<"${test_params}")
   [[ -z "${test_src}" ]] && error "Conf file syntax error" 3
   json_arr_to_bash_arr "${test_src}"
-  mapfile -d" " files_to_compile <<<"${bash_arr}"
-  (("${#files_to_compile[@]}")) || error "Cannot read test_src of ${group} group" 3
+  mapfile -t cuda_files_from_conf <<<"${bash_arr}"
+  (("${#cuda_files_from_conf[@]}")) || error "Cannot read test_src of ${group} group" 3
 }
 
 json_arr_to_bash_arr() {
-  remove_spaces=${1// /}
-  remove_left_braces=${remove_spaces//[/}
-  remove_right_braces=${remove_left_braces//]/}
-  change_commas_to_spaces=${remove_right_braces//,/ }
-  remove_quotes=${change_commas_to_spaces//\"/}
-  bash_arr=$remove_quotes
+  remove_some_chars=${1//[$'\t\n\r \"\]\[']/}
+  bash_arr="$(tr "," "\n" <<< "${remove_some_chars}")"
 }
 
 get_json() {
@@ -104,21 +102,34 @@ generate_params() {
   cat ${new_params_file} >${params_file}
   rm -f ${new_params_file}
 
-  file_name_attachement=_"${ca_size}"_"${iterations}"_"${block_size}"
+  file_name_attachement="_${ca_size}_${iterations}_${block_size}"
 }
 
 compile_cuda_files() {
+  unset files_to_compile
 
   [[ -d "${compiled_dir}" ]] || mkdir "${compiled_dir}"
-  files_to_compile=("${PWD}"/*.cu)
+  mapfile -t all_cuda_files <<<"$(find ../src -type f -name "*.cu")"
+
+  if [[ -z ${cuda_files_from_conf[*]} ]]; then
+     read -r -a files_to_compile <<< "${all_cuda_files[@]}"
+  else
+    for cuda_file_conf in "${cuda_files_from_conf[@]}"; do
+      for cuda_file in "${all_cuda_files[@]}"; do
+        if [ "${cuda_file##*/}" == "${cuda_file_conf//[$'\t\n\r ']/}" ]; then
+          files_to_compile+=("${cuda_file}")
+        fi
+      done
+    done
+  fi
 
   for file_name_path in "${files_to_compile[@]}"; do
-    file_name_in=${file_name_path##*/}
-    file_name_out=${file_name_in%\.cu}${file_name_attachement}
+    file_name_in="${file_name_path##*/}"
+    file_name_out="${file_name_in%\.cu}${file_name_attachement}"
 
     if [[ ! -f "${compiled_dir}/${file_name_out}" ]]; then
       info "Compiling ${file_name_in}... (${ca_size}, ${iterations}, ${block_size})"
-      nvcc "${file_name_in}" -o "${compiled_dir}/${file_name_out}"
+      nvcc "${file_name_path}" -o "${compiled_dir}/${file_name_out}"
     else
       info "Found ${file_name_out}. No need to compile again..."
     fi
