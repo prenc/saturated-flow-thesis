@@ -1,4 +1,4 @@
-#include "global_memory_common.cu"
+#include "global_memory_common.h"
 
 __global__ void simulation_step_kernel(struct CA *d_ca, double *d_write_head) {
     unsigned idx_x = blockIdx.x * blockDim.x + threadIdx.x;

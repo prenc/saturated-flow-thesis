@@ -122,7 +122,7 @@ compile_cuda_files() {
   unset files_to_compile
 
   [[ -d "${COMPILED_DIR_PATH}" ]] || mkdir "${COMPILED_DIR_PATH}"
-  mapfile -t all_cuda_files <<<"$(find ../.. -type f \( -name "*.cu" -o -name "*.c" \) -not -path "*/common/*")"
+  mapfile -t all_cuda_files <<<"$(find ../.. -type f \( -name "*.cu" -o -name "*.c" \) -not -path "*/common/*" -not -path "*/CMakeFiles/*")"
 
   if [[ -z ${cuda_files_from_conf[*]} ]]; then
     read -r -a files_to_compile <<<"${all_cuda_files[@]}"
@@ -148,9 +148,9 @@ compile_cuda_files() {
         nvcc "${file_name_path}" -o "${COMPILED_DIR_PATH}/${file_name_out}"
         ;;
       "c")
-        info "Compiling using \"make\": '${file_name_in}'"
-        cmake "${file_name_path}"
-        make -C "${file_name_path}" 2>/dev/null
+        info "Compiling using \"make\": \'${file_name_in}\'"
+        cmake "${file_name_path%/*}"
+        make -C "${file_name_path%/*}"
         mv "${file_name_path%\.c}" "${COMPILED_DIR_PATH}/${file_name_out}"
         ;;
       *)
