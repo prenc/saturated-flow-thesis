@@ -36,9 +36,9 @@ MATCH_ITERATIONS_COUNT="#define SIMULATION_ITERATIONS "
 MATCH_BLOCK_SIZE="#define BLOCK_SIZE "
 
 if [[ -z ${test_group} ]]; then
-  SUMMARY_PATH="default_test${script_start_time}"
+  SUMMARY_PATH="default_test_${script_start_time}"
 else
-  SUMMARY_PATH="${test_group}${script_start_time}"
+  SUMMARY_PATH="${test_group}_${script_start_time}"
 fi
 ## Func definitions
 info() { #@ DESCRIPTION: print information about running process
@@ -143,11 +143,25 @@ compile_cuda_files() {
 
   for file_name_path in "${files_to_compile[@]}"; do
     file_name_in="${file_name_path##*/}"
-    file_name_out="${file_name_in%\.cu}${file_name_attachement}"
+    file_name_out="${file_name_in%\.*}${file_name_attachement}"
 
+    info "*** ${ca_size}, ${iterations}, ${block_size}) ***"
     if [[ ! -f "${COMPILED_DIR_PATH}/${file_name_out}" ]]; then
-      info "Compiling ${file_name_in}... (${ca_size}, ${iterations}, ${block_size})"
-      nvcc "${file_name_path}" -o "${COMPILED_DIR_PATH}/${file_name_out}"
+      case ${file_name_in##*\.} in
+      "cu")
+        info "Compiling using \"nvcc\": \'${file_name_in}\'"
+        nvcc "${file_name_path}" -o "${COMPILED_DIR_PATH}/${file_name_out}"
+        ;;
+      "c")
+        info "Compiling using \"make\": \'${file_name_in}\'"
+        cmake "${file_name_path}"
+        make -C "${file_name_path}"
+        mv "${file_name_path%\.c}" "${COMPILED_DIR_PATH}/${file_name_out}"
+        ;;
+      *)
+        warning "Skipping file. Unknown file format: \'${file_name_in}\'"
+        ;;
+      esac
     else
       info "Found ${file_name_out}. No need to compile again..."
     fi
@@ -159,6 +173,7 @@ profile_programs() {
 
   files_to_profile=("${PWD}"/"${COMPILED_DIR_PATH}"/*"${file_name_attachement}")
 
+  info "*** ${ca_size}, ${iterations}, ${block_size} ***"
   for file_name_path in "${files_to_profile[@]}"; do
     profile_program "${file_name_path}"
   done
@@ -167,7 +182,7 @@ profile_programs() {
 profile_program() {
   file_name=${1##*/}
 
-  info "Profiling ${file_name}... (${ca_size}, ${iterations}, ${block_size})"
+  info "Profiling: \'${file_name}\'"
   run_profiling
 
   {
@@ -202,7 +217,7 @@ parse_profiling_outputs() {
 
   printf "%s;%s;%s;%s;%s;%s\n" "${summary[@]}" >>"${SUMMARY_PATH}"
 
-  # todo distinguish by filename not only file_name_attachement, instead of removing
+  # todo distinguish filename by not only file_name_attachement, instead of clearing PROFILING_DIR_PATH
   rm -f "${PWD}/${PROFILING_DIR_PATH}"/*
 }
 
