@@ -10,9 +10,9 @@
 
 //MODEL PARAMS
 
-#define CA_SIZE 100
-#define SIMULATION_ITERATIONS 1000
-#define BLOCK_SIZE 16
+#define CA_SIZE 1000
+#define SIMULATION_ITERATIONS 10000
+#define BLOCK_SIZE 32
 
 #define ROWS CA_SIZE
 #define COLS CA_SIZE
@@ -39,8 +39,8 @@ int wellsCols[NUMBER_OF_WELLS] = {COLS / 2};
 double wellsQW[NUMBER_OF_WELLS] = {0.001};
 
 struct CA {
-    double *head;
-    double *Sy;
-    double *K;
-    double *Source;
+double *head;
+double *Sy;
+double *K;
+double *Source;
 };
