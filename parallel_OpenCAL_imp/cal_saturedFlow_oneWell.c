@@ -1,4 +1,33 @@
-#include "params.h"
+#include "../parallel_CUDA_imp/src/params.h"
+
+#include <OpenCAL/cal2D.h>
+#include <OpenCAL/cal2DIO.h>
+#include <OpenCAL/cal2DRun.h>
+#include <OpenCAL/cal2DBuffer.h>
+#include <OpenCAL/cal2DReduction.h>
+#include <float.h>
+#include <string.h>
+
+#define ROWS CA_SIZE
+#define COLS CA_SIZE
+#define LAYERS 1
+#define CELL_SIZE_X 10
+#define CELL_SIZE_Y 10
+#define SPESSORE 50
+
+#define Syinitial 0.1
+#define Kinitial  0.0000125
+
+#define headFixed 50
+#define headCalculated 50
+
+#define SIMULATION_ITERATIONS 1000
+
+#define NUMBER_OF_WELLS 1
+int rowMonitoringWell[ NUMBER_OF_WELLS] = {ROWS / 2};
+int colMonitoringWell[ NUMBER_OF_WELLS] = {COLS / 2};
+double monitoringWellQW[ NUMBER_OF_WELLS] = {0.001};
+
 
 struct CALModel2D* satured;
 struct CALSubstate2Dr* head; // carico
@@ -25,21 +54,21 @@ const char* extension = ".txt";
 
 
 
-// distanza di 45 gradi a 127 m  
+// distanza di 45 gradi a 127 m
 //     *
 //     |  *  127
-//     |    *     
-//     |      *   
+//     |    *
+//     |      *
 //     *--------*well
 //
 //    90=127/sqrt(2) in metri
 // un pozzo a 9 celle di distanza dal pozzo prencipale quindi (40,40)
 
-// distanza di 45 gradi a 170 m  
+// distanza di 45 gradi a 170 m
 //     *
 //     |  *  170
-//     |    *     
-//     |      *   
+//     |    *
+//     |      *
 //     *--------*well
 //
 //    120=170/sqrt(2) in metri
@@ -50,21 +79,21 @@ int numberofdays =1;
 void saturedTransitionFunctionHw(struct CALModel2D* ca)
 {
     double time_ =delta_t_*satured_simulation->step;
-   
+
     int days = time_/86400;
 
 
     if((numberofdays)*86400 <= time_)
     {
-        for(int i = 0; i < NUMBER_OF_WELLS; i++){
+/*        for(int i = 0; i < NUMBER_OF_WELLS; i++){
            fprintf(monitorWellFiles[i], "%d %f \n", days, 50-calGet2Dr(ca, head, rowMonitoringWell[i], colMonitoringWell[i]));
-        }
-        
+        }*/
+
         numberofdays++;
     }
     // fprintf(HWFile, "%f %f \n", time_, Hw);
     //  fprintf(monitorWellFile, "%f %f \n", time_, calGet2Dr(ca, head, rowMonitoringWell, colMonitoringWell));
-   
+
 }
 
 void saturedTransitionFunction(struct CALModel2D* ca, int i, int j)
@@ -74,7 +103,7 @@ void saturedTransitionFunction(struct CALModel2D* ca, int i, int j)
         return;
     }
     double diffHead=0.0;
-   
+
     double Q=0.0;
     double tmpT = 0.0;
     for (int n=1; n<ca->sizeof_X; n++){
@@ -90,7 +119,7 @@ void saturedTransitionFunction(struct CALModel2D* ca, int i, int j)
 
             diffHead = (calGetX2Dr(ca, head, i, j, n)- calGet2Dr(ca, head, i, j));
       }
-            
+
            // printf ("diffHead = %f\n",diffHead);
 
 
@@ -104,7 +133,7 @@ void saturedTransitionFunction(struct CALModel2D* ca, int i, int j)
     double area = CELL_SIZE_X*CELL_SIZE_Y;
     double ht1 = (Q*delta_t_)/(calGet2Dr(ca, Sy, i, j)*area);
     calSet2Dr(ca, head, i, j, ht1+calGet2Dr(ca, head, i, j));
-   
+
 }
 
 
@@ -179,25 +208,25 @@ void saturedInit(struct CALModel2D* ca)
 
 int main(){
 
-    for(int i = 0; i < NUMBER_OF_WELLS; i++){
+/*    for(int i = 0; i < NUMBER_OF_WELLS; i++){
         char* name_with_extension;
-        
-        name_with_extension = malloc(strlen(name)); /* make space for the new string (should check the return value ...) */
-        
-        strcpy(name_with_extension, name); /* copy name into the new var */
-        
+
+        name_with_extension = malloc(strlen(name)); *//* make space for the new string (should check the return value ...) *//*
+
+        strcpy(name_with_extension, name); *//* copy name into the new var *//*
+
         char char_arr [100];
         printf("%i\n", colMonitoringWell[i]);
         sprintf(char_arr, "%d", colMonitoringWell[i]);
         strcat(name_with_extension, char_arr);
-        strcat(name_with_extension, extension); /* add the extension */ 
+        strcat(name_with_extension, extension); *//* add the extension *//*
         printf("%s\n", name_with_extension);
 
         monitorWellFiles[i] =  fopen(name_with_extension, "w");
         fclose(monitorWellFiles[i]);
-        monitorWellFiles[i] =  fopen(name_with_extension, "a");    
-    }
-   
+        monitorWellFiles[i] =  fopen(name_with_extension, "a");
+    }*/
+
 
     // define of the satured CA and satured_simulation simulation objects
 	satured = calCADef2D(ROWS, COLS, CAL_VON_NEUMANN_NEIGHBORHOOD_2D, CAL_SPACE_FLAT, CAL_NO_OPT);
@@ -230,7 +259,7 @@ int main(){
     //         cont++;
     //         //printf("%d\t%d\t%f\n",i+1,j+1,lastModFlow[i*colsModFlow+j]);
     //    }
-            
+
     // //     //printf(" \n");
     // }
 
@@ -245,19 +274,19 @@ int main(){
     //        printf("%f ",lastModFlowCorretta[i*COLS+j]);
     //    }
     //    printf(" \n");
-           
+
     // }
 
 
-   
+
     // for(int i = 0; i< ROWS;i++){
     //    for(int j = 0; j< COLS;j++){
     //        printf("%f ",head->current[i*COLS+j]);
     //    }
     //    printf(" \n");
     // }
-    
-    
+
+
     calRunAddInitFunc2D(satured_simulation, saturedInit);
     calRunInitSimulation2D(satured_simulation);
     //calRunAddSteeringFunc2D(satured_simulation, saturedSimulationSteering);
@@ -267,12 +296,12 @@ int main(){
 	// calSaveSubstate2Dr(satured, head, "./satured_head_0000.txt");
     // calSaveSubstate2Dr(satured, K, "./satured_K_0000.txt");
     // calSaveSubstate2Dr(satured, SS, "./satured_SS_0000.txt");
-    
+
     // printf(" convergence = %f\n", convergence);
 	// // simulation run
 	  calRun2D(satured_simulation);
 
-    calSaveSubstate2Dr(satured, head, "./satured_head_LAST.txt");
+    //calSaveSubstate2Dr(satured, head, "./satured_head_LAST.txt");
     // calSaveSubstate2Dr(satured, K, "./satured_K_LAST.txt");
     // calSaveSubstate2Dr(satured, SS, "./satured_SS_LAST.txt");
     //calSaveSubstate2Dr(satured, convergence, "./satured_convergence_LAST.txt");
@@ -291,10 +320,12 @@ int main(){
 	calFinalize2D(satured);
 
 
+/*
      for(int i = 0; i < NUMBER_OF_WELLS; i++){
-        fclose(monitorWellFiles[i]); 
-    
+        fclose(monitorWellFiles[i]);
+
      }
 
+*/
 
 }

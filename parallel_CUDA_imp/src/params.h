@@ -2,17 +2,16 @@
 // Created by prenc on 11/10/19.
 //
 
-#include <iostream>
-#include <numeric>
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
 
 //MODEL PARAMS
 
-#define CA_SIZE 1000
-#define SIMULATION_ITERATIONS 10000
-#define BLOCK_SIZE 32
+#define CA_SIZE 100
+#define SIMULATION_ITERATIONS 1000
+#define BLOCK_SIZE 16
 
 #define ROWS CA_SIZE
 #define COLS CA_SIZE
