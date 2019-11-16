@@ -111,7 +111,7 @@
       "hybrid_memory_loop.cu"
     ]
   },
-  "active_cell_16": {
+  "active_cells_16": {
     "test_specs": {
       "block_size": [
         16, 16, 16, 16,
@@ -139,7 +139,7 @@
       "active_cells_gpu_const_block_number.cu"
     ]
   },
-  "active_cell_32": {
+  "active_cells_32": {
     "test_specs": {
       "block_size": [
         32, 32, 32, 32,

@@ -15,6 +15,7 @@ while (($#)); do
     usage
     ;;
   *)
+    # todo parse and run many test_groups
     test_group="$1"
     shift
     ;;
