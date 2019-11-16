@@ -127,7 +127,7 @@ compile_cuda_files() {
   unset files_to_compile
 
   [[ -d "${COMPILED_DIR_PATH}" ]] || mkdir "${COMPILED_DIR_PATH}"
-  mapfile -t all_cuda_files <<<"$(find ../src -type f -name "*.cu")"
+  mapfile -t all_cuda_files <<<"$(find ../.. -type f \( -name "*.cu" -o -name "*.c" \) -not -path "*/common/*")"
 
   if [[ -z ${cuda_files_from_conf[*]} ]]; then
     read -r -a files_to_compile <<<"${all_cuda_files[@]}"
