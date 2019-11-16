@@ -26,7 +26,6 @@ block_size_arr=("16" "32" "16" "32")
 iterations_arr=("1000" "1000" "10000" "10000")
 ## Constants
 PARAMS_PATH="../src/params.h"
-SUMMARY_PATH="prof_summary_${script_start_time}"
 COMPILED_DIR_PATH="compiled"
 PROFILING_DIR_PATH="profiling"
 CONFIG_PATH="cuda_test_conf.json"
@@ -34,6 +33,12 @@ TMP_PARAMS_PATH="new_params_ble_ble_ble"
 MATCH_CA_SIZE="#define CA_SIZE "
 MATCH_ITERATIONS_COUNT="#define SIMULATION_ITERATIONS "
 MATCH_BLOCK_SIZE="#define BLOCK_SIZE "
+
+if [[ -z ${test_group} ]]; then
+  SUMMARY_PATH="default_test${script_start_time}"
+else
+  SUMMARY_PATH="${test_group}${script_start_time}"
+fi
 ## Func definitions
 info() { #@ DESCRIPTION: print information about running process
   #@ USAGE: ok information
@@ -195,6 +200,9 @@ parse_profiling_outputs() {
   done
 
   printf "%s;%s;%s;%s;%s;%s\n" "${summary[@]}" >>"${SUMMARY_PATH}"
+
+  # todo distinguish by filename not only file_name_attachement, instead of removing
+  rm -f "${PWD}/${PROFILING_DIR_PATH}"/*
 }
 
 print_elapsed_time() {
