@@ -277,8 +277,10 @@ for test_name in "${test_names[@]}"; do
 
     parse_profiling_outputs
 
-    evaluate_test_time
   done
+
+  evaluate_test_time
+
 done
 
 exit 0
