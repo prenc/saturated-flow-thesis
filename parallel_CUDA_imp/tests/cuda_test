@@ -122,7 +122,8 @@ compile_cuda_files() {
   unset files_to_compile
 
   [[ -d "${COMPILED_DIR_PATH}" ]] || mkdir "${COMPILED_DIR_PATH}"
-  mapfile -t all_cuda_files <<<"$(find ../.. -type f \( -name "*.cu" -o -name "*.c" \) -not -path "*/common/*" -not -path "*/CMakeFiles/*")"
+  mapfile -t all_cuda_files <<<"$(find ../.. -type f \( -name "*.cu" -o -name "*.c" \) \
+    -not -path "*/common/*" -not -path "*/CMakeFiles/*")"
 
   if [[ -z ${cuda_files_from_conf[*]} ]]; then
     read -r -a files_to_compile <<<"${all_cuda_files[@]}"
@@ -136,11 +137,11 @@ compile_cuda_files() {
     done
   fi
 
+  info "*** ${ca_size}, ${iterations}, ${block_size} ***"
   for file_name_path in "${files_to_compile[@]}"; do
     file_name_in="${file_name_path##*/}"
     file_name_out="${file_name_in%\.*}${file_name_attachement}"
 
-    info "*** ${ca_size}, ${iterations}, ${block_size}) ***"
     if [[ ! -f "${COMPILED_DIR_PATH}/${file_name_out}" ]]; then
       case ${file_name_in##*\.} in
       "cu")
@@ -148,9 +149,9 @@ compile_cuda_files() {
         nvcc "${file_name_path}" -o "${COMPILED_DIR_PATH}/${file_name_out}"
         ;;
       "c")
-        info "Compiling using \"make\": \'${file_name_in}\'"
-        cmake "${file_name_path%/*}"
-        make -C "${file_name_path%/*}"
+        info "Compiling using \"make\": '${file_name_in}'"
+        cmake "${file_name_path%/*}" >/dev/null
+        make -C "${file_name_path%/*}" >/dev/null
         mv "${file_name_path%\.c}" "${COMPILED_DIR_PATH}/${file_name_out}"
         ;;
       *)
@@ -177,7 +178,7 @@ profile_programs() {
 profile_program() {
   file_name=${1##*/}
 
-  info "Profiling: \'${file_name}\'"
+  info "Profiling: '${file_name}'"
   run_profiling
 
   {
