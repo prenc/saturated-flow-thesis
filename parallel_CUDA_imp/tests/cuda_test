@@ -224,7 +224,7 @@ parse_profiling_outputs() {
     summary+=("${label_name}" "${ca_size}" "${iterations}" "${block_size}" "${program_valid}" "${program_time}")
   done
 
-  printf "%s;%s;%s;%s;%s;%s\n" "${summary[@]}" >>"${RESULTS_DIR_PATH}/${summary_path}"
+  printf "%s;%s;%s;%s;%s;%s\n" "${summary[@]}" >>"${summary_path}"
 
   # todo distinguish filename by not only file_name_attachement, instead of clearing PROFILING_DIR_PATH
   rm -f "${PROFILING_DIR_PATH}"/*
@@ -237,7 +237,7 @@ evaluate_test_time() {
 
   info "${msg}"
 
-  printf "%s\n" "${msg}" >>"${RESULTS_DIR_PATH}/${summary_path}"
+  printf "%s\n" "${msg}" >>"${summary_path}"
 }
 
 evaluate_mins() {
@@ -253,9 +253,11 @@ fi
 
 for test_name in "${test_names[@]}"; do
   script_start_time=$(date +%s)
-  summary_path="${test_name}_${script_start_time}"
+  summary_path="${RESULTS_DIR_PATH}/${test_name}_${script_start_time}"
 
-  [[ -f "${summary_path}" ]] && true >"${RESULTS_DIR_PATH}/${summary_path}"
+  if [[ ! -d "${RESULTS_DIR_PATH}" ]]; then
+    mkdir "${RESULTS_DIR_PATH}"
+  fi
 
   if [[ ${DEFAULT_TEST_NAME} != "${test_name}" ]]; then
     parse_configuration_file
