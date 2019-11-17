@@ -255,7 +255,7 @@ for test_name in "${test_names[@]}"; do
   script_start_time=$(date +%s)
   summary_path="${test_name}_${script_start_time}"
 
-  [[ -f "${summary_path}" ]] && true >"${summary_path}"
+  [[ -f "${summary_path}" ]] && true >"${RESULTS_DIR_PATH}/${summary_path}"
 
   if [[ ${DEFAULT_TEST_NAME} != "${test_name}" ]]; then
     parse_configuration_file
