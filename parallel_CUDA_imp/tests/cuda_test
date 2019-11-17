@@ -182,6 +182,9 @@ profile_programs() {
     fi
   done
 
+  echo ${files_to_profile[@]}
+  exit
+
   info "*** ${ca_size}, ${iterations}, ${block_size} ***"
   for file_name_path in "${files_to_profile[@]}"; do
     profile_program "${file_name_path}"
