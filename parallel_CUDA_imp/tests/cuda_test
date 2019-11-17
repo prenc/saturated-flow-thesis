@@ -150,7 +150,7 @@ compile_cuda_files() {
         ;;
       "c")
         info "Compiling using \"make\": '${file_name_in}'"
-        cmake "${file_name_path%/*}" >/dev/null
+        cmake -B"${file_name_path%/*}" -H"${file_name_path%/*}" >/dev/null
         make -C "${file_name_path%/*}" >/dev/null
         mv "${file_name_path%\.c}" "${COMPILED_DIR_PATH}/${file_name_out}"
         ;;
