@@ -166,6 +166,7 @@ compile_cuda_files() {
 
 profile_programs() {
   [[ -d "${PROFILING_DIR_PATH}" ]] || mkdir "${PROFILING_DIR_PATH}" && rm -f "${PROFILING_DIR_PATH}/*"
+  local files_to_profile
 
   for cuda_file_conf in "${cuda_files_from_conf[@]}"; do
     unset found_file
@@ -181,9 +182,6 @@ profile_programs() {
       warning "Could not find '${cuda_file_conf}' in '${COMPILED_DIR_PATH}' dir"
     fi
   done
-
-  echo ${files_to_profile[@]}
-  exit
 
   info "*** ${ca_size}, ${iterations}, ${block_size} ***"
   for file_name_path in "${files_to_profile[@]}"; do
