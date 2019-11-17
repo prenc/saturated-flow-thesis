@@ -1,7 +1,8 @@
 #include "../params.h"
 #include "../common/cuda_error_check.cu"
 #include "../common/write_heads_to_file.c"
-
+#include <iostream>
+#include <numeric>
 struct CA h_ca;
 
 double *d_write_head;

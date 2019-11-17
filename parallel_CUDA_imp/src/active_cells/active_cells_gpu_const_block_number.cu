@@ -1,4 +1,4 @@
-#include "active_cells_common.cu"
+#include "active_cells_common.h"
 
 #include <thrust/device_vector.h>
 #include <thrust/sort.h>

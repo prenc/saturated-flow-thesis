@@ -3,7 +3,7 @@
 #:    Synopsis: run_tests.sh
 #:        Date: 2019-10-10
 #:      Author: Paweł Renc
-#:     Options: none
+#:     Options: [test_name...]
 shopt -s nullglob   # allow globs to return null string
 ## Script metadata
 scriptname=${0##*/} # name that script is invoked with
@@ -12,11 +12,11 @@ script_start_time=$(date +%s)
 while (($#)); do
   case $1 in
   -h)
+    # todo add usage method
     usage
     ;;
   *)
-    # todo parse and run many test_groups
-    test_group="$1"
+    test_names+=("$1")
     shift
     ;;
   esac
@@ -34,12 +34,7 @@ TMP_PARAMS_PATH="new_params_ble_ble_ble"
 MATCH_CA_SIZE="#define CA_SIZE "
 MATCH_ITERATIONS_COUNT="#define SIMULATION_ITERATIONS "
 MATCH_BLOCK_SIZE="#define BLOCK_SIZE "
-
-if [[ -z ${test_group} ]]; then
-  SUMMARY_PATH="default_test_${script_start_time}"
-else
-  SUMMARY_PATH="${test_group}_${script_start_time}"
-fi
+DEFAULT_TEST_NAME="default_test"
 ## Func definitions
 info() { #@ DESCRIPTION: print information about running process
   #@ USAGE: ok information
@@ -55,40 +50,40 @@ error() { #@ DESCRIPTION: print error message and exit with supplied return code
   #@ USAGE: error information error_code
   #@ REQUIRES: scriptname
   printf "${scriptname}: [\e[31mERROR\e[0m] %s\n" "$1" >&2
-  rm -f "${SUMMARY_PATH}"
+  rm -f "${summary_path}"
   exit "${2:-2}"
 }
 
 parse_configuration_file() {
   [[ -f "${CONFIG_PATH}" ]] || error "No config file found!" 2
 
-  test_params=$(get_json "${test_group}" <"${CONFIG_PATH}")
-  [[ -z "${test_params}" ]] && error "No such test test_group" 5
+  test_params=$(get_json "${test_name}" <"${CONFIG_PATH}")
+  [[ -z "${test_params}" ]] && error "No such test test_name" 5
 
   test_specs=$(get_json "test_specs" <<<"${test_params}")
   [[ -z "${test_specs}" ]] && error "Conf file syntax error" 3
 
   json_arr_to_bash_arr "$(get_json "ca_size" <<<"${test_specs}")"
   mapfile -t ca_size_arr <<<"${bash_arr}"
-  (("${#ca_size_arr[@]}")) || error "Conf file syntax error in ca_size of ${test_group} test_group" 3
+  (("${#ca_size_arr[@]}")) || error "Conf file syntax error in ca_size of ${test_name} test_name" 3
 
   json_arr_to_bash_arr "$(get_json "block_size" <<<"${test_specs}")"
   mapfile -t block_size_arr <<<"${bash_arr}"
-  (("${#block_size_arr[@]}")) || error "Conf file syntax error in block_size of ${test_group} test_group" 3
+  (("${#block_size_arr[@]}")) || error "Conf file syntax error in block_size of ${test_name} test_name" 3
 
   json_arr_to_bash_arr "$(get_json "iterations" <<<"${test_specs}")"
   mapfile -t iterations_arr <<<"${bash_arr}"
-  (("${#iterations_arr[@]}")) || error "Conf file syntax error in iterations of ${test_group} test_group" 3
+  (("${#iterations_arr[@]}")) || error "Conf file syntax error in iterations of ${test_name} test_name" 3
 
   if [[ ${#iterations_arr[@]} != "${#block_size_arr[@]}" ]] || [[ ${#ca_size_arr[@]} != "${#block_size_arr[@]}" ]]; then
-    error "Conf file syntax error of ${test_group} test_group. Test_specs sizes varies" 3
+    error "Conf file syntax error of ${test_name} test_name. Test_specs sizes varies" 3
   fi
 
   test_src=$(get_json "test_src" <<<"${test_params}")
   [[ -z "${test_src}" ]] && error "Conf file syntax error" 3
   json_arr_to_bash_arr "${test_src}"
   mapfile -t cuda_files_from_conf <<<"${bash_arr}"
-  (("${#cuda_files_from_conf[@]}")) || error "Cannot read test_src of ${test_group} test_group" 3
+  (("${#cuda_files_from_conf[@]}")) || error "Cannot read test_src of ${test_name} test_name" 3
 }
 
 json_arr_to_bash_arr() {
@@ -127,7 +122,8 @@ compile_cuda_files() {
   unset files_to_compile
 
   [[ -d "${COMPILED_DIR_PATH}" ]] || mkdir "${COMPILED_DIR_PATH}"
-  mapfile -t all_cuda_files <<<"$(find ../.. -type f \( -name "*.cu" -o -name "*.c" \) -not -path "*/common/*")"
+  mapfile -t all_cuda_files <<<"$(find ../.. -type f \( -name "*.cu" -o -name "*.c" \) \
+    -not -path "*/common/*" -not -path "*/CMakeFiles/*")"
 
   if [[ -z ${cuda_files_from_conf[*]} ]]; then
     read -r -a files_to_compile <<<"${all_cuda_files[@]}"
@@ -141,25 +137,25 @@ compile_cuda_files() {
     done
   fi
 
+  info "*** ${ca_size}, ${iterations}, ${block_size} ***"
   for file_name_path in "${files_to_compile[@]}"; do
     file_name_in="${file_name_path##*/}"
     file_name_out="${file_name_in%\.*}${file_name_attachement}"
 
-    info "*** ${ca_size}, ${iterations}, ${block_size}) ***"
     if [[ ! -f "${COMPILED_DIR_PATH}/${file_name_out}" ]]; then
       case ${file_name_in##*\.} in
       "cu")
-        info "Compiling using \"nvcc\": \'${file_name_in}\'"
+        info "Compiling using \"nvcc\": '${file_name_in}'"
         nvcc "${file_name_path}" -o "${COMPILED_DIR_PATH}/${file_name_out}"
         ;;
       "c")
-        info "Compiling using \"make\": \'${file_name_in}\'"
-        cmake "${file_name_path}"
-        make -C "${file_name_path}"
+        info "Compiling using \"make\": '${file_name_in}'"
+        cmake "${file_name_path%/*}" >/dev/null
+        make -C "${file_name_path%/*}" >/dev/null
         mv "${file_name_path%\.c}" "${COMPILED_DIR_PATH}/${file_name_out}"
         ;;
       *)
-        warning "Skipping file. Unknown file format: \'${file_name_in}\'"
+        warning "Skipping file. Unknown file format: '${file_name_in}'"
         ;;
       esac
     else
@@ -182,7 +178,7 @@ profile_programs() {
 profile_program() {
   file_name=${1##*/}
 
-  info "Profiling: \'${file_name}\'"
+  info "Profiling: '${file_name}'"
   run_profiling
 
   {
@@ -215,7 +211,7 @@ parse_profiling_outputs() {
     summary+=("${label_name}" "${ca_size}" "${iterations}" "${block_size}" "${program_valid}" "${program_time}")
   done
 
-  printf "%s;%s;%s;%s;%s;%s\n" "${summary[@]}" >>"${SUMMARY_PATH}"
+  printf "%s;%s;%s;%s;%s;%s\n" "${summary[@]}" >>"${summary_path}"
 
   # todo distinguish filename by not only file_name_attachement, instead of clearing PROFILING_DIR_PATH
   rm -f "${PWD}/${PROFILING_DIR_PATH}"/*
@@ -228,7 +224,7 @@ print_elapsed_time() {
 
   info "${msg}"
 
-  printf "%s\n" "${msg}" >>"${SUMMARY_PATH}"
+  printf "%s\n" "${msg}" >>"${summary_path}"
 }
 
 evaluate_mins() {
@@ -238,23 +234,33 @@ evaluate_mins() {
 }
 
 ## Script body
-[[ -f "${SUMMARY_PATH}" ]] && true >"${SUMMARY_PATH}"
+if [[ ${#test_names[@]} == 0 ]]; then
+  test_names+=("${DEFAULT_TEST_NAME}")
+fi
 
-[[ -z "${test_group}" ]] || parse_configuration_file
+for test_name in "${test_names[@]}"; do
+  summary_path="${test_name}_${script_start_time}"
 
-for i in "${!ca_size_arr[@]}"; do
-  ca_size=${ca_size_arr[i]}
-  iterations=${iterations_arr[i]}
-  block_size=${block_size_arr[i]}
+  [[ -f "${summary_path}" ]] && true >"${summary_path}"
 
-  generate_params
+  if [[ ${DEFAULT_TEST_NAME} != "${test_name}" ]]; then
+    parse_configuration_file
+  fi
 
-  compile_cuda_files
+  for i in "${!ca_size_arr[@]}"; do
+    ca_size=${ca_size_arr[i]}
+    iterations=${iterations_arr[i]}
+    block_size=${block_size_arr[i]}
 
-  profile_programs
+    generate_params
 
-  parse_profiling_outputs
+    compile_cuda_files
 
+    profile_programs
+
+    parse_profiling_outputs
+
+  done
 done
 
 print_elapsed_time

@@ -2,8 +2,7 @@
 // Created by prenc on 11/10/19.
 //
 
-#include <iostream>
-#include <numeric>
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
@@ -39,8 +38,8 @@ int wellsCols[NUMBER_OF_WELLS] = {COLS / 2};
 double wellsQW[NUMBER_OF_WELLS] = {0.001};
 
 struct CA {
-    double *head;
-    double *Sy;
-    double *K;
-    double *Source;
+double *head;
+double *Sy;
+double *K;
+double *Source;
 };
