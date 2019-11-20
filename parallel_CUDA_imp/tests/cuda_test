@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#:       Title: run_tests.sh - Runs performence tests for all .cu files in pwd.
+#:       Title: run_tests.sh - Runs performence tests for all .cu files in project.
 #:    Synopsis: run_tests.sh
 #:        Date: 2019-10-10
 #:      Author: Paweł Renc
@@ -7,7 +7,6 @@
 shopt -s nullglob   # allow globs to return null string
 ## Script metadata
 scriptname=${0##*/} # name that script is invoked with
-script_start_time=$(date +%s)
 ## Parse command-line options
 while (($#)); do
   case $1 in
@@ -29,6 +28,7 @@ iterations_arr=("1000" "1000" "10000" "10000")
 PARAMS_PATH="../src/params.h"
 COMPILED_DIR_PATH="compiled"
 PROFILING_DIR_PATH="profiling"
+RESULTS_DIR_PATH="results"
 CONFIG_PATH="cuda_test_conf.json"
 TMP_PARAMS_PATH="new_params_ble_ble_ble"
 MATCH_CA_SIZE="#define CA_SIZE "
@@ -150,7 +150,7 @@ compile_cuda_files() {
         ;;
       "c")
         info "Compiling using \"make\": '${file_name_in}'"
-        cmake "${file_name_path%/*}" >/dev/null
+        cmake -B"${file_name_path%/*}" -H"${file_name_path%/*}" >/dev/null
         make -C "${file_name_path%/*}" >/dev/null
         mv "${file_name_path%\.c}" "${COMPILED_DIR_PATH}/${file_name_out}"
         ;;
@@ -166,8 +166,22 @@ compile_cuda_files() {
 
 profile_programs() {
   [[ -d "${PROFILING_DIR_PATH}" ]] || mkdir "${PROFILING_DIR_PATH}" && rm -f "${PROFILING_DIR_PATH}/*"
+  local files_to_profile
 
-  files_to_profile=("${PWD}"/"${COMPILED_DIR_PATH}"/*"${file_name_attachement}")
+  for cuda_file_conf in "${cuda_files_from_conf[@]}"; do
+    unset found_file
+    for file_name in "${COMPILED_DIR_PATH}"/*; do
+      if [[ ${file_name##*/} == "${cuda_file_conf%\.*}${file_name_attachement}" ]]; then
+        found_file="${file_name}"
+        break
+      fi
+    done
+    if [[ -n "${found_file}" ]]; then
+      files_to_profile+=("${found_file}")
+    else
+      warning "Could not find '${cuda_file_conf}' in '${COMPILED_DIR_PATH}' dir"
+    fi
+  done
 
   info "*** ${ca_size}, ${iterations}, ${block_size} ***"
   for file_name_path in "${files_to_profile[@]}"; do
@@ -197,7 +211,7 @@ run_profiling() {
 }
 
 parse_profiling_outputs() {
-  profiling_outputs=("${PWD}"/"${PROFILING_DIR_PATH}"/*"${file_name_attachement}")
+  profiling_outputs=("${PROFILING_DIR_PATH}"/*"${file_name_attachement}")
 
   summary=("memory_type" "ca_size" "iterations" "block_size" "program_errno" "total_time")
 
@@ -214,10 +228,10 @@ parse_profiling_outputs() {
   printf "%s;%s;%s;%s;%s;%s\n" "${summary[@]}" >>"${summary_path}"
 
   # todo distinguish filename by not only file_name_attachement, instead of clearing PROFILING_DIR_PATH
-  rm -f "${PWD}/${PROFILING_DIR_PATH}"/*
+  rm -f "${PROFILING_DIR_PATH}"/*
 }
 
-print_elapsed_time() {
+evaluate_test_time() {
   local script_elapsed_time=$(($(date +%s) - script_start_time))
 
   msg="Script time $(evaluate_mins ${script_elapsed_time})"
@@ -239,9 +253,12 @@ if [[ ${#test_names[@]} == 0 ]]; then
 fi
 
 for test_name in "${test_names[@]}"; do
-  summary_path="${test_name}_${script_start_time}"
+  script_start_time=$(date +%s)
+  summary_path="${RESULTS_DIR_PATH}/${test_name}_${script_start_time}"
 
-  [[ -f "${summary_path}" ]] && true >"${summary_path}"
+  if [[ ! -d "${RESULTS_DIR_PATH}" ]]; then
+    mkdir "${RESULTS_DIR_PATH}"
+  fi
 
   if [[ ${DEFAULT_TEST_NAME} != "${test_name}" ]]; then
     parse_configuration_file
@@ -261,8 +278,9 @@ for test_name in "${test_names[@]}"; do
     parse_profiling_outputs
 
   done
-done
 
-print_elapsed_time
+  evaluate_test_time
+
+done
 
 exit 0
