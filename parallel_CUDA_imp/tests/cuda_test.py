@@ -20,7 +20,7 @@ def perform_test_case(test_name, test_params):
     pg = ParamsGenerator(test_name)
 
     test_specs = test_params['test_specs']
-    for i in range(len(test_specs["block_size"])):
+    for i in range(len(test_specs["ca_size"])):
         file_suffix = pg.generate(
             test_specs['block_size'][i],
             test_specs['ca_size'][i],
@@ -28,7 +28,6 @@ def perform_test_case(test_name, test_params):
         )
         pt = ProgramTester(test_params['test_src'], file_suffix)
         pt.perform_test()
-        exit()
         # compiling program to be tested
         # testing
         # parsing test outputs and saving to one file in RESULTS_DIR_PATH

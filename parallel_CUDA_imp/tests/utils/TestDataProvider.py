@@ -18,19 +18,19 @@ class TestDataProvider:
     def _parse_config(self):
         try:
             with open(self.CONFIG_PATH, "r") as config_json:
-                return self._parse_json(config_json.read())
+                return self._parse_json(config_json)
         except FileNotFoundError:
             self._log.error(
                 f"Could not find config file. Make sure file "
                 f"'{self.CONFIG_PATH}' is in the directory of the script."
             )
 
-    def _parse_json(self, data):
+    def _parse_json(self, json_file):
         try:
-            return json.loads(data)
+            return json.load(json_file)
         except JSONDecodeError:
             self._log.error(
-                f"Could not parse config file:" f" '${self.CONFIG_PATH}'"
+                f"Could not parse config file: '${self.CONFIG_PATH}'"
             )
 
     def get_test_data(self, test_names):
