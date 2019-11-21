@@ -9,9 +9,9 @@
 
 //MODEL PARAMS
 
-#define CA_SIZE 100
+#define CA_SIZE 12000
 #define SIMULATION_ITERATIONS 1000
-#define BLOCK_SIZE 16
+#define BLOCK_SIZE 13
 
 #define ROWS CA_SIZE
 #define COLS CA_SIZE
