@@ -24,6 +24,7 @@ class ParamsGenerator:
                 f"parameters: {self.PARAMS_PATH}"
             )
             exit(1)
+        return f"_{block_size}_{ca_size}_{iterations}"
 
     def _modify_file(self, filename, block_size, ca_size, iterations):
         temp_file, temp_path = mkstemp()

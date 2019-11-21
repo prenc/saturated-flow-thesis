@@ -9,7 +9,7 @@
 
 //MODEL PARAMS
 
-#define CA_SIZE 12000
+#define CA_SIZE 1000
 #define SIMULATION_ITERATIONS 1000
 #define BLOCK_SIZE 13
 
