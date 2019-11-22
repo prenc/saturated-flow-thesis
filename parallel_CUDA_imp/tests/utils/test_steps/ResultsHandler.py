@@ -13,21 +13,22 @@ class ResultsHandler:
 
     def save_results(self, run_programs, test_case_time):
         data = self._gather_results(run_programs, test_case_time)
-        self._save_summary_to_file(data)
         self._log.info(
             f"Test case took {test_case_time // 60}m"
             f"{test_case_time % 60:.0f}s"
         )
+        return self._save_summary_to_file(data)
 
     def _gather_results(self, run_programs_paths, test_case_time):
         summary_results = {
-            "test_case": self._test_name,
-            "test_case_time": test_case_time,
+            "test_name": self._test_name,
+            "test_time": test_case_time,
             "run_tests": {},
         }
         for path in run_programs_paths:
             with open(path, "r") as result_file:
                 result_json = json.load(result_file)
+                # sth is over-engineered here
                 src_name = result_json["src_name"].split(".")[0]
                 if src_name in summary_results["run_tests"].keys():
                     summary_results["run_tests"][src_name] = [
@@ -48,3 +49,4 @@ class ResultsHandler:
                 f"Results of '{self._test_name}' test case has "
                 f"been saved to '{summary_file_name}'."
             )
+        return summary_file_name

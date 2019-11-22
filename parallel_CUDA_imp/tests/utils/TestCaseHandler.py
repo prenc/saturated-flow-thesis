@@ -1,5 +1,4 @@
 import os
-import time
 
 from utils.common.TimeCounter import TimeCounter
 from utils.common.constants import (
@@ -13,9 +12,9 @@ from utils.test_steps.ResultsHandler import ResultsHandler
 
 
 class TestCaseHandler:
-    def __init__(self):
+    def __init__(self, script_time):
         self._create_dirs()
-        self.script_start_time = int(time.time())
+        self.script_start_time = script_time
 
     @staticmethod
     def _create_dirs():
@@ -37,7 +36,7 @@ class TestCaseHandler:
             run_tests_results = pcar.perform_test(test_spec)
             result_paths.extend(run_tests_results)
         test_case_counter.stop()
-        rg.save_results(result_paths, test_case_counter.elapsed_time)
+        return rg.save_results(result_paths, test_case_counter.elapsed_time)
 
     @staticmethod
     def _prepare_test_specs(test_specs):
