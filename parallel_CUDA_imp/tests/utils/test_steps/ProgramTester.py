@@ -12,10 +12,9 @@ class ProgramTester:
     PROFILING_DIR_PATH = "profiling"
     RESULTS_DIR_PATH = "results"
 
-    def __init__(self, file_names, file_suffix):
+    def __init__(self, file_names):
         self._log = logging.getLogger(self.__class__.__name__)
 
-        self._file_suffix = file_suffix
         self._program_paths = self._find_paths(file_names)
         self._create_dirs()
 
@@ -38,14 +37,14 @@ class ProgramTester:
             if not os.path.exists(dir_path):
                 os.makedirs(dir_path)
 
-    def perform_test(self):
-        executables = self._find_executables()
+    def perform_test(self, suffix):
+        executables = self._find_executables(suffix)
         self._run_programs(executables)
 
-    def _find_executables(self):
+    def _find_executables(self, suffix):
         executable_files = []
         for root, name in self._program_paths:
-            new_file_name = name.split(".")[0] + self._file_suffix
+            new_file_name = name.split(".")[0] + suffix
             output_path = os.path.join(self.COMPILED_DIR_PATH, new_file_name)
             exit_code = 0
             if os.path.isfile(output_path):
