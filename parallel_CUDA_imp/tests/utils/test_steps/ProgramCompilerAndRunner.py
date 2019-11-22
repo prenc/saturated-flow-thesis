@@ -6,18 +6,14 @@ import time
 from shutil import move
 
 from utils.common.TimeCounter import TimeCounter
+from utils.common.constants import COMPILED_DIR_PATH, PROFILING_DIR_PATH
 
 
 class ProgramCompilerAndRunner:
-    COMPILED_DIR_PATH = "compiled"
-    PROFILING_DIR_PATH = "profiling"
-    RESULTS_DIR_PATH = "results"
-
     def __init__(self, file_names):
         self._log = logging.getLogger(self.__class__.__name__)
 
         self._program_paths = self._find_paths(file_names)
-        self._create_dirs()
 
     @staticmethod
     def _find_paths(file_names):
@@ -27,16 +23,6 @@ class ProgramCompilerAndRunner:
                 if file in file_names:
                     found_paths.append((root, file))
         return found_paths
-
-    def _create_dirs(self):
-        dirs = [
-            self.COMPILED_DIR_PATH,
-            self.PROFILING_DIR_PATH,
-            self.RESULTS_DIR_PATH,
-        ]
-        for dir_path in dirs:
-            if not os.path.exists(dir_path):
-                os.makedirs(dir_path)
 
     def perform_test(self, test_spec):
         executables = self._find_executables(test_spec)
@@ -48,7 +34,7 @@ class ProgramCompilerAndRunner:
             new_file_name = f"{name.split('.')[0]}_" + "_".join(
                 [str(value) for value in test_spec.values()]
             )
-            output_path = os.path.join(self.COMPILED_DIR_PATH, new_file_name)
+            output_path = os.path.join(COMPILED_DIR_PATH, new_file_name)
             exit_code = 0
             if os.path.isfile(output_path):
                 self._log.info(f"Found '{new_file_name}'. No need to compile.")
@@ -86,11 +72,11 @@ class ProgramCompilerAndRunner:
             self._log.info(f"Testing '{executable_name}'.")
             tc = TimeCounter()
             tc.start()
-            subprocess.run([f"./{self.COMPILED_DIR_PATH}/{executable_name}"])
+            subprocess.run([f"./{COMPILED_DIR_PATH}/{executable_name}"])
             tc.stop()
             results.append(
                 self._save_test_results(
-                    src_name,executable_name, test_spec, tc.elapsed_time
+                    src_name, executable_name, test_spec, tc.elapsed_time
                 )
             )
         return results
@@ -106,7 +92,7 @@ class ProgramCompilerAndRunner:
             "exit_code": exit_code,
             **test_spec,
         }
-        result_path = os.path.join(self.PROFILING_DIR_PATH, executable)
+        result_path = os.path.join(PROFILING_DIR_PATH, executable)
         with open(result_path, "w") as result_file:
             json.dump(results, result_file, indent=4)
             return result_path
