@@ -2,14 +2,14 @@ import logging
 
 from utils.ArgParser import ArgumentParser
 from utils.TestCaseHandler import TestCaseHandler
-from utils.TestDataProvider import TestDataProvider
+from utils.TestConfigReader import TestConfigReader
 
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 
 
 def main():
-    tdp = TestDataProvider()
+    tdp = TestConfigReader()
     tch = TestCaseHandler()
     parsed_args = ArgumentParser().parse()
     test_data = tdp.get_test_data(parsed_args.cuda_tests)

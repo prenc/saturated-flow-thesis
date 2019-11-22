@@ -3,10 +3,7 @@ import logging
 from json import JSONDecodeError
 
 
-# todo correct config complementing missing values
-
-
-class TestDataProvider:
+class TestConfigReader:
     CONFIG_PATH = "cuda_test_conf.json"
 
     def __init__(self):
@@ -38,9 +35,27 @@ class TestDataProvider:
         if test_names:
             chosen_tests = self._get_chosen_tests(test_names)
             self._validate_test_names(test_names, chosen_tests)
-            return chosen_tests
         else:
-            return self._test_specs
+            chosen_tests = self._test_specs
+        return self._make_params_list_equal_length(chosen_tests)
+
+    def _make_params_list_equal_length(self, tests):
+        corrected_tests = tests.copy()
+        for test_name, test_details in tests.items():
+            test_specs = test_details["test_specs"]
+            max_length = max(*[len(l) for l in test_specs.values()])
+            for name, value in test_specs.items():
+                if len(value) != max_length:
+                    old_length = len(value)
+                    corrected_tests[test_name]["test_specs"][name] = [
+                        *value,
+                        *[value[-1] for _ in range(len(value), max_length)],
+                    ]
+                    self._log.debug(
+                        f"Params list have been lengthened by "
+                        f"{max_length - old_length}."
+                    )
+        return corrected_tests
 
     def _get_chosen_tests(self, test_names):
         return {
