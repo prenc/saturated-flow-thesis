@@ -14,7 +14,7 @@ class ResultsHandler:
     def save_results(self, run_programs, test_case_time):
         data = self._gather_results(run_programs, test_case_time)
         self._log.info(
-            f"Test case took {test_case_time // 60}m"
+            f"Test case took {test_case_time // 60:.0f}m"
             f"{test_case_time % 60:.0f}s"
         )
         return self._save_summary_to_file(data)
