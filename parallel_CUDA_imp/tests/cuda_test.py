@@ -3,8 +3,8 @@ import logging
 from utils.ArgParser import ArgumentParser
 from utils.TestDataProvider import TestDataProvider
 from utils.test_steps.ParamsGenerator import ParamsGenerator
-from utils.test_steps.ProgramTester import ProgramTester
-from utils.test_steps.ResultsGatherer import ResultsGatherer
+from utils.test_steps.ProgramCompilerAndRunner import ProgramCompilerAndRunner
+from utils.test_steps.ResultsHandler import ResultsHandler
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -19,20 +19,26 @@ def main():
 
 def perform_test_case(test_name, test_params):
     pg = ParamsGenerator(test_name)
-    pt = ProgramTester(test_params['test_src'])
-    rg = ResultsGatherer(test_name)
+    pcar = ProgramCompilerAndRunner(test_params["test_src"])
+    rg = ResultsHandler(test_name)
 
-    test_specs = test_params['test_specs']
-    file_suffixes = []
-    for i in range(len(test_specs["ca_size"])):
-        file_suffix = pg.generate(
-            test_specs['block_size'][i],
-            test_specs['ca_size'][i],
-            test_specs['iterations'][i]
+    result_paths = []
+    for test_spec in prepare_test_specs(test_params["test_specs"]):
+        pg.generate(test_spec)
+        run_tests = pcar.perform_test(test_spec)
+        result_paths.extend(run_tests)
+    rg.save_results(result_paths)
+
+
+def prepare_test_specs(test_specs):
+    return [
+        {"block_size": block_size, "ca_size": ca_size, "iterations": iterations}
+        for block_size, ca_size, iterations in zip(
+            test_specs["block_size"],
+            test_specs["ca_size"],
+            test_specs["iterations"],
         )
-        file_suffixes.append(file_suffix)
-        pt.perform_test(file_suffix)
-    rg.gather_results(file_suffixes)
+    ]
 
 
 if __name__ == "__main__":
