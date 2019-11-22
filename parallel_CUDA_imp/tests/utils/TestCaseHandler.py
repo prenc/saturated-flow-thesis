@@ -1,6 +1,7 @@
 import os
 import time
 
+from utils.common.TimeCounter import TimeCounter
 from utils.common.constants import (
     COMPILED_DIR_PATH,
     PROFILING_DIR_PATH,
@@ -14,7 +15,7 @@ from utils.test_steps.ResultsHandler import ResultsHandler
 class TestCaseHandler:
     def __init__(self):
         self._create_dirs()
-        self.test_case_time = int(time.time())
+        self.script_start_time = int(time.time())
 
     @staticmethod
     def _create_dirs():
@@ -26,14 +27,17 @@ class TestCaseHandler:
     def perform_test_case(self, test_name, test_params):
         pg = ParamsGenerator(test_name)
         pcar = ProgramCompilerAndRunner(test_params["test_src"])
-        rg = ResultsHandler(test_name, self.test_case_time)
+        rg = ResultsHandler(test_name, self.script_start_time)
+        test_case_counter = TimeCounter()
 
         result_paths = []
+        test_case_counter.start()
         for test_spec in self._prepare_test_specs(test_params["test_specs"]):
             pg.generate(test_spec)
             run_tests_results = pcar.perform_test(test_spec)
             result_paths.extend(run_tests_results)
-        rg.save_results(result_paths)
+        test_case_counter.stop()
+        rg.save_results(result_paths, test_case_counter.elapsed_time)
 
     @staticmethod
     def _prepare_test_specs(test_specs):

@@ -5,7 +5,7 @@ from utils.TestCaseHandler import TestCaseHandler
 from utils.TestDataProvider import TestDataProvider
 
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 
 def main():
