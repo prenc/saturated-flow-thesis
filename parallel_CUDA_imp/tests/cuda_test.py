@@ -7,7 +7,7 @@ from utils.TestCaseHandler import TestCaseHandler
 from utils.TestConfigReader import TestConfigReader
 
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 
 def main():
