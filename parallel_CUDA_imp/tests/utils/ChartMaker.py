@@ -57,8 +57,8 @@ class ChartMaker:
             )
         plt.legend()
 
-        plt.xlabel(y_axis)
-        plt.ylabel(x_axis)
+        plt.xlabel(x_axis)
+        plt.ylabel(y_axis)
         plt.title(data["test_name"])
         plt.grid(True)
 
