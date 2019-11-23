@@ -11,15 +11,22 @@ logging.basicConfig(level=logging.INFO)
 
 
 def main():
-    script_time = time.time()
-    tdp = TestConfigReader()
-    tch = TestCaseHandler(script_time)
-    cm = ChartMaker(script_time)
-    parsed_args = ArgumentParser().parse()
-    test_data = tdp.get_test_data(parsed_args.cuda_tests)
+    tdp, tch, cm, args = init_program()
+
+    test_data = tdp.get_test_data(args.cuda_tests)
     for test_name, test_params in test_data.items():
         summary_file = tch.perform_test_case(test_name, test_params)
-        cm.make_charts(summary_file)
+        cm.make_chart_basing_on_summary_file(summary_file)
+
+
+def init_program():
+    script_start_time = time.time()
+    return (
+        TestConfigReader(),
+        TestCaseHandler(script_start_time),
+        ChartMaker(script_start_time),
+        ArgumentParser().parse(),
+    )
 
 
 if __name__ == "__main__":

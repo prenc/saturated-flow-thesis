@@ -18,7 +18,7 @@ class ResultsHandler:
             f"Test case took {test_case_time // 60:.0f}m"
             f"{test_case_time % 60:.0f}s"
         )
-        return self._save_summary_to_file(data)
+        return self._save_summary_in_file(data)
 
     def _gather_results(self, run_programs_paths, test_time):
         summary_results = {
@@ -33,7 +33,7 @@ class ResultsHandler:
                 summary_results["run_tests"][src_name] += result_json
         return summary_results
 
-    def _save_summary_to_file(self, summary_data):
+    def _save_summary_in_file(self, summary_data):
         summary_file_name = f"{self._test_name}_{self._script_time}"
         with open(
             os.path.join(RESULTS_DIR_PATH, summary_file_name), "w"

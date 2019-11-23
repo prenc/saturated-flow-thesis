@@ -12,11 +12,10 @@ from utils.common.constants import COMPILED_DIR_PATH, PROFILING_DIR_PATH
 class ProgramCompilerAndRunner:
     def __init__(self, file_names):
         self._log = logging.getLogger(self.__class__.__name__)
-
-        self._program_paths = self._find_paths(file_names)
+        self._program_paths = self._find_programs_paths(file_names)
 
     @staticmethod
-    def _find_paths(file_names):
+    def _find_programs_paths(file_names):
         found_paths = []
         for root, dirs, files in os.walk("../.."):
             for file in files:
@@ -25,11 +24,11 @@ class ProgramCompilerAndRunner:
         return found_paths
 
     def perform_test(self, test_spec):
-        executables = self._find_executables(test_spec)
-        return self._run_programs(test_spec, executables)
+        executables_data = self._find_executables(test_spec)
+        return self._run_programs(test_spec, executables_data)
 
     def _find_executables(self, test_spec):
-        executable_files = []
+        executables_data = []
         for root, name in self._program_paths:
             new_file_name = f"{name.split('.')[0]}_" + "_".join(
                 [str(value) for value in test_spec.values()]
@@ -40,9 +39,14 @@ class ProgramCompilerAndRunner:
                 self._log.info(f"Found '{new_file_name}'. No need to compile.")
             else:
                 exit_code = self._compile_file(root, name, output_path)
-            if exit_code == 0:
-                executable_files.append((name, new_file_name))
-        return executable_files
+            executables_data.append(
+                {
+                    "src_name": name,
+                    "executable_name": new_file_name,
+                    "compiling_exit_code": exit_code,
+                }
+            )
+        return executables_data
 
     def _compile_file(self, root, name, output_path):
         if name.endswith(".c"):
@@ -59,6 +63,7 @@ class ProgramCompilerAndRunner:
         exit_code = subprocess.run(["make", "-C", root])
         if exit_code == 0:
             move(os.path.join(root, name.split(".")[0]), output_path)
+        return exit_code
 
     def _compile_cu_file(self, root, name, output_path):
         self._log.info(f"Compiling using 'nvcc': '{name}'.")
@@ -66,33 +71,41 @@ class ProgramCompilerAndRunner:
             ["nvcc", os.path.join(root, name), "-o", output_path]
         ).returncode
 
-    def _run_programs(self, test_spec, executable_names):
-        results = []
-        for src_name, executable_name in executable_names:
-            self._log.info(f"Testing '{executable_name}'.")
-            tc = TimeCounter()
-            tc.start()
-            subprocess.run([f"./{COMPILED_DIR_PATH}/{executable_name}"])
-            tc.stop()
-            results.append(
-                self._save_test_results(
-                    src_name, executable_name, test_spec, tc.elapsed_time
+    def _run_programs(self, test_spec, executables_data):
+        results_paths = []
+        for executable_data in executables_data:
+            if executable_data["compiling_exit_code"] == 0:
+                result_path = self._run_program(
+                    {**executable_data, **test_spec}
                 )
-            )
-        return results
+                results_paths.append(result_path)
+        return results_paths
+
+    def _run_program(self, executable_data):
+        self._log.info(f"Testing '{executable_data}'.")
+        tc = TimeCounter()
+        tc.start()
+        exit_code = subprocess.run(
+            [f"./{COMPILED_DIR_PATH}/{executable_data}"]
+        ).returncode
+        tc.stop()
+        return self._save_test_results(
+            executable_data, tc.elapsed_time, exit_code
+        )
 
     def _save_test_results(
-        self, src_name, executable, test_spec, elapsed_time, exit_code=0
+        self, executables_data, elapsed_time, exit_code
     ):
-        results = {
-            "src_name": src_name,
-            "executable": executable,
+        results_object = {
+            **executables_data,
             "datastamp": time.time(),
             "elapsed_time": elapsed_time,
-            "exit_code": exit_code,
-            **test_spec,
+            "run_exit_code": exit_code,
         }
-        result_path = os.path.join(PROFILING_DIR_PATH, executable)
-        with open(result_path, "w") as result_file:
-            json.dump(results, result_file, indent=4)
-            return result_path
+        result_file_path = os.path.join(
+            PROFILING_DIR_PATH, executables_data["executable_name"]
+        )
+        self._log.debug(f"Result path: '{result_file_path}'")
+        with open(result_file_path, "w") as result_file:
+            json.dump(results_object, result_file, indent=4)
+            return result_file_path

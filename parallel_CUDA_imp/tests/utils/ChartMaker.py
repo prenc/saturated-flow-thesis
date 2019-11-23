@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 from collections import defaultdict
 import matplotlib.pyplot as plt
@@ -8,6 +9,7 @@ from utils.common.constants import CHARTS_DIR_PATH, RESULTS_DIR_PATH
 
 class ChartMaker:
     def __init__(self, script_time):
+        self._log = logging.getLogger(self.__class__.__name__)
         self._create_dirs()
         self.script_start_time = script_time
 
@@ -18,9 +20,12 @@ class ChartMaker:
             if not os.path.exists(dir_path):
                 os.makedirs(dir_path)
 
-    def make_charts(self, summary_file):
-        data = self._gather_data(summary_file)
-        self._create_and_save_charts(data)
+    def make_chart_basing_on_summary_file(self, summary_file):
+        try:
+            data = self._gather_data(summary_file)
+            self._create_and_save_charts(data)
+        except FileNotFoundError:
+            self._log.error(f"Could not find summary file: {summary_file}")
 
     def _gather_data(self, summary_file):
         data = self._load_charts_data(summary_file)

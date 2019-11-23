@@ -20,7 +20,7 @@ class ParamsGenerator:
                 self._modify_file(params_file, test_spec)
         except FileNotFoundError:
             self._log.error(
-                f"Could not find the file with simulation "
+                f"Could not find the file with the simulation "
                 f"parameters: {self.PARAMS_PATH}"
             )
             exit(1)

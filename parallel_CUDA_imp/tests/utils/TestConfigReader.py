@@ -10,7 +10,8 @@ class TestConfigReader:
         self._log = logging.getLogger(self.__class__.__name__)
         self._test_specs = self._parse_config()
         if not self._test_specs:
-            self._log.info(f"Config file seems to be empty.")
+            self._log.info(f"The config file seems to be empty: "
+                           f"'{self.CONFIG_PATH}' .")
 
     def _parse_config(self):
         try:
@@ -18,8 +19,8 @@ class TestConfigReader:
                 return self._parse_json(config_json)
         except FileNotFoundError:
             self._log.error(
-                f"Could not find config file. Make sure file "
-                f"'{self.CONFIG_PATH}' is in the directory of the script."
+                f"Could not find the config file. Make sure the file "
+                f"'{self.CONFIG_PATH}' is in the script directory."
             )
 
     def _parse_json(self, json_file):
@@ -27,7 +28,7 @@ class TestConfigReader:
             return json.load(json_file)
         except JSONDecodeError:
             self._log.error(
-                f"Could not parse config file: '${self.CONFIG_PATH}'"
+                f"Could not parse the config file: '${self.CONFIG_PATH}'"
             )
 
     def get_test_data(self, test_names):
@@ -73,7 +74,7 @@ class TestConfigReader:
             ]
             not_found_test_names = ", ".join(not_found_test_names)
             self._log.error(
-                f"Could not found following test names in config "
+                f"Could not find following test names in the config "
                 f"file '{self.CONFIG_PATH}': {not_found_test_names}"
             )
             exit(1)
