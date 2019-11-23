@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+from collections import defaultdict
 
 from utils.common.constants import RESULTS_DIR_PATH
 
@@ -19,24 +20,17 @@ class ResultsHandler:
         )
         return self._save_summary_to_file(data)
 
-    def _gather_results(self, run_programs_paths, test_case_time):
+    def _gather_results(self, run_programs_paths, test_time):
         summary_results = {
             "test_name": self._test_name,
-            "test_time": test_case_time,
-            "run_tests": {},
+            "test_time": test_time,
+            "run_tests": defaultdict(list),
         }
         for path in run_programs_paths:
             with open(path, "r") as result_file:
                 result_json = json.load(result_file)
-                # sth is over-engineered here
                 src_name = result_json["src_name"].split(".")[0]
-                if src_name in summary_results["run_tests"].keys():
-                    summary_results["run_tests"][src_name] = [
-                        *summary_results["run_tests"][src_name],
-                        result_json,
-                    ]
-                else:
-                    summary_results["run_tests"][src_name] = [result_json]
+                summary_results["run_tests"][src_name] += result_json
         return summary_results
 
     def _save_summary_to_file(self, summary_data):

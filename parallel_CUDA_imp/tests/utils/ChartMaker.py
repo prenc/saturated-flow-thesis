@@ -64,3 +64,4 @@ class ChartMaker:
 
         plt.tight_layout()
         plt.savefig(os.path.join(CHARTS_DIR_PATH, f"{data['test_name']}.pdf"))
+        plt.figure()
