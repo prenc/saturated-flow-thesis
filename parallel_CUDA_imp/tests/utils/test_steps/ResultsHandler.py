@@ -9,7 +9,7 @@ from utils.common.constants import RESULTS_DIR_PATH
 class ResultsHandler:
     def __init__(self, test_name, script_time):
         self._log = logging.getLogger(self.__class__.__name__)
-        self._script_time = script_time
+        self._script_time = int(script_time)
         self._test_name = test_name
 
     def save_results(self, run_programs, test_case_time):
@@ -30,7 +30,7 @@ class ResultsHandler:
             with open(path, "r") as result_file:
                 result_json = json.load(result_file)
                 src_name = result_json["src_name"].split(".")[0]
-                summary_results["run_tests"][src_name] += result_json
+                summary_results["run_tests"][src_name].append(result_json)
         return summary_results
 
     def _save_summary_in_file(self, summary_data):

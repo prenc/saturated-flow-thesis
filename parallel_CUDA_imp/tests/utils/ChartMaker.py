@@ -25,7 +25,7 @@ class ChartMaker:
             data = self._gather_data(summary_file)
             self._create_and_save_charts(data)
         except FileNotFoundError:
-            self._log.error(f"Could not find summary file: {summary_file}")
+            self._log.error(f"Could not find the summary file: {summary_file}")
 
     def _gather_data(self, summary_file):
         data = self._load_charts_data(summary_file)

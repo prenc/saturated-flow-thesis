@@ -82,7 +82,7 @@ class ProgramCompilerAndRunner:
         return results_paths
 
     def _run_program(self, executable_data):
-        self._log.info(f"Testing '{executable_data}'.")
+        self._log.info(f"Testing '{executable_data['executable_name']}'.")
         tc = TimeCounter()
         tc.start()
         exit_code = subprocess.run(
