@@ -63,6 +63,5 @@ int main(void) {
 
     perform_simulation_on_GPU();
 
-    free_allocated_memory();
     return 0;
 }

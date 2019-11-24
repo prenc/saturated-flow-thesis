@@ -10,22 +10,21 @@ __global__ void simulation_step_kernel(struct CA *d_ca, double *d_write_head, in
     unsigned x = threadIdx.x + 1;
     unsigned y = threadIdx.y + 1;
 
-    s_heads[y][x] = d_ca->head[idx_g];
-    s_K[y][x] = d_ca->K[idx_g];
-
-    if (threadIdx.x == 0 && blockIdx.x != 0) // left
-        s_heads[y][x - 1] = d_ca->head[idx_g - 1];
-    if (threadIdx.x == BLOCK_SIZE - 1 && blockIdx.x != grid_size - 1) // right
-        s_heads[y][x + 1] = d_ca->head[idx_g + 1];
-    if (threadIdx.y == 0 && blockIdx.y != 0) // upper
-        s_heads[y - 1][x] = d_ca->head[idx_g - COLS];
-    if (threadIdx.y == BLOCK_SIZE - 1 && blockIdx.y != grid_size - 1) // bottom
-        s_heads[y + 1][x] = d_ca->head[idx_g + COLS];
-
-    __syncthreads();
-
     double Q, diff_head, tmp_t, ht1, ht2;
     if (idx_x < COLS && idx_y < ROWS)
+        s_heads[y][x] = d_ca->head[idx_g];
+        s_K[y][x] = d_ca->K[idx_g];
+
+        if (threadIdx.x == 0 && blockIdx.x != 0) // left
+            s_heads[y][x - 1] = d_ca->head[idx_g - 1];
+        if (threadIdx.x == BLOCK_SIZE - 1 && blockIdx.x != grid_size - 1) // right
+            s_heads[y][x + 1] = d_ca->head[idx_g + 1];
+        if (threadIdx.y == 0 && blockIdx.y != 0) // upper
+            s_heads[y - 1][x] = d_ca->head[idx_g - COLS];
+        if (threadIdx.y == BLOCK_SIZE - 1 && blockIdx.y != grid_size - 1) // bottom
+            s_heads[y + 1][x] = d_ca->head[idx_g + COLS];
+        __syncthreads();
+
         if (idx_y != 0 && idx_y != ROWS - 1) {
         	Q = 0;
             if (idx_x >= 1) { // left neighbor
@@ -82,6 +81,5 @@ int main(void) {
 
     perform_simulation_on_GPU();
 
-    copy_data_from_GPU_to_CPU();
     return 0;
 }
