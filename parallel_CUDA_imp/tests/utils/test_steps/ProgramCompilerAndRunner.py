@@ -86,16 +86,14 @@ class ProgramCompilerAndRunner:
         tc = TimeCounter()
         tc.start()
         exit_code = subprocess.run(
-            [f"./{COMPILED_DIR_PATH}/{executable_data}"]
+            [f"./{COMPILED_DIR_PATH}/{executable_data['executable_name']}"]
         ).returncode
         tc.stop()
         return self._save_test_results(
             executable_data, tc.elapsed_time, exit_code
         )
 
-    def _save_test_results(
-        self, executables_data, elapsed_time, exit_code
-    ):
+    def _save_test_results(self, executables_data, elapsed_time, exit_code):
         results_object = {
             **executables_data,
             "datastamp": time.time(),
