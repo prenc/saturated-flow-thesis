@@ -2,24 +2,16 @@
 // Created by pecatoma on 28.11.2019.
 //
 
-#ifndef VISUALIZATION_OPENGL_WINDOW_H
-#define VISUALIZATION_OPENGL_WINDOW_H
+#ifndef VISUALIZATION_OPENGL_GLFWMANAGER_H
+#define VISUALIZATION_OPENGL_GLFWMANAGER_H
 
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include "camera.h"
 
-class Window{
+class WindowCreator{
 public:
 	static GLFWwindow *createGLFWWindow(int _width, int _height, Camera *_camera);
-
-	static bool shouldClose();
-
-	static void processInput(float deltaTime);
-	static void refreshWindow();
-
-	static void terminateWindow();
-
 private:
 	static int width, height;
 	static bool firstMouse;
@@ -33,10 +25,6 @@ private:
 
 	static void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
 
-	static void init_glfw();
-
-	static void register_callback();
-
 };
 
-#endif //VISUALIZATION_OPENGL_WINDOW_H
+#endif //VISUALIZATION_OPENGL_GLFWMANAGER_H
