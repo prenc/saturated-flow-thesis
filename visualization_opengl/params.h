@@ -1,8 +1,6 @@
 //
 // Created by prenc on 11/10/19.
 //
-
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
