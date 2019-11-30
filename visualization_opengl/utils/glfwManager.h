@@ -11,13 +11,13 @@
 
 class WindowCreator{
 public:
-	static GLFWwindow *createGLFWWindow(int _width, int _height, Camera _camera);
+	static GLFWwindow *createGLFWWindow(int _width, int _height, Camera *_camera);
 private:
 	static int width, height;
 	static bool firstMouse;
 	static float lastX;
 	static float lastY;
-	static Camera camera;
+	static Camera* camera;
 
 	static void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 

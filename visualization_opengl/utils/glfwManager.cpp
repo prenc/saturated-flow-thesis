@@ -7,9 +7,9 @@ int WindowCreator::width, WindowCreator::height;
 bool WindowCreator::firstMouse;
 float WindowCreator::lastX;
 float WindowCreator::lastY;
-Camera WindowCreator::camera;
+Camera* WindowCreator::camera;
 
-GLFWwindow * WindowCreator::createGLFWWindow(int _width, int _height, Camera _camera)
+GLFWwindow * WindowCreator::createGLFWWindow(int _width, int _height, Camera *_camera)
 {
 	width = _width;
 	height = _height;
@@ -63,11 +63,11 @@ void WindowCreator::mouse_callback(GLFWwindow *window, double xpos, double ypos)
 	lastX = xpos;
 	lastY = ypos;
 
-	camera.ProcessMouseMovement(xoffset, yoffset);
+	camera->ProcessMouseMovement(xoffset, yoffset);
 }
 
 void WindowCreator::scroll_callback(GLFWwindow *window, double xoffset, double yoffset)
 {
-	camera.ProcessMouseScroll(yoffset);
+	camera->ProcessMouseScroll(yoffset);
 }
 
