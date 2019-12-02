@@ -2,14 +2,14 @@
 // Created by pecatoma on 28.11.2019.
 //
 
-#ifndef VISUALIZATION_OPENGL_GLFWMANAGER_H
-#define VISUALIZATION_OPENGL_GLFWMANAGER_H
+#ifndef VISUALIZATION_OPENGL_WINDOW_H
+#define VISUALIZATION_OPENGL_WINDOW_H
 
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include "camera.h"
 
-class WindowCreator{
+class Window{
 public:
 	static GLFWwindow *createGLFWWindow(int _width, int _height, Camera *_camera);
 private:
@@ -27,4 +27,4 @@ private:
 
 };
 
-#endif //VISUALIZATION_OPENGL_GLFWMANAGER_H
+#endif //VISUALIZATION_OPENGL_WINDOW_H
