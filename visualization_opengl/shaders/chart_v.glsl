@@ -8,7 +8,7 @@ uniform mat4 projection;
 
 void main()
 {
-    graph_coord =  vec4(aPos.x,aPos.z,aPos.y, 1);
+    graph_coord =  vec4(aPos.x, aPos.z, aPos.y, 1);
 
     gl_Position = projection * view * model * vec4(aPos.x,aPos.z,aPos.y, 1.0);
 }

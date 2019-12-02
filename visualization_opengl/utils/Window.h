@@ -12,6 +12,14 @@
 class Window{
 public:
 	static GLFWwindow *createGLFWWindow(int _width, int _height, Camera *_camera);
+
+	static bool shouldClose();
+
+	static void processInput(float deltaTime);
+	static void refreshWindow();
+
+	static void terminateWindow();
+
 private:
 	static int width, height;
 	static bool firstMouse;
@@ -24,6 +32,10 @@ private:
 	static void mouse_callback(GLFWwindow *window, double xpos, double ypos);
 
 	static void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
+
+	static void init_glfw();
+
+	static void register_callback();
 
 };
 
