@@ -71,3 +71,4 @@ void WindowCreator::scroll_callback(GLFWwindow *window, double xoffset, double y
 	camera->ProcessMouseScroll(yoffset);
 }
 
+
