@@ -28,11 +28,8 @@ void Chart::draw()
 	shader.setMat4("view", view);
 	glm::mat4 texture_transform = glm::translate(glm::scale(glm::mat4(1.0f), glm::vec3(1,1, 1)), glm::vec3(0,0, 0));
 
-	glPointSize(10);
 	glBindVertexArray(VAO);
 	glDrawElements(GL_LINES, 4 * ROWS * (COLS - 1), GL_UNSIGNED_INT, 0);
-
-
 }
 
 void Chart::init_chart_data()
