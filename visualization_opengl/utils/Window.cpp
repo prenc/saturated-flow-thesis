@@ -1,15 +1,15 @@
 //
 // Created by pecatoma on 28.11.2019.
 //
-#include "glfwManager.h"
+#include "Window.h"
 
-int WindowCreator::width, WindowCreator::height;
-bool WindowCreator::firstMouse;
-float WindowCreator::lastX;
-float WindowCreator::lastY;
-Camera* WindowCreator::camera;
+int Window::width, Window::height;
+bool Window::firstMouse;
+float Window::lastX;
+float Window::lastY;
+Camera* Window::camera;
 
-GLFWwindow * WindowCreator::createGLFWWindow(int _width, int _height, Camera *_camera)
+GLFWwindow * Window::createGLFWWindow(int _width, int _height, Camera *_camera)
 {
 	width = _width;
 	height = _height;
@@ -43,12 +43,12 @@ GLFWwindow * WindowCreator::createGLFWWindow(int _width, int _height, Camera *_c
 
 	return window;
 }
-void WindowCreator::framebuffer_size_callback(GLFWwindow *window, int width, int height)
+void Window::framebuffer_size_callback(GLFWwindow *window, int width, int height)
 {
 	glViewport(0, 0, width, height);
 }
 
-void WindowCreator::mouse_callback(GLFWwindow *window, double xpos, double ypos)
+void Window::mouse_callback(GLFWwindow *window, double xpos, double ypos)
 {
 	if (firstMouse)
 	{
@@ -66,7 +66,7 @@ void WindowCreator::mouse_callback(GLFWwindow *window, double xpos, double ypos)
 	camera->ProcessMouseMovement(xoffset, yoffset);
 }
 
-void WindowCreator::scroll_callback(GLFWwindow *window, double xoffset, double yoffset)
+void Window::scroll_callback(GLFWwindow *window, double xoffset, double yoffset)
 {
 	camera->ProcessMouseScroll(yoffset);
 }
