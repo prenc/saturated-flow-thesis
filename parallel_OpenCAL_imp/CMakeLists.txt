@@ -19,5 +19,5 @@ file(GLOB SRC
     "*.c"
 )
 
-add_executable(cal_satured ${SRC})
-target_link_libraries(cal_satured ${OPENCAL_LIBRARIES})
+add_executable(cal_saturatedFlow_oneWell ${SRC})
+target_link_libraries(cal_saturatedFlow_oneWell ${OPENCAL_LIBRARIES})
