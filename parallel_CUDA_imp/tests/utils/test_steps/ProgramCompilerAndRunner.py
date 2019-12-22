@@ -59,8 +59,8 @@ class ProgramCompilerAndRunner:
 
     def _compile_c_file(self, root, name, output_path):
         self._log.info(f"Compiling using 'make': '{name}'.")
-        subprocess.run(["cmake", f"-B{root}", f"-H{root}"])
-        exit_code = subprocess.run(["make", "-C", root])
+        subprocess.run(["cmake", f"-B{root}", f"-H{root}", "-DCMAKE_BUILD_TYPE=Release", "-DCMAKE_MODULE_PATH=/nfshome/aderango/git/opencal/cmake", "-DOpenCL_LIBRARY=/opt/cuda/targets/x86_64-linux/lib/libOpenCL.so","-DOpenCL_INCLUDE_DIR=/opt/cuda/targets/x86_64-linux/include"])
+        exit_code = subprocess.run(["make", "-C", root]).returncode
         if exit_code == 0:
             move(os.path.join(root, name.split(".")[0]), output_path)
         return exit_code
