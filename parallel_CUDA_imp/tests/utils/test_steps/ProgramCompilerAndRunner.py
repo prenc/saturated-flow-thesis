@@ -6,7 +6,11 @@ import time
 from shutil import move
 
 from utils.common.TimeCounter import TimeCounter
-from utils.common.constants import COMPILED_DIR_PATH, PROFILING_DIR_PATH
+from utils.common.constants import (
+    COMPILED_DIR_PATH,
+    PROFILING_DIR_PATH,
+    TIMES_EACH_PROGRAM_IS_RUN,
+)
 
 
 class ProgramCompilerAndRunner:
@@ -59,7 +63,17 @@ class ProgramCompilerAndRunner:
 
     def _compile_c_file(self, root, name, output_path):
         self._log.info(f"Compiling using 'make': '{name}'.")
-        subprocess.run(["cmake", f"-B{root}", f"-H{root}", "-DCMAKE_BUILD_TYPE=Release", "-DCMAKE_MODULE_PATH=/nfshome/aderango/git/opencal/cmake", "-DOpenCL_LIBRARY=/opt/cuda/targets/x86_64-linux/lib/libOpenCL.so","-DOpenCL_INCLUDE_DIR=/opt/cuda/targets/x86_64-linux/include"])
+        subprocess.run(
+            [
+                "cmake",
+                f"-B{root}",
+                f"-H{root}",
+                "-DCMAKE_BUILD_TYPE=Release",
+                "-DCMAKE_MODULE_PATH=/nfshome/aderango/git/opencal/cmake",
+                "-DOpenCL_LIBRARY=/opt/cuda/targets/x86_64-linux/lib/libOpenCL.so",
+                "-DOpenCL_INCLUDE_DIR=/opt/cuda/targets/x86_64-linux/include",
+            ]
+        )
         exit_code = subprocess.run(["make", "-C", root]).returncode
         if exit_code == 0:
             move(os.path.join(root, name.split(".")[0]), output_path)
@@ -84,19 +98,25 @@ class ProgramCompilerAndRunner:
     def _run_program(self, executable_data):
         self._log.info(f"Testing '{executable_data['executable_name']}'.")
         tc = TimeCounter()
-        tc.start()
-        exit_code = subprocess.run(
-            [f"./{COMPILED_DIR_PATH}/{executable_data['executable_name']}"]
-        ).returncode
-        tc.stop()
+        times = []
+        exit_code = 0
+        for i in range(TIMES_EACH_PROGRAM_IS_RUN):
+            self._log.info(f"Running {i+1}/{TIMES_EACH_PROGRAM_IS_RUN} test.")
+            tc.start()
+            exit_code = subprocess.run(
+                [f"./{COMPILED_DIR_PATH}/{executable_data['executable_name']}"]
+            ).returncode
+            tc.stop()
+            times.append(tc.elapsed_time)
+
         return self._save_test_results(
-            executable_data, tc.elapsed_time, exit_code
+            executable_data, sum(times) / TIMES_EACH_PROGRAM_IS_RUN, exit_code
         )
 
     def _save_test_results(self, executables_data, elapsed_time, exit_code):
         results_object = {
             **executables_data,
-            "datastamp": time.time(),
+            "datastamp": int(time.time()),
             "elapsed_time": elapsed_time,
             "run_exit_code": exit_code,
         }
