@@ -129,8 +129,8 @@ int main(void) {
 
     perform_simulation_on_GPU();
 
-    free_allocated_memory();
-    return 0;
+	write_heads_to_file(d_write.head);
+	return 0;
 }
 
 
