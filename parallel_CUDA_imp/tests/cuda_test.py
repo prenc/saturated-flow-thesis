@@ -11,7 +11,7 @@ logging.basicConfig(
     level=logging.INFO,
     filename="out.log",
     filemode="a",
-    format="%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s",
+    format="%(asctime)s %(name)s %(levelname)s %(message)s",
     datefmt="%H:%M:%S",
 )
 
