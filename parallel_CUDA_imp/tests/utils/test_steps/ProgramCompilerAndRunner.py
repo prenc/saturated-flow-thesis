@@ -116,7 +116,7 @@ class ProgramCompilerAndRunner:
     def _save_test_results(self, executables_data, elapsed_time, exit_code):
         results_object = {
             **executables_data,
-            "datastamp": int(time.time()),
+            "datastamp": round(time.time()),
             "elapsed_time": elapsed_time,
             "run_exit_code": exit_code,
         }

@@ -36,7 +36,9 @@ class TestCaseHandler:
             run_tests_results = pcar.perform_test(test_spec)
             result_paths.extend(run_tests_results)
         test_case_counter.stop()
-        return rg.save_results(result_paths, test_case_counter.elapsed_time)
+        return rg.save_results(
+            result_paths, round(test_case_counter.elapsed_time)
+        )
 
     @staticmethod
     def _prepare_test_specs(test_specs):
