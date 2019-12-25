@@ -44,11 +44,12 @@ __global__ void simulation_step_kernel(struct CA *d_ca, double *d_write_head) {
 
 void perform_simulation_on_GPU() {
     dim3 blockSize(BLOCK_SIZE, BLOCK_SIZE);
-    const int blockCount = (ROWS * COLS) / (BLOCK_SIZE * BLOCK_SIZE) + 1;
-    double gridSize = sqrt(blockCount) + 1;
-    dim3 blockCount2D(gridSize, gridSize);
+    const int blockCount = ceil((ROWS * COLS) / (BLOCK_SIZE * BLOCK_SIZE));
+    double gridSize = ceil(sqrt(blockCount));
+    dim3 gridDim(gridSize, gridSize);
+
     for (int i = 0; i < SIMULATION_ITERATIONS; i++) {
-        simulation_step_kernel << < blockCount2D, blockSize >> > (d_read_ca, d_write_head);
+        simulation_step_kernel <<< gridDim, blockSize >>> (d_read_ca, d_write_head);
 
         cudaDeviceSynchronize();
 
@@ -61,11 +62,14 @@ void perform_simulation_on_GPU() {
 
 int main(void) {
     init_host_ca();
+
     copy_data_from_CPU_to_GPU();
 
     perform_simulation_on_GPU();
 
     copy_data_from_GPU_to_CPU();
+
+    write_heads_to_file(h_ca.head);
     return 0;
 }
 

@@ -44,9 +44,10 @@ __global__ void simulation_step_kernel(struct CA d_ca, double *d_write_head) {
 
 void perform_simulation_on_GPU() {
     dim3 blockSize(BLOCK_SIZE, BLOCK_SIZE);
-    const int blockCount = (ROWS * COLS) / (BLOCK_SIZE * BLOCK_SIZE) + 1;
-    double gridSize = sqrt(blockCount) + 1;
+    const int blockCount = ceil((ROWS * COLS) / (BLOCK_SIZE * BLOCK_SIZE));
+    double gridSize = ceil(sqrt(blockCount));
     dim3 blockCount2D(gridSize, gridSize);
+
     for (int i = 0; i < SIMULATION_ITERATIONS; i++) {
         simulation_step_kernel << < blockCount2D, blockSize >> > (d_read, d_write.head);
 
@@ -60,12 +61,14 @@ void perform_simulation_on_GPU() {
 
 int main(void) {
     allocate_memory();
+
     init_read_ca();
+
     init_write_head();
 
     perform_simulation_on_GPU();
 
-    free_allocated_memory();
+    write_heads_to_file(d_write.head);
     return 0;
 }
 

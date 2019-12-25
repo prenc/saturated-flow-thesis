@@ -67,7 +67,7 @@ void perform_simulation_on_GPU() {
     dim3 gridDim(gridSize, gridSize);
 
     for (int i = 0; i < SIMULATION_ITERATIONS; i++) {
-        simulation_step_kernel << < gridDim, blockDim >> > (d_read_ca, d_write_head, gridSize);
+        simulation_step_kernel <<< gridDim, blockDim >>> (d_read_ca, d_write_head, gridSize);
 
         cudaDeviceSynchronize();
 
@@ -80,10 +80,13 @@ void perform_simulation_on_GPU() {
 
 int main(void) {
     init_host_ca();
+
     copy_data_from_CPU_to_GPU();
 
     perform_simulation_on_GPU();
 
     copy_data_from_GPU_to_CPU();
+
+    write_heads_to_file(h_ca.head);
     return 0;
 }
