@@ -1,26 +1,4 @@
 {
-  "standard_13": {
-    "test_specs": {
-      "block_size": [
-        13
-      ],
-      "ca_size": [
-        1000, 2000, 4000, 6000,
-        6500, 7002, 7550, 8000,
-        8400, 8900, 9400, 10000,
-        10400, 10900, 11500, 12000
-      ],
-      "iterations": [
-        1000
-      ]
-    },
-    "test_src": [
-      "global_memory.cu",
-      "shared_memory.cu",
-      "unified_memory.cu",
-      "hybrid_memory.cu"
-    ]
-  },
   "standard_16": {
     "test_specs": {
       "block_size": [
@@ -28,31 +6,9 @@
       ],
       "ca_size": [
         1000, 2000, 4000, 6000,
-        6500, 7002, 7550, 8000,
-        8400, 8900, 9400, 10000,
-        10400, 10900, 11500, 12000
-      ],
-      "iterations": [
-        1000
-      ]
-    },
-    "test_src": [
-      "global_memory.cu",
-      "shared_memory.cu",
-      "unified_memory.cu",
-      "hybrid_memory.cu"
-    ]
-  },
-  "standard_23": {
-    "test_specs": {
-      "block_size": [
-        23
-      ],
-      "ca_size": [
-        1000, 2000, 4000, 6000,
-        6500, 7002, 7550, 8000,
-        8400, 8900, 9400, 10000,
-        10400, 10900, 11500, 12000
+        6500, 7000, 7500, 8000,
+        8500, 9000, 9500, 10000,
+        10500, 11000, 11500, 12000
       ],
       "iterations": [
         1000
@@ -72,9 +28,9 @@
       ],
       "ca_size": [
         1000, 2000, 4000, 6000,
-        6500, 7002, 7550, 8000,
-        8400, 8900, 9400, 10000,
-        10400, 10900, 11500, 12000
+        6500, 7000, 7500, 8000,
+        8500, 9000, 9500, 10000,
+        10500, 11000, 11500, 12000
       ],
       "iterations": [
         1000
@@ -87,54 +43,10 @@
       "hybrid_memory.cu"
     ]
   },
-  "standard_13_loop": {
-    "test_specs": {
-      "block_size": [
-        13
-      ],
-      "ca_size": [
-        100, 200, 400, 600,
-        700, 800, 900, 950,
-        1000, 1100, 1200, 1250,
-        1350, 1400, 1450, 1500
-      ],
-      "iterations": [
-        1000
-      ]
-    },
-    "test_src": [
-      "global_memory_loop.cu",
-      "shared_memory_loop.cu",
-      "unified_memory_loop.cu",
-      "hybrid_memory_loop.cu"
-    ]
-  },
   "standard_16_loop": {
     "test_specs": {
       "block_size": [
         16
-      ],
-      "ca_size": [
-        100, 200, 400, 600,
-        700, 800, 900, 950,
-        1000, 1100, 1200, 1250,
-        1350, 1400, 1450, 1500
-      ],
-      "iterations": [
-        1000
-      ]
-    },
-    "test_src": [
-      "global_memory_loop.cu",
-      "shared_memory_loop.cu",
-      "unified_memory_loop.cu",
-      "hybrid_memory_loop.cu"
-    ]
-  },
-  "standard_23_loop": {
-    "test_specs": {
-      "block_size": [
-        23
       ],
       "ca_size": [
         100, 200, 400, 600,
@@ -175,52 +87,10 @@
       "hybrid_memory_loop.cu"
     ]
   },
-  "active_cells_13": {
-    "test_specs": {
-      "block_size": [
-        13
-      ],
-      "ca_size": [
-        1000, 2000, 3000, 4000,
-        5000, 5500, 6000, 6500,
-        7000, 7500, 7750, 8000,
-        8250, 8500, 8750, 9000
-      ],
-      "iterations": [
-        1000
-      ]
-    },
-    "test_src": [
-      "unified_memory.cu",
-      "active_cells_gpu.cu",
-      "active_cells_gpu_const_block_number.cu"
-    ]
-  },
   "active_cells_16": {
     "test_specs": {
       "block_size": [
         16
-      ],
-      "ca_size": [
-        1000, 2000, 3000, 4000,
-        5000, 5500, 6000, 6500,
-        7000, 7500, 7750, 8000,
-        8250, 8500, 8750, 9000
-      ],
-      "iterations": [
-        1000
-      ]
-    },
-    "test_src": [
-      "unified_memory.cu",
-      "active_cells_gpu.cu",
-      "active_cells_gpu_const_block_number.cu"
-    ]
-  },
-  "active_cells_23": {
-    "test_specs": {
-      "block_size": [
-        23
       ],
       "ca_size": [
         1000, 2000, 3000, 4000,
@@ -303,23 +173,24 @@
       "hybrid_memory_loop.cu"
     ]
   },
-  "openCal": {
+  "sequential": {
     "test_specs": {
       "block_size": [
         0
       ],
       "ca_size": [
-        1000, 2000, 4000, 6000,
-        6500, 7002, 7550, 8000,
-        8400, 8900, 9400, 10000,
-        10400, 10900, 11500, 12000
+        250, 500, 750, 1000,
+        1250, 1500, 1750, 2000,
+        2250, 2500, 2750, 3000,
+        3250, 3500, 3750, 4000
       ],
       "iterations": [
         1000
       ]
     },
     "test_src": [
-      "cal_saturatedFlow_oneWell.c"
+      "cal_saturatedFlow_oneWell.c",
+      "sequential_c_imp.c"
     ]
   }
 }
