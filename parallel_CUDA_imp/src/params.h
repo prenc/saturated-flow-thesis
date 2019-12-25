@@ -29,7 +29,7 @@
 #define headCalculated 50
 
 #define DELTA_T 4000
-#define KERNEL_LOOP_SIZE 100
+#define KERNEL_LOOP_SIZE 50
 
 //multiple wells
 #define NUMBER_OF_WELLS 1
@@ -38,8 +38,8 @@ int wellsCols[NUMBER_OF_WELLS] = {COLS / 2};
 double wellsQW[NUMBER_OF_WELLS] = {0.001};
 
 struct CA {
-double *head;
-double *Sy;
-double *K;
-double *Source;
+    double *head;
+    double *Sy;
+    double *K;
+    double *Source;
 };
