@@ -6,10 +6,10 @@ __global__ void simulation_step_kernel(struct CA d_ca, double *d_write_head) {
     unsigned idx_g = idx_y * COLS + idx_x;
 
     double Q, diff_head, tmp_t, ht1, ht2;
-    if (idx_x < COLS && idx_y < ROWS)
-    	if (idx_y != 0 && idx_y != ROWS - 1) {
+    if (idx_x < COLS && idx_y < ROWS) {
+        if (idx_y != 0 && idx_y != ROWS - 1) {
             Q = 0;
-    		if (idx_x >= 1) {
+            if (idx_x >= 1) {
                 diff_head = d_ca.head[idx_g - 1] - d_ca.head[idx_g];
                 tmp_t = d_ca.K[idx_g] * THICKNESS;
                 Q += diff_head * tmp_t;
@@ -31,12 +31,12 @@ __global__ void simulation_step_kernel(struct CA d_ca, double *d_write_head) {
             }
 
             Q -= d_ca.Source[idx_g];
-
             ht1 = Q * DELTA_T;
             ht2 = AREA * d_ca.Sy[idx_g];
 
             d_write_head[idx_g] = d_ca.head[idx_g] + ht1 / ht2;
         }
+    }
 }
 
 void perform_simulation_on_GPU() {
@@ -46,7 +46,7 @@ void perform_simulation_on_GPU() {
     dim3 gridDim(gridSize, gridSize);
 
     for (int i = 0; i < SIMULATION_ITERATIONS; i++) {
-        simulation_step_kernel <<< gridDim, blockDim >>> (d_read, d_write.head);
+        simulation_step_kernel << < gridDim, blockDim >> > (d_read, d_write.head);
 
         cudaDeviceSynchronize();
 

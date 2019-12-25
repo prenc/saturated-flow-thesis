@@ -8,13 +8,13 @@ __global__ void simulation_step_kernel(struct CA *d_ca, double *d_write_head) {
     unsigned idx_g = idx_y * COLS + idx_x;
 
     double Q, diff_head, tmp_t, ht1, ht2;
-    if (idx_x < COLS && idx_y < ROWS)
+    if (idx_x < COLS && idx_y < ROWS) {
         s_heads[threadIdx.y][threadIdx.x] = d_ca->head[idx_g];
         s_K[threadIdx.y][threadIdx.x] = d_ca->K[idx_g];
         __syncthreads();
 
         if (idx_y != 0 && idx_y != ROWS - 1) {
-        	Q = 0;
+            Q = 0;
             if (idx_x >= 1) { // left neighbor
                 if (threadIdx.x >= 1)
                     diff_head = s_heads[threadIdx.y][threadIdx.x - 1] - s_heads[threadIdx.y][threadIdx.x];
@@ -55,6 +55,7 @@ __global__ void simulation_step_kernel(struct CA *d_ca, double *d_write_head) {
 
             d_write_head[idx_g] = s_heads[threadIdx.y][threadIdx.x] + ht1 / ht2;
         }
+    }
 }
 
 void perform_simulation_on_GPU() {
