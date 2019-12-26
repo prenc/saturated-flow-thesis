@@ -26,29 +26,30 @@ __global__ void simulation_step_kernel(struct CA d_ca, double *d_write_head) {
 		unsigned idx_x = idx_g % COLS;
 		unsigned idx_y = idx_g / COLS;
 		if (idx_y != 0 && idx_y != ROWS - 1) {
-			double Q = 0;
-			double diff_head;
-			double tmp_t;
+			double Q, diff_head, tmp_t;
+			for (int i = 0; i < SIMULATION_ITERATIONS; ++i) {
+				Q = 0;
+				if (idx_x >= 1) {
+					diff_head = d_ca.head[idx_g - 1] - d_ca.head[idx_g];
+					tmp_t = d_ca.K[idx_g] * THICKNESS;
+					Q += diff_head * tmp_t;
+				}
+				if (idx_y >= 1) {
+					diff_head = d_ca.head[(idx_y - 1) * COLS + idx_x] - d_ca.head[idx_g];
+					tmp_t = d_ca.K[idx_g] * THICKNESS;
+					Q += diff_head * tmp_t;
+				}
+				if (idx_x + 1 < COLS) {
+					diff_head = d_ca.head[idx_g + 1] - d_ca.head[idx_g];
+					tmp_t = d_ca.K[idx_g] * THICKNESS;
+					Q += diff_head * tmp_t;
+				}
+				if (idx_y + 1 < ROWS) {
+					diff_head = d_ca.head[(idx_y + 1) * COLS + idx_x] - d_ca.head[idx_g];
+					tmp_t = d_ca.K[idx_g] * THICKNESS;
+					Q += diff_head * tmp_t;
+				}
 
-			if (idx_x >= 1) {
-				diff_head = d_ca.head[idx_g - 1] - d_ca.head[idx_g];
-				tmp_t = d_ca.K[idx_g] * THICKNESS;
-				Q += diff_head * tmp_t;
-			}
-			if (idx_y >= 1) {
-				diff_head = d_ca.head[(idx_y - 1) * COLS + idx_x] - d_ca.head[idx_g];
-				tmp_t = d_ca.K[idx_g] * THICKNESS;
-				Q += diff_head * tmp_t;
-			}
-			if (idx_x + 1 < COLS) {
-				diff_head = d_ca.head[idx_g + 1] - d_ca.head[idx_g];
-				tmp_t = d_ca.K[idx_g] * THICKNESS;
-				Q += diff_head * tmp_t;
-			}
-			if (idx_y + 1 < ROWS) {
-				diff_head = d_ca.head[(idx_y + 1) * COLS + idx_x] - d_ca.head[idx_g];
-				tmp_t = d_ca.K[idx_g] * THICKNESS;
-				Q += diff_head * tmp_t;
 			}
 
 			Q -= d_ca.Source[idx_g];
@@ -125,6 +126,8 @@ int main(void) {
 	init_write_head();
 
 	perform_simulation_on_GPU();
+
+	write_heads_to_file(d_write.head);
 
 	return 0;
 }
