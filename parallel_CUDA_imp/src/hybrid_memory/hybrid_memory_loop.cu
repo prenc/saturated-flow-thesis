@@ -63,9 +63,10 @@ void perform_simulation_on_GPU() {
     dim3 blockSize(BLOCK_SIZE, BLOCK_SIZE);
     const int blockCount = ceil((ROWS * COLS) / (BLOCK_SIZE * BLOCK_SIZE));
     double gridSize = ceil(sqrt(blockCount));
-    dim3 blockCount2D(gridSize, gridSize);
+    dim3 gridDim(gridSize, gridSize);
+
     for (int i = 0; i < SIMULATION_ITERATIONS; i++) {
-        simulation_step_kernel << < blockCount2D, blockSize >> > (d_read_ca, d_write_head);
+        simulation_step_kernel << < gridDim, blockSize >> > (d_read_ca, d_write_head);
 
         cudaDeviceSynchronize();
 
@@ -83,5 +84,6 @@ int main(void) {
     perform_simulation_on_GPU();
 
     copy_data_from_GPU_to_CPU();
+
     return 0;
 }

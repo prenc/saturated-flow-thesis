@@ -49,10 +49,10 @@
         16
       ],
       "ca_size": [
-        100, 200, 400, 600,
-        700, 800, 900, 950,
-        1000, 1100, 1200, 1250,
-        1350, 1400, 1450, 1500
+        250, 500, 750, 1000,
+        1250, 1500, 1750, 2000,
+        2250, 2500, 2750, 3000,
+        3250, 3500, 3750, 4000
       ],
       "iterations": [
         1000
@@ -71,10 +71,10 @@
         32
       ],
       "ca_size": [
-        100, 200, 400, 600,
-        700, 800, 900, 950,
-        1000, 1100, 1200, 1250,
-        1350, 1400, 1450, 1500
+        250, 500, 750, 1000,
+        1250, 1500, 1750, 2000,
+        2250, 2500, 2750, 3000,
+        3250, 3500, 3750, 4000
       ],
       "iterations": [
         1000
@@ -127,6 +127,48 @@
       "unified_memory.cu",
       "active_cells_gpu.cu",
       "active_cells_gpu_const_block_number.cu"
+    ]
+  },
+  "active_cells_16_loop": {
+    "test_specs": {
+      "block_size": [
+        16
+      ],
+      "ca_size": [
+        250, 500, 750, 1000,
+        1250, 1500, 1750, 2000,
+        2250, 2500, 2750, 3000,
+        3250, 3500, 3750, 4000
+      ],
+      "iterations": [
+        1000
+      ]
+    },
+    "test_src": [
+      "unified_memory_loop.cu",
+      "active_cells_gpu_loop.cu",
+      "active_cells_gpu_const_block_number_loop.cu"
+    ]
+  },
+  "active_cells_32_loop": {
+    "test_specs": {
+      "block_size": [
+        32
+      ],
+      "ca_size": [
+        250, 500, 750, 1000,
+        1250, 1500, 1750, 2000,
+        2250, 2500, 2750, 3000,
+        3250, 3500, 3750, 4000
+      ],
+      "iterations": [
+        1000
+      ]
+    },
+    "test_src": [
+      "unified_memory_loop.cu",
+      "active_cells_gpu_loop.cu",
+      "active_cells_gpu_const_block_number_loop.cu"
     ]
   },
   "block_size_test": {
