@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
-
+project(cal_saturatedFlow_oneWell C)
 find_package(OpenCAL 1.0 COMPONENTS OpenCAL REQUIRED)
 
 link_directories(${CMAKE_CURRENT_SOURCE_DIR}/source)
