@@ -1,18 +1,6 @@
 #include <stdio.h>
+#include "../parallel_CUDA_imp/src/params.h"
 
-#define ROWS 100
-#define COLS 100
-#define CELL_SIZE_X 10
-#define CELL_SIZE_Y 10
-#define THICKNESS 50
-
-#define Syinitial 0.1
-#define Kinitial  0.0000125
-
-#define headFixed 50
-#define headCalculated 50
-
-#define SIMULATION_ITERATIONS 1000
 
 double delta_t_ = 4000;
 double qw = 0.001;
@@ -20,7 +8,7 @@ double qw = 0.001;
 int posSy = ROWS / 2;
 int posSx = COLS / 2;
 
-struct CA {
+struct CAC {
     double head[ROWS][COLS];
     double Sy[ROWS][COLS];
     double K[ROWS][COLS];
@@ -37,7 +25,7 @@ void count_q(double *pDouble, int i, int j, int i1, int j1);
 
 void write_heads_to_file();
 
-void copy_heads(struct CA *r, struct CA *w);
+void copy_heads(struct CAC *r, struct CAC *w);
 
 int main() {
     init_ca();
@@ -46,7 +34,7 @@ int main() {
         simulation_step();
     }
 
-    write_heads_to_file();
+    //write_heads_to_file();
 
     return 0;
 }
@@ -74,7 +62,7 @@ void simulation_step() {
     copy_heads(&write, &read);
 }
 
-void copy_heads(struct CA *w, struct CA *r) {
+void copy_heads(struct CAC *w, struct CAC *r) {
     for (int i = 0; i < ROWS; i++)
         for (int j = 0; j < COLS; j++) {
             r->head[i][j] = w->head[i][j];
