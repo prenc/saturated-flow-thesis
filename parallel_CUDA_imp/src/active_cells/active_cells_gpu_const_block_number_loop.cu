@@ -6,10 +6,10 @@
 #include <thrust/execution_policy.h>
 
 __device__ int active_cells_idx[ROWS * COLS];
-__managed__ int dev_count = 0;
+__managed__ int dev_active_cells_count = 0;
 
 __device__ int my_push_back(int mt) {
-	int insert_pt = atomicAdd(&dev_count, 1);
+	int insert_pt = atomicAdd(&dev_active_cells_count, 1);
 	if (insert_pt < ROWS * COLS) {
 		active_cells_idx[insert_pt] = mt;
 		return insert_pt;
@@ -17,11 +17,14 @@ __device__ int my_push_back(int mt) {
 }
 
 __global__ void simulation_step_kernel(struct CA d_ca, double *d_write_head) {
+	int activeBlockCount = ceil((double)dev_active_cells_count / (BLOCK_SIZE * BLOCK_SIZE)) ;
+	int activeGridSize = ceil(sqrtf(activeBlockCount));
+
 	unsigned ac_idx_x = blockIdx.x * blockDim.x + threadIdx.x;
 	unsigned ac_idx_y = blockIdx.y * blockDim.y + threadIdx.y;
-	unsigned ac_idx_g = ac_idx_y * COLS + ac_idx_x;
+	unsigned ac_idx_g = ac_idx_y * blockDim.x * activeGridSize + ac_idx_x;
 
-	if (ac_idx_g < dev_count) {
+	if (ac_idx_g < dev_active_cells_count) {
 		unsigned idx_g = active_cells_idx[ac_idx_g];
 		unsigned idx_x = idx_g % COLS;
 		unsigned idx_y = idx_g / COLS;
@@ -106,8 +109,8 @@ void perform_simulation_on_GPU() {
 	int gridSize = ceil(sqrt(blockCount));
 	dim3 gridDim(gridSize, gridSize);
 	for (int i = 0; i < SIMULATION_ITERATIONS; i++) {
-		if (dev_count < ROWS * COLS) {
-			dev_count = 0;
+		if (dev_active_cells_count < ROWS * COLS) {
+			dev_active_cells_count = 0;
 			find_active_cells_kernel <<< gridDim, blockSize >>> (d_read);
 			cudaDeviceSynchronize();
 		}
@@ -126,8 +129,6 @@ int main(void) {
 	init_write_head();
 
 	perform_simulation_on_GPU();
-
-	write_heads_to_file(d_write.head);
 
 	return 0;
 }
