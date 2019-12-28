@@ -130,8 +130,6 @@ int main(void) {
 
 	perform_simulation_on_GPU();
 
-	write_heads_to_file(d_write.head);
-
 	return 0;
 }
 
