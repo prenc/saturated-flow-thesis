@@ -19,8 +19,8 @@ logging.basicConfig(
 def main():
     tdp, tch, cm, args = init_program()
 
-    if args.charts_dir:
-        cm.make_charts_in_dir(args.charts_dir)
+    if args.summaries_dir:
+        cm.make_charts_in_dir(args.summaries_dir)
     else:
         test_data = tdp.get_test_data(args.cuda_tests)
         for test_name, test_params in test_data.items():
