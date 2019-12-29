@@ -101,27 +101,31 @@ class ProgramCompilerAndRunner:
         times = []
         exit_code = 0
         for i in range(TIMES_EACH_PROGRAM_IS_RUN):
-            self._log.info(f"Running {i+1}/{TIMES_EACH_PROGRAM_IS_RUN} test.")
             tc.start()
             exit_code = subprocess.run(
                 [f"./{COMPILED_DIR_PATH}/{executable_data['executable_name']}"]
             ).returncode
             tc.stop()
+            self._log.info(
+                f"Test {i + 1}/{TIMES_EACH_PROGRAM_IS_RUN} has "
+                f"been run in: {tc.elapsed_time // 60:.0f}m"
+                f"{tc.elapsed_time % 60:.0f}s"
+            )
             times.append(tc.elapsed_time)
 
-        return self._save_test_results(
+        return self._save_test_summary(
             executable_data, sum(times) / TIMES_EACH_PROGRAM_IS_RUN, exit_code
         )
 
-    def _save_test_results(self, executables_data, elapsed_time, exit_code):
+    def _save_test_summary(self, executable_data, elapsed_time, exit_code):
         results_object = {
-            **executables_data,
+            **executable_data,
             "datastamp": round(time.time()),
             "elapsed_time": elapsed_time,
             "run_exit_code": exit_code,
         }
         result_file_path = os.path.join(
-            PROFILING_DIR_PATH, executables_data["executable_name"]
+            PROFILING_DIR_PATH, executable_data["executable_name"]
         )
         self._log.debug(f"Result path: '{result_file_path}'")
         with open(result_file_path, "w") as result_file:

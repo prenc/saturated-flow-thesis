@@ -26,7 +26,11 @@ class TestCaseHandler:
     def perform_test_case(self, test_name, test_params):
         pg = ParamsGenerator(test_name)
         pcar = ProgramCompilerAndRunner(test_params["test_src"])
-        rg = ResultsHandler(test_name, self.script_start_time)
+        rg = ResultsHandler(
+            test_name,
+            self.script_start_time,
+            chart_params=test_params.get("chart_params", None),
+        )
         test_case_counter = TimeCounter()
 
         result_paths = []
