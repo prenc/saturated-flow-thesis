@@ -110,21 +110,13 @@ class ChartMaker:
 
     @staticmethod
     def _make_latex_tabular(data, x_axis, y_axis):
-        header = next(iter(data["run_tests"].values()))[x_axis]
+        dimensions = next(iter(data["run_tests"].values()))[x_axis]
         b = "\\"
-        tabular_values = [
-            [
-                "CA dimension",
-                *[
-                    f"{b}makecell{{{value.replace('_', b*2)}}}"
-                    for value in header
-                ],
-            ]
-        ]
+        tabular_values = [["CA dimensions", *dimensions]]
         for plot_line_name, plot_line_values in data["run_tests"].items():
             tabular_values.append(
                 [
-                    plot_line_name,
+                    f"{b}makecell{{{plot_line_name.replace('_', b*2)}}}",
                     *[
                         f"{round(value, 2):.2f}s"
                         for value in plot_line_values[y_axis]
