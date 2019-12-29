@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from scipy.interpolate import make_interp_spline
 import numpy as np
 
-from utils.settings import CHARTS_DIR_PATH, RESULTS_DIR_PATH, LATEX_FILE_DUMP
+from utils.settings import CHARTS_DUMP, RESULTS_DIR_PATH, LATEX_DUMP
 
 
 class ChartMaker:
@@ -19,7 +19,7 @@ class ChartMaker:
 
     @staticmethod
     def _create_dirs():
-        dirs = [CHARTS_DIR_PATH]
+        dirs = [CHARTS_DUMP, LATEX_DUMP]
         for dir_path in dirs:
             if not os.path.exists(dir_path):
                 os.makedirs(dir_path)
@@ -77,7 +77,7 @@ class ChartMaker:
         plt.grid(True)
 
         plt.tight_layout()
-        plt.savefig(os.path.join(CHARTS_DIR_PATH, f"{data['test_name']}.pdf"))
+        plt.savefig(os.path.join(CHARTS_DUMP, f"{data['test_name']}.pdf"))
         plt.figure()
 
         self._make_latex_tabular(data, x_axis, y_axis)
@@ -107,7 +107,6 @@ class ChartMaker:
             )
 
     def _make_latex_tabular(self, data, x_axis, y_axis):
-        self._create_output_dir(LATEX_FILE_DUMP)
         tabular_values = [
             ["names", *next(iter(data["run_tests"].values()))[x_axis]]
         ]
@@ -123,12 +122,11 @@ class ChartMaker:
             tabular_output += " & ".join([str(value) for value in row_values])
             tabular_output += " \\\\\n"
         with open(
-            os.path.join(LATEX_FILE_DUMP, f"{data['test_name']}_latex"), "w"
+            os.path.join(LATEX_DUMP, f"{data['test_name']}_latex"), "w"
         ) as latex_table_file:
             latex_table_file.write(tabular_output)
 
     def make_charts_in_dir(self, charts_dir):
-        self._create_output_dir(CHARTS_DIR_PATH)
         for summary_file in os.listdir(charts_dir[0]):
             try:
                 data = self._gather_data(
@@ -137,8 +135,3 @@ class ChartMaker:
                 self._create_and_save_chart(data)
             except JSONDecodeError:
                 self._log.warning(f"No proper json file: '{summary_file}'.")
-
-    @staticmethod
-    def _create_output_dir(path):
-        if not os.path.exists(path):
-            os.makedirs(path)
