@@ -59,7 +59,7 @@ class ChartMaker:
         x_axis = params.get("x_axis", "ca_size")
         y_axis = "elapsed_time"
 
-        line_styles = iter([":", "--", "-.", "-"])
+        line_styles = iter([":", "--", "-.", "-"] * 3)
         for plot_line_name, plot_line_values in data["run_tests"].items():
             self._create_plot_line(
                 {
