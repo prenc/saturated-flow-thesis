@@ -6,7 +6,7 @@ import time
 from shutil import move
 
 from utils.common.TimeCounter import TimeCounter
-from utils.common.constants import (
+from utils.settings import (
     COMPILED_DIR_PATH,
     PROFILING_DIR_PATH,
     TIMES_EACH_PROGRAM_IS_RUN,
@@ -113,9 +113,7 @@ class ProgramCompilerAndRunner:
             )
             times.append(tc.elapsed_time)
 
-        return self._save_test_summary(
-            executable_data, min(times), exit_code
-        )
+        return self._save_test_summary(executable_data, min(times), exit_code)
 
     def _save_test_summary(self, executable_data, elapsed_time, exit_code):
         results_object = {
