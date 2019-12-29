@@ -5,8 +5,8 @@ from collections import defaultdict
 from json import JSONDecodeError
 
 import matplotlib.pyplot as plt
-from scipy.interpolate import make_interp_spline
 import numpy as np
+from scipy.interpolate import make_interp_spline
 
 from utils.settings import CHARTS_DUMP, RESULTS_DIR_PATH, LATEX_DUMP
 
@@ -53,7 +53,7 @@ class ChartMaker:
         return new_data
 
     def _create_and_save_chart(self, data, latex=False):
-        plt.style.use('grayscale')
+        plt.style.use("grayscale")
         params = data["chart_params"]
 
         x_axis = params.get("x_axis", "ca_size")
@@ -110,20 +110,31 @@ class ChartMaker:
 
     @staticmethod
     def _make_latex_tabular(data, x_axis, y_axis):
+        header = next(iter(data["run_tests"].values()))[x_axis]
+        b = "\\"
         tabular_values = [
-            ["names", *next(iter(data["run_tests"].values()))[x_axis]]
+            [
+                "CA dimension",
+                *[
+                    f"{b}makecell{{{value.replace('_', b*2)}}}"
+                    for value in header
+                ],
+            ]
         ]
         for plot_line_name, plot_line_values in data["run_tests"].items():
             tabular_values.append(
                 [
                     plot_line_name,
-                    *[round(value, 2) for value in plot_line_values[y_axis]],
+                    *[
+                        f"{round(value, 2):.2f}s"
+                        for value in plot_line_values[y_axis]
+                    ],
                 ]
             )
         tabular_output = ""
         for row_values in zip(*tabular_values):
             tabular_output += " & ".join([str(value) for value in row_values])
-            tabular_output += " \\\\\n"
+            tabular_output += " \\\\\\hline\n"
         with open(
             os.path.join(LATEX_DUMP, f"{data['test_name']}_latex"), "w"
         ) as latex_table_file:
