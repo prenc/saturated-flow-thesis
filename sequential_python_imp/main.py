@@ -47,7 +47,7 @@ def main():
     for _ in range(SIMULATION_ITERATIONS):
         read_ca = simulation_step(read_ca)
 
-    save_ca_to_file(read_ca)
+    # save_ca_to_file(read_ca)
     # visualize_ca(read_ca)
 
 
