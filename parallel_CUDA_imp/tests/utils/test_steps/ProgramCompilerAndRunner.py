@@ -114,7 +114,7 @@ class ProgramCompilerAndRunner:
             times.append(tc.elapsed_time)
 
         return self._save_test_summary(
-            executable_data, sum(times) / TIMES_EACH_PROGRAM_IS_RUN, exit_code
+            executable_data, min(times), exit_code
         )
 
     def _save_test_summary(self, executable_data, elapsed_time, exit_code):
