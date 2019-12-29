@@ -2,6 +2,8 @@ import json
 import logging
 import os
 from collections import defaultdict
+from json import JSONDecodeError
+
 import matplotlib.pyplot as plt
 from scipy.interpolate import make_interp_spline, BSpline
 import numpy
@@ -94,7 +96,7 @@ class ChartMaker:
                     os.path.join(charts_dir[0], summary_file)
                 )
                 self._create_and_save_chart(data)
-            except Exception:
+            except JSONDecodeError:
                 self._log.warning(f"No proper json file: '{summary_file}'.")
 
     @staticmethod
