@@ -15,7 +15,8 @@ class ArgumentParser:
             help="cuda test names to run",
         )
         self._parser.add_argument(
-            "-cd", "--charts_dir",
+            "-cd",
+            "--charts_dir",
             metavar="charts_dir",
             type=str,
             nargs=1,
