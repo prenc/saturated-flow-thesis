@@ -23,7 +23,7 @@ class ChartMaker:
     def make_chart_basing_on_summary_file(self, summary_file):
         try:
             data = self._gather_data(summary_file)
-            self._create_and_save_charts(data)
+            self._create_and_save_chart(data)
         except FileNotFoundError:
             self._log.error(f"Could not find the summary file: {summary_file}")
 
@@ -49,24 +49,55 @@ class ChartMaker:
         return new_data
 
     @staticmethod
-    def _create_and_save_charts(data):
-        x_axis = "ca_size"
+    def _create_and_save_chart(data):
+        if "x_axis" in data.keys():
+            x_axis = data["x_axis"]
+        else:
+            x_axis = "ca_size"
         y_axis = "elapsed_time"
+
+        from scipy.interpolate import make_interp_spline, BSpline
+        import numpy
+
         for plot_line_name, plot_line_values in data["run_tests"].items():
-            plt.plot(
-                plot_line_values[x_axis],
-                plot_line_values[y_axis],
-                "-",
-                lw=2,
-                label=plot_line_name,
+            T = numpy.array(plot_line_values[x_axis])
+            xnew = numpy.linspace(T.min(), T.max(), 200)
+            spl = make_interp_spline(
+                T, numpy.array(plot_line_values[y_axis]), k=3
             )
+            plt.plot(xnew, spl(xnew), "-", lw=2, label=plot_line_name)
         plt.legend()
 
-        plt.xlabel(x_axis)
-        plt.ylabel(y_axis)
-        plt.title(data["test_name"])
+        if "x_axis_label" in data.keys():
+            plt.xlabel(data["x_axis_label"])
+        else:
+            plt.xlabel("Cellular automata dimension")
+
+        plt.ylabel("Elapsed time [s]")
+
+        if "chart_title" in data.keys():
+            plt.title(data["chart_title"])
+        else:
+            plt.title(data["test_name"])
+
         plt.grid(True)
 
         plt.tight_layout()
         plt.savefig(os.path.join(CHARTS_DIR_PATH, f"{data['test_name']}.pdf"))
         plt.figure()
+
+    def make_charts_in_dir(self, charts_dir):
+        self._create_output_dir()
+        for summary_file in os.listdir(charts_dir[0]):
+            try:
+                data = self._gather_data(
+                    os.path.join(charts_dir[0], summary_file)
+                )
+                self._create_and_save_chart(data)
+            except Exception:
+                self._log.warning(f"No proper json file: '{summary_file}'.")
+
+    @staticmethod
+    def _create_output_dir():
+        if not os.path.exists(CHARTS_DIR_PATH):
+            os.makedirs(CHARTS_DIR_PATH)
