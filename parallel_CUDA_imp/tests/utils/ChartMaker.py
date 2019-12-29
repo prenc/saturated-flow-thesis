@@ -52,12 +52,14 @@ class ChartMaker:
                     new_data["run_tests"][name][key].append(value)
         return new_data
 
-    def _create_and_save_chart(self, data):
+    def _create_and_save_chart(self, data, latex=False):
+        plt.style.use('grayscale')
         params = data["chart_params"]
 
         x_axis = params.get("x_axis", "ca_size")
         y_axis = "elapsed_time"
 
+        line_styles = iter([":", "--", "-.", "-"])
         for plot_line_name, plot_line_values in data["run_tests"].items():
             self._create_plot_line(
                 {
@@ -65,6 +67,8 @@ class ChartMaker:
                     "x_values": plot_line_values[x_axis],
                     "y_values": plot_line_values[y_axis],
                     "smooth_power": params.get("smooth_power", 16),
+                    "line_style": next(line_styles),
+                    "line_width": 2,
                 }
             )
         plt.legend()
@@ -80,33 +84,32 @@ class ChartMaker:
         plt.savefig(os.path.join(CHARTS_DUMP, f"{data['test_name']}.pdf"))
         plt.figure()
 
-        self._make_latex_tabular(data, x_axis, y_axis)
+        if latex:
+            self._make_latex_tabular(data, x_axis, y_axis)
 
     @staticmethod
     def _create_plot_line(plot_params):
         if plot_params["smooth_power"]:
             T = np.array(plot_params["x_values"])
-            x_smoothed = np.linspace(
+            x_values = np.linspace(
                 T.min(), T.max(), plot_params["smooth_power"]
             )
             spl = make_interp_spline(T, np.array(plot_params["y_values"]), k=3)
-            plt.plot(
-                x_smoothed,
-                spl(x_smoothed),
-                "-",
-                lw=2,
-                label=plot_params["plot_line_name"],
-            )
+            y_values = spl(x_values)
         else:
-            plt.plot(
-                plot_params["x_values"],
-                plot_params["y_values"],
-                "-",
-                lw=2,
-                label=plot_params["plot_line_name"],
-            )
+            x_values = plot_params["x_values"]
+            y_values = plot_params["y_values"]
 
-    def _make_latex_tabular(self, data, x_axis, y_axis):
+        plt.plot(
+            x_values,
+            y_values,
+            linestyle=plot_params["line_style"],
+            lw=plot_params["line_width"],
+            label=plot_params["plot_line_name"],
+        )
+
+    @staticmethod
+    def _make_latex_tabular(data, x_axis, y_axis):
         tabular_values = [
             ["names", *next(iter(data["run_tests"].values()))[x_axis]]
         ]
@@ -132,6 +135,6 @@ class ChartMaker:
                 data = self._gather_data(
                     os.path.join(charts_dir[0], summary_file)
                 )
-                self._create_and_save_chart(data)
+                self._create_and_save_chart(data, latex=True)
             except JSONDecodeError:
                 self._log.warning(f"No proper json file: '{summary_file}'.")
