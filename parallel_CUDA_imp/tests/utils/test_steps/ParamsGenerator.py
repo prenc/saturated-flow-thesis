@@ -3,9 +3,11 @@ from os import remove
 from shutil import move
 from tempfile import mkstemp
 
+from utils.settings import PARAMS_PATH
+
 
 class ParamsGenerator:
-    PARAMS_PATH = "../src/params.h"
+
     MATCH_BLOCK_SIZE = "#define BLOCK_SIZE "
     MATCH_CA_SIZE = "#define CA_SIZE "
     MATCH_ITERATIONS = "#define SIMULATION_ITERATIONS "
@@ -16,12 +18,12 @@ class ParamsGenerator:
 
     def generate(self, test_spec):
         try:
-            with open(self.PARAMS_PATH, "r") as params_file:
+            with open(PARAMS_PATH, "r") as params_file:
                 self._modify_file(params_file, test_spec)
         except FileNotFoundError:
             self._log.error(
                 f"Could not find the file with the simulation "
-                f"parameters: {self.PARAMS_PATH}"
+                f"parameters: {PARAMS_PATH}"
             )
             exit(1)
 
@@ -29,12 +31,10 @@ class ParamsGenerator:
         temp_file, temp_path = mkstemp()
         with open(temp_file, "w") as new_file:
             for line in filename:
-                new_line = self._modify_line(
-                    line, **test_spec
-                )
+                new_line = self._modify_line(line, **test_spec)
                 new_file.write(new_line)
-        remove(self.PARAMS_PATH)
-        move(temp_path, self.PARAMS_PATH)
+        remove(PARAMS_PATH)
+        move(temp_path, PARAMS_PATH)
 
     def _modify_line(self, line, block_size, ca_size, iterations):
         if self.MATCH_BLOCK_SIZE in line:

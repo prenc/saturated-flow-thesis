@@ -3,7 +3,7 @@ import logging
 import os
 from collections import defaultdict
 
-from utils.common.constants import RESULTS_DIR_PATH
+from utils.settings import RESULTS_DIR_PATH
 
 
 class ResultsHandler:

@@ -1,7 +1,7 @@
 import os
 
 from utils.common.TimeCounter import TimeCounter
-from utils.common.constants import (
+from utils.settings import (
     COMPILED_DIR_PATH,
     PROFILING_DIR_PATH,
     RESULTS_DIR_PATH,
