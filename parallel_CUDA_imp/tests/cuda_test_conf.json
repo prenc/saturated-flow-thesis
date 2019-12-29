@@ -14,6 +14,11 @@
         1000
       ]
     },
+    "chart_params": {
+      "title": "Standard 16",
+      "x_axis": "ca_size",
+      "x_axis_label": "Cellular automata dimension"
+    },
     "test_src": [
       "global_memory.cu",
       "shared_memory.cu",
@@ -35,6 +40,11 @@
       "iterations": [
         1000
       ]
+    },
+    "chart_params": {
+      "title": "Standard 32",
+      "x_axis": "ca_size",
+      "x_axis_label": "Cellular automata dimension"
     },
     "test_src": [
       "global_memory.cu",
@@ -58,6 +68,11 @@
         1000
       ]
     },
+    "chart_params": {
+      "title": "Standard 16 loop",
+      "x_axis": "ca_size",
+      "x_axis_label": "Cellular automata dimension"
+    },
     "test_src": [
       "global_memory_loop.cu",
       "shared_memory_loop.cu",
@@ -79,6 +94,11 @@
       "iterations": [
         1000
       ]
+    },
+    "chart_params": {
+      "title": "Standard 32 loop",
+      "x_axis": "ca_size",
+      "x_axis_label": "Cellular automata dimension"
     },
     "test_src": [
       "global_memory_loop.cu",
@@ -102,6 +122,11 @@
         1000
       ]
     },
+    "chart_params": {
+      "title": "Active cells 16",
+      "x_axis": "ca_size",
+      "x_axis_label": "Cellular automata dimension"
+    },
     "test_src": [
       "unified_memory.cu",
       "active_cells_gpu.cu",
@@ -122,6 +147,11 @@
       "iterations": [
         1000
       ]
+    },
+    "chart_params": {
+      "title": "Active cells 32",
+      "x_axis": "ca_size",
+      "x_axis_label": "Cellular automata dimension"
     },
     "test_src": [
       "unified_memory.cu",
@@ -144,6 +174,11 @@
         1000
       ]
     },
+    "chart_params": {
+      "title": "Active cells 16 loop",
+      "x_axis": "ca_size",
+      "x_axis_label": "Cellular automata dimension"
+    },
     "test_src": [
       "unified_memory_loop.cu",
       "active_cells_gpu_loop.cu",
@@ -165,6 +200,11 @@
         1000
       ]
     },
+    "chart_params": {
+      "title": "Active cells 32 loop",
+      "x_axis": "ca_size",
+      "x_axis_label": "Cellular automata dimension"
+    },
     "test_src": [
       "unified_memory_loop.cu",
       "active_cells_gpu_loop.cu",
@@ -185,6 +225,11 @@
       "iterations": [
         2000
       ]
+    },
+    "chart_params": {
+      "title": "Block size",
+      "x_axis": "block_size",
+      "x_axis_label": "Cellular automata dimension"
     },
     "test_src": [
       "global_memory.cu",
@@ -208,6 +253,11 @@
         500
       ]
     },
+    "chart_params": {
+      "title": "Block size loop",
+      "x_axis": "block_size",
+      "x_axis_label": "Cellular automata dimension"
+    },
     "test_src": [
       "global_memory_loop.cu",
       "shared_memory_loop.cu",
@@ -229,6 +279,11 @@
       "iterations": [
         1000
       ]
+    },
+    "chart_params": {
+      "title": "Sequential implementations",
+      "x_axis": "ca_size",
+      "x_axis_label": "Cellular automata dimension"
     },
     "test_src": [
       "cal_saturatedFlow_oneWell.c",

@@ -3,6 +3,8 @@ import logging
 import os
 from collections import defaultdict
 import matplotlib.pyplot as plt
+from scipy.interpolate import make_interp_spline, BSpline
+import numpy
 
 from utils.common.constants import CHARTS_DIR_PATH, RESULTS_DIR_PATH
 
@@ -50,14 +52,12 @@ class ChartMaker:
 
     @staticmethod
     def _create_and_save_chart(data):
-        if "x_axis" in data.keys():
-            x_axis = data["x_axis"]
+        params = data["chart_params"]
+        if "x_axis" in params:
+            x_axis = params["x_axis"]
         else:
             x_axis = "ca_size"
         y_axis = "elapsed_time"
-
-        from scipy.interpolate import make_interp_spline, BSpline
-        import numpy
 
         for plot_line_name, plot_line_values in data["run_tests"].items():
             T = numpy.array(plot_line_values[x_axis])
@@ -68,15 +68,15 @@ class ChartMaker:
             plt.plot(xnew, spl(xnew), "-", lw=2, label=plot_line_name)
         plt.legend()
 
-        if "x_axis_label" in data.keys():
-            plt.xlabel(data["x_axis_label"])
+        if "x_axis_label" in params:
+            plt.xlabel(params["x_axis_label"])
         else:
             plt.xlabel("Cellular automata dimension")
 
         plt.ylabel("Elapsed time [s]")
 
-        if "chart_title" in data.keys():
-            plt.title(data["chart_title"])
+        if "title" in params:
+            plt.title(params["chart_title"])
         else:
             plt.title(data["test_name"])
 
