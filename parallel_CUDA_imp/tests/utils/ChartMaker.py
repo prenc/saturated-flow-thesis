@@ -55,32 +55,25 @@ class ChartMaker:
     @staticmethod
     def _create_and_save_chart(data):
         params = data["chart_params"]
-        if "x_axis" in params:
-            x_axis = params["x_axis"]
-        else:
-            x_axis = "ca_size"
+
+        x_axis = params.get("x_axis", "ca_size")
         y_axis = "elapsed_time"
 
         for plot_line_name, plot_line_values in data["run_tests"].items():
             T = numpy.array(plot_line_values[x_axis])
-            xnew = numpy.linspace(T.min(), T.max(), 200)
+            xnew = numpy.linspace(
+                T.min(), T.max(), params.get("smooth_power", 16)
+            )
             spl = make_interp_spline(
                 T, numpy.array(plot_line_values[y_axis]), k=3
             )
             plt.plot(xnew, spl(xnew), "-", lw=2, label=plot_line_name)
         plt.legend()
 
-        if "x_axis_label" in params:
-            plt.xlabel(params["x_axis_label"])
-        else:
-            plt.xlabel("Cellular automata dimension")
-
+        plt.xlabel(params.get("x_axis_label", "Cellular automata dimension"))
         plt.ylabel("Elapsed time [s]")
 
-        if "title" in params:
-            plt.title(params["chart_title"])
-        else:
-            plt.title(data["test_name"])
+        plt.title(params.get("title", data["test_name"]))
 
         plt.grid(True)
 
