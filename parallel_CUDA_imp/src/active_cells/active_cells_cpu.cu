@@ -51,34 +51,45 @@ __global__ void simulation_step_kernel(struct CA d_ca, double *d_write_head, int
 		}
 	}
 }
+bool check_if_cell_is_active(int idx_x, int idx_y){
+	int idx_g = idx_y * COLS + idx_x;
+	if(d_read.head[idx_g]  < headFixed || d_read.Source[idx_g] != 0 ){
+		return true;
+	}
+	if (idx_x >= 1) {
+		if(d_read.head[idx_g - 1] < headFixed){
+			return true;
+		}
+	}
+	if (idx_y >= 1) {
+		if(d_read.head[idx_g - COLS] < headFixed){
+			return true;
+		}
+	}
+	if (idx_x + 1 < COLS) {
+		if(d_read.head[idx_g + 1] < headFixed){
+			return true;
+		}
+	}
+	if (idx_y + 1 < ROWS) {
+		if(d_read.head[idx_g + COLS] < headFixed){
+			return true;
+		}
+	}
+	return false;
+}
 
 void find_active_cells() {
 	thrust::host_vector<int> h_active_cells_vector;
-	for (int i = 0; i < ROWS; i++) {
-		for (int j = 0; j < ROWS; j++) {
-			int idx_g = j * COLS + i;
-			if (d_read.head[idx_g] < headFixed) {
-				h_active_cells_vector.push_back(idx_g);
-				if (i + 1 < ROWS) { h_active_cells_vector.push_back(idx_g + 1); }
-				if (i - 1 >= 0) { h_active_cells_vector.push_back(idx_g - 1); }
-				if (j + 1 < COLS) { h_active_cells_vector.push_back(idx_g + COLS); }
-				if (j - 1 >= 0) { h_active_cells_vector.push_back(idx_g - COLS); }
-			} else if (d_read.Source[idx_g] != 0) {
+	for (int idx_y = 0; idx_y < ROWS; idx_y++) {
+		for (int idx_x = 0; idx_x < ROWS; idx_x++) {
+			int idx_g = idx_y * COLS + idx_x;
+			if (check_if_cell_is_active(idx_x, idx_y)) {
 				h_active_cells_vector.push_back(idx_g);
 			}
 		}
 	}
-	thrust::host_vector<int> h_active_cells_vector_result;
-	thrust::sort(h_active_cells_vector.begin(), h_active_cells_vector.end());
-	int previous_value = h_active_cells_vector[0];
-	h_active_cells_vector_result.push_back(previous_value);
-	for (int i = 1; i < h_active_cells_vector.size(); i++) {
-		if (h_active_cells_vector[i] != previous_value) {
-			previous_value = h_active_cells_vector[i];
-			h_active_cells_vector_result.push_back(previous_value);
-		}
-	}
-	d_active_cells_vector = h_active_cells_vector_result;
+	d_active_cells_vector = h_active_cells_vector;
 }
 
 void perform_simulation_on_GPU() {
@@ -106,7 +117,7 @@ int main(void) {
 	init_write_head();
 
 	perform_simulation_on_GPU();
-
+	write_heads_to_file(d_write.head);
 	return 0;
 }
 
