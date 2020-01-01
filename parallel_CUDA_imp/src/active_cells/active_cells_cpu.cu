@@ -117,6 +117,7 @@ int main(void) {
 	init_write_head();
 
 	perform_simulation_on_GPU();
+	write_heads_to_file(d_write.head);
 	return 0;
 }
 
