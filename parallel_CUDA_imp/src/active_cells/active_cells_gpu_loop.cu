@@ -136,6 +136,9 @@ int main(void) {
 
 	perform_simulation_on_GPU();
 
+	int z;
+	printf("ZZZZZ z: %d", z);
+	write_heads_to_file(d_write.head);
 	return 0;
 }
 
