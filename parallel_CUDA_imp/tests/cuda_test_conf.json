@@ -122,7 +122,7 @@
         12250, 12500, 12750, 13000
       ],
       "iterations": [
-        1000
+        3000
       ]
     },
     "chart_params": {
@@ -149,7 +149,7 @@
         12250, 12500, 12750, 13000
       ],
       "iterations": [
-        1000
+        3000
       ]
     },
     "chart_params": {
@@ -175,7 +175,7 @@
         3250, 3500, 3750, 4000
       ],
       "iterations": [
-        1000
+        3000
       ]
     },
     "chart_params": {
@@ -201,7 +201,7 @@
         3250, 3500, 3750, 4000
       ],
       "iterations": [
-        1000
+        3000
       ]
     },
     "chart_params": {
@@ -213,6 +213,58 @@
       "unified_memory_loop.cu",
       "active_cells_gpu_loop.cu",
       "active_cells_gpu_const_block_number_loop.cu"
+    ]
+  },
+  "active_cells_cpu_16": {
+    "test_specs": {
+      "block_size": [
+        16
+      ],
+      "ca_size": [
+        250, 500, 750, 1000,
+        1250, 1500, 1750, 2000,
+        2250, 2500, 2750, 3000,
+        3250, 3500, 3750, 4000
+      ],
+      "iterations": [
+        1000
+      ]
+    },
+    "chart_params": {
+      "title": "Active cells 16 loop",
+      "x_axis": "ca_size",
+      "x_axis_label": "Cellular automata dimension"
+    },
+    "test_src": [
+      "active_cells_cpu.cu",
+      "active_cells_gpu.cu",
+      "active_cells_gpu_const_block_number.cu"
+    ]
+  },
+  "active_cells_cpu_32": {
+    "test_specs": {
+      "block_size": [
+        32
+      ],
+      "ca_size": [
+        250, 500, 750, 1000,
+        1250, 1500, 1750, 2000,
+        2250, 2500, 2750, 3000,
+        3250, 3500, 3750, 4000
+      ],
+      "iterations": [
+        1000
+      ]
+    },
+    "chart_params": {
+      "title": "Active cells 32 loop",
+      "x_axis": "ca_size",
+      "x_axis_label": "Cellular automata dimension"
+    },
+    "test_src": [
+      "active_cells_cpu.cu",
+      "active_cells_gpu.cu",
+      "active_cells_gpu_const_block_number.cu"
     ]
   },
   "block_size_test": {
