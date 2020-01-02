@@ -34,7 +34,7 @@ int main() {
         simulation_step();
     }
 
-    //write_heads_to_file();
+    write_heads_to_file();
 
     return 0;
 }
