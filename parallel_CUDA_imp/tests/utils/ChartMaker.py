@@ -63,20 +63,21 @@ class ChartMaker:
         for plot_line_name, plot_line_values in data["run_tests"].items():
             self._create_plot_line(
                 {
-                    "plot_line_name": plot_line_name,
+                    "plot_line_name": plot_line_name[0].upper()
+                    + plot_line_name[1:].replace("_", " "),
                     "x_values": plot_line_values[x_axis],
                     "y_values": plot_line_values[y_axis],
-                    "smooth_power": params.get("smooth_power", 16),
+                    "smooth_power": params.get("smooth_power", None),
                     "line_style": next(line_styles),
                     "line_width": 2,
                 }
             )
         plt.legend()
 
-        plt.xlabel(params.get("x_axis_label", "Cellular automata dimension"))
+        plt.xlabel(params.get("x_axis_label", "CA dimensions"))
         plt.ylabel("Elapsed time [s]")
 
-        plt.title(params.get("title", data["test_name"]))
+        plt.title(params.get("title", "Workstation I"))
 
         plt.grid(True)
 
@@ -108,21 +109,21 @@ class ChartMaker:
             label=plot_params["plot_line_name"],
         )
 
-    @staticmethod
-    def _make_latex_tabular(data, x_axis, y_axis):
-        dimensions = next(iter(data["run_tests"].values()))[x_axis]
+    def _make_latex_tabular(self, data, x_axis, y_axis):
+        first_col_values = self._get_longest_first_column(data, x_axis)
         b = "\\"
-        tabular_values = [["CA dimensions", *dimensions]]
+        tabular_values = [["CA dimensions", *first_col_values]]
         for plot_line_name, plot_line_values in data["run_tests"].items():
             tabular_values.append(
                 [
                     f"{b}makecell{{{plot_line_name.replace('_', b*2)}}}",
                     *[
-                        f"{round(value, 2):.2f}s"
+                        f"\SI{{{round(value, 2):.2f}}}{{{b}second}}"
                         for value in plot_line_values[y_axis]
                     ],
                 ]
             )
+        tabular_values = self._make_lists_eq("x", *tabular_values)
         tabular_output = ""
         for row_values in zip(*tabular_values):
             tabular_output += " & ".join([str(value) for value in row_values])
@@ -131,6 +132,14 @@ class ChartMaker:
             os.path.join(LATEX_DUMP, f"{data['test_name']}_latex"), "w"
         ) as latex_table_file:
             latex_table_file.write(tabular_output)
+
+    @staticmethod
+    def _get_longest_first_column(data, x_axis):
+        first_columns = [results[x_axis] for results in data["run_tests"].values()]
+        max_l = max([len(col) for col in first_columns])
+        for col in first_columns:
+            if len(col) == max_l:
+                return col
 
     def make_charts_in_dir(self, charts_dir):
         for summary_file in os.listdir(charts_dir[0]):
@@ -141,3 +150,14 @@ class ChartMaker:
                 self._create_and_save_chart(data, latex=True)
             except JSONDecodeError:
                 self._log.warning(f"No proper json file: '{summary_file}'.")
+
+    @staticmethod
+    def _make_lists_eq(filler, *lists) -> list:
+        max_len = max([len(lst) for lst in lists])
+        out_lsts = []
+        for lst in lists:
+            if len(lst) < max_len:
+                out_lsts.append(lst + [filler] * (max_len - len(lst)))
+            else:
+                out_lsts.append(lst)
+        return out_lsts
