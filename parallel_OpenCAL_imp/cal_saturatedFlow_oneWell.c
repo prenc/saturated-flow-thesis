@@ -139,7 +139,7 @@ int main(){
 
 	  calRun2D(satured_simulation);
 
-    calSaveSubstate2Dr(satured, head, "./satured_head_LAST.txt"); // write final heads level to file
+    //calSaveSubstate2Dr(satured, head, "./satured_head_LAST.txt"); - write final heads level to file
 
 	calRunFinalize2D(satured_simulation);
 	calFinalize2D(satured);
