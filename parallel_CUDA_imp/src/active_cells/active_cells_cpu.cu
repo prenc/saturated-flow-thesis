@@ -94,16 +94,30 @@ void find_active_cells() {
 
 void perform_simulation_on_GPU() {
 	dim3 blockSize(BLOCK_SIZE, BLOCK_SIZE);
-	for (int i = 0; i < SIMULATION_ITERATIONS; i++) {
-		find_active_cells();
-		int *active_cells_array = thrust::raw_pointer_cast(&d_active_cells_vector[0]);
-		int size = d_active_cells_vector.size();
-		const int blockCount = ceil(double(size) / (BLOCK_SIZE * BLOCK_SIZE));
-		int gridSize = ceil(sqrt(blockCount));
-		dim3 gridDim(gridSize, gridSize);
-		simulation_step_kernel << < gridDim, blockSize >> > (d_read, d_write.head, active_cells_array, size, gridSize);
 
-		cudaDeviceSynchronize();
+	int blockCount = ceil((double) ROWS * COLS / (BLOCK_SIZE * BLOCK_SIZE));
+	int gridSize = ceil(sqrt(blockCount));
+	dim3 gridDim(gridSize, gridSize);
+
+	int *active_cells_array;
+	int active_cell_vector_size = 0, activeBlockCount, activeGridSize;
+	for (int i = 0; i < SIMULATION_ITERATIONS; i++) {
+		if(active_cell_vector_size < ROWS * COLS){
+			printf("Iteration number: %d\n",i);
+			find_active_cells();
+			active_cells_array = thrust::raw_pointer_cast(&d_active_cells_vector[0]);
+			active_cell_vector_size = d_active_cells_vector.size();
+
+			activeBlockCount = ceil(double(active_cell_vector_size) / (BLOCK_SIZE * BLOCK_SIZE));
+			activeGridSize = ceil(sqrt(activeBlockCount));
+			dim3 activeGridDim(activeGridSize, activeGridSize);
+
+			simulation_step_kernel << < activeGridDim, blockSize >> > (d_read, d_write.head, active_cells_array, active_cell_vector_size, activeGridSize);
+			cudaDeviceSynchronize();
+		}else{
+			simulation_step_kernel << < gridDim, blockSize >> > (d_read, d_write.head, active_cells_array, active_cell_vector_size, gridSize);
+			cudaDeviceSynchronize();
+		}
 
 		double *tmp1 = d_write.head;
 		d_write.head = d_read.head;
@@ -117,6 +131,8 @@ int main(void) {
 	init_write_head();
 
 	perform_simulation_on_GPU();
+
+	write_heads_to_file(d_write.head);
 	return 0;
 }
 
