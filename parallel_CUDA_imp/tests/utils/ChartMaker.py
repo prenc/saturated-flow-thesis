@@ -57,7 +57,7 @@ class ChartMaker:
         params = data["chart_params"]
 
         x_axis = params.get("x_axis", "ca_size")
-        y_axis = "elapsed_time"
+        y_axis = params.get("y_axis", "elapsed_time")
 
         line_styles = iter([":", "--", "-.", "-"] * 3)
         for plot_line_name, plot_line_values in data["run_tests"].items():
@@ -75,9 +75,9 @@ class ChartMaker:
         plt.legend()
 
         plt.xlabel(params.get("x_axis_label", "CA dimensions"))
-        plt.ylabel("Elapsed time [s]")
+        plt.ylabel(params.get("y_axis_label", "Elapsed time [s]"))
 
-        plt.title(params.get("title", "Workstation I"))
+        plt.title(params.get("title", data["test_name"]))
 
         plt.grid(True)
 
@@ -135,7 +135,9 @@ class ChartMaker:
 
     @staticmethod
     def _get_longest_first_column(data, x_axis):
-        first_columns = [results[x_axis] for results in data["run_tests"].values()]
+        first_columns = [
+            results[x_axis] for results in data["run_tests"].values()
+        ]
         max_l = max([len(col) for col in first_columns])
         for col in first_columns:
             if len(col) == max_l:
