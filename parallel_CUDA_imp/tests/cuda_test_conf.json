@@ -371,5 +371,29 @@
       "unified_memory.cu",
       "global_memory.cu"
     ]
+  },
+  "unified_acc_cpu": {
+    "test_specs": {
+      "block_size": [
+        16
+      ],
+      "ca_size": [
+        250, 500, 750, 1000,
+        1250, 1500, 1750, 2000,
+        2250, 2500, 2750, 3000,
+        3250, 3500, 3750, 4000
+      ],
+      "iterations": [
+        1000
+      ]
+    },
+    "chart_params": {
+      "title": "Standard 16 loop",
+      "x_axis": "ca_size",
+      "x_axis_label": "CA automata dimensions"
+    },
+    "test_src": [
+      "unified_memory_loop.cu"
+    ]
   }
 }
