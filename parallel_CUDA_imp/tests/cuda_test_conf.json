@@ -393,7 +393,7 @@
       "x_axis_label": "CA automata dimensions"
     },
     "test_src": [
-      "unified_memory_loop.cu"
+      "unified_memory.cu"
     ]
   }
 }
