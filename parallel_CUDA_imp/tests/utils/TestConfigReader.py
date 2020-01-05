@@ -53,16 +53,16 @@ class TestConfigReader:
                         *[value[-1] for _ in range(len(value), max_length)],
                     ]
                     self._log.debug(
-                        f"Params list have been lengthened by "
+                        f"Params list has been lengthened by "
                         f"{max_length - old_length}."
                     )
         return corrected_tests
 
     def _get_chosen_tests(self, test_names):
         return {
-            test_name: test_specs
-            for test_name, test_specs in self._test_specs.items()
-            if test_name in test_names
+            test_name: self._test_specs[test_name]
+            for test_name in test_names
+            if test_name in self._test_specs
         }
 
     def _validate_test_names(self, test_names, evaluated_test_data):
