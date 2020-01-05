@@ -21,7 +21,7 @@ int main()
 	Camera camera(glm::vec3(-2.5f, 0.7f, 0.0f));
 	Window::createGLFWWindow(SCR_WIDTH, SCR_HEIGHT, &camera);
 	initGlad();
-	Chart chart = Chart("resources/heads_ca.txt", &camera, SCR_WIDTH, SCR_HEIGHT);
+	Chart chart = Chart("resources/heads_ca_1_well.txt", &camera, SCR_WIDTH, SCR_HEIGHT);
 
 	while (Window::shouldClose())
 	{
@@ -29,7 +29,7 @@ int main()
 
 		Window::processInput(deltaTime);
 
-		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		chart.draw();
