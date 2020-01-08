@@ -1,14 +1,14 @@
 import os
 
-from utils.common.TimeCounter import TimeCounter
-from utils.settings import (
+from ModelAnalyzer.common.TimeCounter import TimeCounter
+from ModelAnalyzer.settings import (
     COMPILED_DUMP,
     PROFILING_DUMP,
     SUMMARIES_DUMP,
 )
-from utils.test_steps.ParamsGenerator import ParamsGenerator
-from utils.test_steps.ProgramCompilerAndRunner import ProgramCompilerAndRunner
-from utils.test_steps.ResultsHandler import ResultsHandler
+from ModelAnalyzer.test_steps.ParamsGenerator import ParamsGenerator
+from ModelAnalyzer.test_steps.ProgramCompilerAndRunner import ProgramCompilerAndRunner
+from ModelAnalyzer.test_steps.ResultsHandler import ResultsHandler
 
 
 class TestCaseHandler:

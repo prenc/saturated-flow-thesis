@@ -5,8 +5,8 @@ import subprocess
 import time
 from shutil import move
 
-from utils.common.TimeCounter import TimeCounter
-from utils.settings import (
+from ModelAnalyzer.common.TimeCounter import TimeCounter
+from ModelAnalyzer.settings import (
     COMPILED_DUMP,
     PROFILING_DUMP,
     TIMES_EACH_PROGRAM_IS_RUN,

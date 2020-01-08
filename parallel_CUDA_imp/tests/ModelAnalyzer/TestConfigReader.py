@@ -2,7 +2,7 @@ import json
 import logging
 from json import JSONDecodeError
 
-from utils.settings import TEST_CONFIG_FILE
+from ModelAnalyzer.settings import TEST_CONFIG_FILE
 
 
 class TestConfigReader:

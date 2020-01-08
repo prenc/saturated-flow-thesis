@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.interpolate import make_interp_spline
 
-from utils.settings import CHARTS_DUMP, SUMMARIES_DUMP, LATEX_DUMP
+from ModelAnalyzer.settings import CHARTS_DUMP, SUMMARIES_DUMP, LATEX_DUMP
 
 
 class ChartMaker:

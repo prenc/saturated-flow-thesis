@@ -3,11 +3,11 @@ import logging
 import sys
 import time
 
-from utils.ArgParser import ArgumentParser
-from utils.ChartMaker import ChartMaker
-from utils.TestCaseHandler import TestCaseHandler
-from utils.TestConfigReader import TestConfigReader
-from utils.settings import LOG_FILE
+from ModelAnalyzer.ArgParser import ArgumentParser
+from ModelAnalyzer.ChartMaker import ChartMaker
+from ModelAnalyzer.TestCaseHandler import TestCaseHandler
+from ModelAnalyzer.TestConfigReader import TestConfigReader
+from ModelAnalyzer.settings import LOG_FILE
 
 
 def init_program():

@@ -1,6 +1,7 @@
-# Author: Paweł Renc
+# Author: Paweł Renc & some strange guy who was sitting next to me whole time
 # Implementation time: 11.2019
 # Last update: 8.1.2020
+# for more information run script with -h option
 import os
 
 # dir names
@@ -44,7 +45,7 @@ Defines how many times each program is run before an execution time is saved
 (takes the smallest one from all results)
 """
 
-TEST_CONFIG_FILE = "cuda_test_conf.json"
+TEST_CONFIG_FILE = "conf.json"
 """
 Path to JSON file where tests are defined,
 if "chart_params" is specified, a chart will be made based on the summary 

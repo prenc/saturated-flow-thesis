@@ -27,7 +27,7 @@ class ArgumentParser:
             type=str,
             nargs="*",
             help="Runs tests with the given names from the file. If no file "
-                 "name is given run all from the config file.",
+            "name is given run all from the config file.",
         )
         self._parser.add_argument(
             "-sd",
@@ -35,7 +35,7 @@ class ArgumentParser:
             type=str,
             nargs=1,
             help="Makes charts from summary files if they have chart_params "
-                 "specified",
+            "specified",
         )
         self._parser.add_argument(
             "--debug",

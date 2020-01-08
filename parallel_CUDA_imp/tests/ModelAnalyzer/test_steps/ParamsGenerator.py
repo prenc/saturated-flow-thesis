@@ -3,7 +3,7 @@ from os import remove
 from shutil import move
 from tempfile import mkstemp
 
-from utils.settings import PARAMS_PATH
+from ModelAnalyzer.settings import PARAMS_PATH
 
 
 class ParamsGenerator:

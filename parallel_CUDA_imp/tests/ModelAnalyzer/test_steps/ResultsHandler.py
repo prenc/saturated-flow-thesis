@@ -3,7 +3,7 @@ import logging
 import os
 from collections import defaultdict
 
-from utils.settings import SUMMARIES_DUMP
+from ModelAnalyzer.settings import SUMMARIES_DUMP
 
 
 class ResultsHandler:
