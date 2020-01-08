@@ -2,25 +2,26 @@ import json
 import logging
 from json import JSONDecodeError
 
+from utils.settings import TEST_CONFIG_FILE
+
 
 class TestConfigReader:
-    CONFIG_PATH = "cuda_test_conf.json"
-
     def __init__(self):
         self._log = logging.getLogger(self.__class__.__name__)
         self._test_specs = self._parse_config()
         if not self._test_specs:
-            self._log.info(f"The config file seems to be empty: "
-                           f"'{self.CONFIG_PATH}' .")
+            self._log.info(
+                f"The config file seems to be empty: " f"'{TEST_CONFIG_FILE}' ."
+            )
 
     def _parse_config(self):
         try:
-            with open(self.CONFIG_PATH, "r") as config_json:
+            with open(TEST_CONFIG_FILE, "r") as config_json:
                 return self._parse_json(config_json)
         except FileNotFoundError:
             self._log.error(
                 f"Could not find the config file. Make sure the file "
-                f"'{self.CONFIG_PATH}' is in the script directory."
+                f"'{TEST_CONFIG_FILE}' is in the script directory."
             )
 
     def _parse_json(self, json_file):
@@ -28,7 +29,7 @@ class TestConfigReader:
             return json.load(json_file)
         except JSONDecodeError:
             self._log.error(
-                f"Could not parse the config file: '${self.CONFIG_PATH}'"
+                f"Could not parse the config file: '${TEST_CONFIG_FILE}'"
             )
 
     def get_test_data(self, test_names):
@@ -75,6 +76,6 @@ class TestConfigReader:
             not_found_test_names = ", ".join(not_found_test_names)
             self._log.error(
                 f"Could not find following test names in the config "
-                f"file '{self.CONFIG_PATH}': {not_found_test_names}"
+                f"file '{TEST_CONFIG_FILE}': {not_found_test_names}"
             )
             exit(1)

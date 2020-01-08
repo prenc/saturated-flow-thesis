@@ -3,7 +3,7 @@ import logging
 import os
 from collections import defaultdict
 
-from utils.settings import RESULTS_DIR_PATH
+from utils.settings import SUMMARIES_DUMP
 
 
 class ResultsHandler:
@@ -38,7 +38,7 @@ class ResultsHandler:
     def _save_summary_in_file(self, summary_data):
         summary_file_name = f"{self._test_name}_{self._script_time}"
         with open(
-            os.path.join(RESULTS_DIR_PATH, summary_file_name), "w"
+            os.path.join(SUMMARIES_DUMP, summary_file_name), "w"
         ) as summary_file:
             json.dump(summary_data, summary_file, indent=4)
             self._log.info(

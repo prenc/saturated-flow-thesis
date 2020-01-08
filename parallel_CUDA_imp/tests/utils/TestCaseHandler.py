@@ -2,9 +2,9 @@ import os
 
 from utils.common.TimeCounter import TimeCounter
 from utils.settings import (
-    COMPILED_DIR_PATH,
-    PROFILING_DIR_PATH,
-    RESULTS_DIR_PATH,
+    COMPILED_DUMP,
+    PROFILING_DUMP,
+    SUMMARIES_DUMP,
 )
 from utils.test_steps.ParamsGenerator import ParamsGenerator
 from utils.test_steps.ProgramCompilerAndRunner import ProgramCompilerAndRunner
@@ -18,7 +18,7 @@ class TestCaseHandler:
 
     @staticmethod
     def _create_dirs():
-        dirs = [COMPILED_DIR_PATH, PROFILING_DIR_PATH, RESULTS_DIR_PATH]
+        dirs = [COMPILED_DUMP, PROFILING_DUMP, SUMMARIES_DUMP]
         for dir_path in dirs:
             if not os.path.exists(dir_path):
                 os.makedirs(dir_path)

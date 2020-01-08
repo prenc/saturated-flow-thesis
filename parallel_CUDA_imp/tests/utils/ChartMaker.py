@@ -8,28 +8,30 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.interpolate import make_interp_spline
 
-from utils.settings import CHARTS_DUMP, RESULTS_DIR_PATH, LATEX_DUMP
+from utils.settings import CHARTS_DUMP, SUMMARIES_DUMP, LATEX_DUMP
 
 
 class ChartMaker:
     def __init__(self, script_time):
         self._log = logging.getLogger(self.__class__.__name__)
-        self._create_dirs()
+        self._create_dirs([CHARTS_DUMP])
         self.script_start_time = script_time
 
     @staticmethod
-    def _create_dirs():
-        dirs = [CHARTS_DUMP, LATEX_DUMP]
+    def _create_dirs(dirs):
         for dir_path in dirs:
             if not os.path.exists(dir_path):
                 os.makedirs(dir_path)
 
-    def make_chart_basing_on_summary_file(self, summary_file):
+    def make_chart_basing_on_summary_file(self, summary_file, latex=False):
         try:
             data = self._gather_data(summary_file)
-            self._create_and_save_chart(data)
+            if "chart_params" in data.keys():
+                self._create_and_save_chart(data, latex)
         except FileNotFoundError:
             self._log.error(f"Could not find the summary file: {summary_file}")
+        except (JSONDecodeError, IsADirectoryError):
+            self._log.warning(f"No proper json file: '{summary_file}'.")
 
     def _gather_data(self, summary_file):
         data = self._load_charts_data(summary_file)
@@ -37,7 +39,7 @@ class ChartMaker:
 
     @staticmethod
     def _load_charts_data(data_file):
-        file_path = os.path.join(RESULTS_DIR_PATH, data_file)
+        file_path = os.path.join(SUMMARIES_DUMP, data_file)
         with open(file_path, "r") as json_file:
             return json.load(json_file)
 
@@ -83,19 +85,23 @@ class ChartMaker:
 
         plt.tight_layout()
         plt.savefig(os.path.join(CHARTS_DUMP, f"{data['test_name']}.pdf"))
+        self._log.info(f"Chart has been created: {data['test_name']}.pdf")
         plt.figure()
 
         if latex:
-            self._make_latex_tabular(data, x_axis, y_axis)
+            self._create_dirs([LATEX_DUMP])
+            self._create_latex_tabular_file(data, x_axis, y_axis)
 
     @staticmethod
     def _create_plot_line(plot_params):
         if plot_params["smooth_power"]:
-            T = np.array(plot_params["x_values"])
+            new_xs = np.array(plot_params["x_values"])
             x_values = np.linspace(
-                T.min(), T.max(), plot_params["smooth_power"]
+                new_xs.min(), new_xs.max(), plot_params["smooth_power"]
             )
-            spl = make_interp_spline(T, np.array(plot_params["y_values"]), k=3)
+            spl = make_interp_spline(
+                new_xs, np.array(plot_params["y_values"]), k=3
+            )
             y_values = spl(x_values)
         else:
             x_values = plot_params["x_values"]
@@ -109,7 +115,7 @@ class ChartMaker:
             label=plot_params["plot_line_name"],
         )
 
-    def _make_latex_tabular(self, data, x_axis, y_axis):
+    def _create_latex_tabular_file(self, data, x_axis, y_axis):
         first_col_values = self._get_longest_first_column(data, x_axis)
         b = "\\"
         tabular_values = [["CA dimensions", *first_col_values]]
@@ -132,6 +138,9 @@ class ChartMaker:
             os.path.join(LATEX_DUMP, f"{data['test_name']}_latex"), "w"
         ) as latex_table_file:
             latex_table_file.write(tabular_output)
+        self._log.info(
+            f"Latex tabular code has been saved: {data['test_name']}_latex"
+        )
 
     @staticmethod
     def _get_longest_first_column(data, x_axis):
@@ -145,13 +154,10 @@ class ChartMaker:
 
     def make_charts_in_dir(self, charts_dir):
         for summary_file in os.listdir(charts_dir[0]):
-            try:
-                data = self._gather_data(
-                    os.path.join(charts_dir[0], summary_file)
-                )
-                self._create_and_save_chart(data, latex=True)
-            except JSONDecodeError:
-                self._log.warning(f"No proper json file: '{summary_file}'.")
+            summary_file_path = os.path.join(charts_dir[0], summary_file)
+            self.make_chart_basing_on_summary_file(
+                summary_file_path, latex=True
+            )
 
     @staticmethod
     def _make_lists_eq(filler, *lists) -> list:

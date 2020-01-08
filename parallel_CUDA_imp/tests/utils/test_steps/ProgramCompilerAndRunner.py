@@ -7,8 +7,8 @@ from shutil import move
 
 from utils.common.TimeCounter import TimeCounter
 from utils.settings import (
-    COMPILED_DIR_PATH,
-    PROFILING_DIR_PATH,
+    COMPILED_DUMP,
+    PROFILING_DUMP,
     TIMES_EACH_PROGRAM_IS_RUN,
 )
 
@@ -37,7 +37,7 @@ class ProgramCompilerAndRunner:
             new_file_name = f"{name.split('.')[0]}_" + "_".join(
                 [str(value) for value in test_spec.values()]
             )
-            output_path = os.path.join(COMPILED_DIR_PATH, new_file_name)
+            output_path = os.path.join(COMPILED_DUMP, new_file_name)
             exit_code = 0
             if os.path.isfile(output_path):
                 self._log.info(f"Found '{new_file_name}'. No need to compile.")
@@ -103,7 +103,7 @@ class ProgramCompilerAndRunner:
         for i in range(TIMES_EACH_PROGRAM_IS_RUN):
             tc.start()
             exit_code = subprocess.run(
-                [f"./{COMPILED_DIR_PATH}/{executable_data['executable_name']}"]
+                [f"./{COMPILED_DUMP}/{executable_data['executable_name']}"]
             ).returncode
             tc.stop()
             self._log.info(
@@ -123,7 +123,7 @@ class ProgramCompilerAndRunner:
             "run_exit_code": exit_code,
         }
         result_file_path = os.path.join(
-            PROFILING_DIR_PATH, executable_data["executable_name"]
+            PROFILING_DUMP, executable_data["executable_name"]
         )
         self._log.debug(f"Result path: '{result_file_path}'")
         with open(result_file_path, "w") as result_file:
