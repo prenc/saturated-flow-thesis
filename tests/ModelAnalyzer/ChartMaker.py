@@ -153,6 +153,8 @@ class ChartMaker:
                 return col
 
     def make_charts_in_dir(self, charts_dir):
+        self._log.info(f"Saving all charts to {CHARTS_DUMP}")
+        self._log.info(f"Saving all latex tabulars to {LATEX_DUMP}")
         for summary_file in os.listdir(charts_dir[0]):
             summary_file_path = os.path.join(charts_dir[0], summary_file)
             self.make_chart_basing_on_summary_file(
