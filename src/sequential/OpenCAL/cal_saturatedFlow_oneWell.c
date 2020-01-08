@@ -1,4 +1,4 @@
-#include "../parallel_CUDA_imp/src/params.h"
+#include "../.../params.h"
 
 #include <OpenCAL/cal2D.h>
 #include <OpenCAL/cal2DIO.h>

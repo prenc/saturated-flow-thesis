@@ -1,4 +1,4 @@
-#include "../params.h"
+#include "../../params.h"
 #include "../common/cuda_error_check.cu"
 #include "../common/write_heads_to_file.c"
 #include <iostream>

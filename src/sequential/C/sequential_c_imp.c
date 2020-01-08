@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "../parallel_CUDA_imp/src/params.h"
+#include "../../params.h"
 
 
 double delta_t_ = 4000;
