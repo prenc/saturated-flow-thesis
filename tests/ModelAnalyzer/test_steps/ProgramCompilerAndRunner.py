@@ -102,7 +102,7 @@ class ProgramCompilerAndRunner:
         for i in range(TIMES_EACH_PROGRAM_IS_RUN):
             run_start_time = time.time()
             exit_code = subprocess.run(
-                [f"{COMPILED_DUMP}/{executable_data['executable_name']}"]
+                [f"./{COMPILED_DUMP}/{executable_data['executable_name']}"]
             ).returncode
             run_elapsed_time = time.time() - run_start_time
             self._log.info(
@@ -125,7 +125,7 @@ class ProgramCompilerAndRunner:
         result_file_path = os.path.join(
             PROFILING_DUMP, executable_data["executable_name"]
         )
-        self._log.debug(f"Intermediate result save to '{result_file_path}'")
+        self._log.debug(f"Intermediate result saved to '{result_file_path}'")
         with open(result_file_path, "w") as result_file:
             json.dump(results_object, result_file, indent=4)
             return result_file_path
