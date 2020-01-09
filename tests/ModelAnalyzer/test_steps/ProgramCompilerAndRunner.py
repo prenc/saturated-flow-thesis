@@ -98,7 +98,7 @@ class ProgramCompilerAndRunner:
 
     def _run_program(self, executable_data):
         self._log.info(f"Testing '{executable_data['executable_name']}'.")
-        times = []
+        runs_times = []
         exit_code = 0
         for i in range(TIMES_EACH_PROGRAM_IS_RUN):
             run_start_time = time.time()
@@ -111,9 +111,10 @@ class ProgramCompilerAndRunner:
                 f"been run in {run_elapsed_time // 60:.0f}m"
                 f"{run_elapsed_time % 60:.0f}s"
             )
-            times.append(run_elapsed_time)
-
-        return self._save_test_summary(executable_data, min(times), exit_code)
+            runs_times.append(run_elapsed_time)
+        return self._save_test_summary(
+            executable_data, min(runs_times), exit_code
+        )
 
     def _save_test_summary(self, executable_data, elapsed_time, exit_code):
         results_object = {
