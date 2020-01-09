@@ -10,8 +10,8 @@ class TestConfigReader:
         self._log = logging.getLogger(self.__class__.__name__)
         self._test_specs = self._parse_config()
         if not self._test_specs:
-            self._log.info(
-                f"The config file seems to be empty: " f"'{TEST_CONFIG_FILE}' ."
+            self._log.warning(
+                f"The config file seems to be empty: '{TEST_CONFIG_FILE}' ."
             )
 
     def _parse_config(self):
@@ -54,7 +54,7 @@ class TestConfigReader:
                         *[value[-1] for _ in range(len(value), max_length)],
                     ]
                     self._log.debug(
-                        f"Params list has been lengthened by "
+                        f"Params list {name} has been lengthened by "
                         f"{max_length - old_length}."
                     )
         return corrected_tests

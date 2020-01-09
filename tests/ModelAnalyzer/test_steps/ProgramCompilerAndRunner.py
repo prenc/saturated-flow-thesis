@@ -5,12 +5,13 @@ import subprocess
 import time
 from shutil import move
 
-from ModelAnalyzer.common.TimeCounter import TimeCounter
 from ModelAnalyzer.settings import (
     COMPILED_DUMP,
     PROFILING_DUMP,
     TIMES_EACH_PROGRAM_IS_RUN,
 )
+
+from settings import SRC_FILES
 
 
 class ProgramCompilerAndRunner:
@@ -21,7 +22,7 @@ class ProgramCompilerAndRunner:
     @staticmethod
     def _find_programs_paths(file_names):
         found_paths = []
-        for root, dirs, files in os.walk("../.."):
+        for root, dirs, files in os.walk(SRC_FILES):
             for file in files:
                 if file in file_names:
                     found_paths.append((root, file))
@@ -97,21 +98,20 @@ class ProgramCompilerAndRunner:
 
     def _run_program(self, executable_data):
         self._log.info(f"Testing '{executable_data['executable_name']}'.")
-        tc = TimeCounter()
         times = []
         exit_code = 0
         for i in range(TIMES_EACH_PROGRAM_IS_RUN):
-            tc.start()
+            run_start_time = time.time()
             exit_code = subprocess.run(
-                [f"./{COMPILED_DUMP}/{executable_data['executable_name']}"]
+                [f"{COMPILED_DUMP}/{executable_data['executable_name']}"]
             ).returncode
-            tc.stop()
+            run_elapsed_time = time.time() - run_start_time
             self._log.info(
                 f"Test {i + 1}/{TIMES_EACH_PROGRAM_IS_RUN} has "
-                f"been run in: {tc.elapsed_time // 60:.0f}m"
-                f"{tc.elapsed_time % 60:.0f}s"
+                f"been run in {run_elapsed_time // 60:.0f}m"
+                f"{run_elapsed_time % 60:.0f}s"
             )
-            times.append(tc.elapsed_time)
+            times.append(run_elapsed_time)
 
         return self._save_test_summary(executable_data, min(times), exit_code)
 
@@ -125,7 +125,7 @@ class ProgramCompilerAndRunner:
         result_file_path = os.path.join(
             PROFILING_DUMP, executable_data["executable_name"]
         )
-        self._log.debug(f"Result path: '{result_file_path}'")
+        self._log.debug(f"Intermediate result save to '{result_file_path}'")
         with open(result_file_path, "w") as result_file:
             json.dump(results_object, result_file, indent=4)
             return result_file_path

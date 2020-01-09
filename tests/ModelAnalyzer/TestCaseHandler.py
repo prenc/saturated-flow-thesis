@@ -1,13 +1,11 @@
 import os
+import time
 
-from ModelAnalyzer.common.TimeCounter import TimeCounter
-from ModelAnalyzer.settings import (
-    COMPILED_DUMP,
-    PROFILING_DUMP,
-    SUMMARIES_DUMP,
-)
+from ModelAnalyzer.settings import COMPILED_DUMP, PROFILING_DUMP, SUMMARIES_DUMP
 from ModelAnalyzer.test_steps.ParamsGenerator import ParamsGenerator
-from ModelAnalyzer.test_steps.ProgramCompilerAndRunner import ProgramCompilerAndRunner
+from ModelAnalyzer.test_steps.ProgramCompilerAndRunner import (
+    ProgramCompilerAndRunner,
+)
 from ModelAnalyzer.test_steps.ResultsHandler import ResultsHandler
 
 
@@ -31,18 +29,14 @@ class TestCaseHandler:
             self.script_start_time,
             chart_params=test_params.get("chart_params", None),
         )
-        test_case_counter = TimeCounter()
-
         result_paths = []
-        test_case_counter.start()
+        test_case_start_time = time.time()
         for test_spec in self._prepare_test_specs(test_params["test_specs"]):
             pg.generate(test_spec)
             run_tests_results = pcar.perform_test(test_spec)
             result_paths.extend(run_tests_results)
-        test_case_counter.stop()
-        return rg.save_results(
-            result_paths, round(test_case_counter.elapsed_time)
-        )
+        test_case_elapsed_time = time.time() - test_case_start_time
+        return rg.save_results(result_paths, round(test_case_elapsed_time))
 
     @staticmethod
     def _prepare_test_specs(test_specs):
