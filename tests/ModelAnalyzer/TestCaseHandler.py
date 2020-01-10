@@ -33,22 +33,14 @@ class TestCaseHandler:
         test_case_start_time = time.time()
         for test_spec in self._prepare_test_specs(test_params["test_specs"]):
             pg.generate(test_spec)
-            run_tests_results = pcar.perform_test(test_spec)
-            result_paths.extend(run_tests_results)
+            intermediate_results_path = pcar.perform_test(test_spec)
+            result_paths.extend(intermediate_results_path)
         test_case_elapsed_time = time.time() - test_case_start_time
         return rg.save_results(result_paths, round(test_case_elapsed_time))
 
     @staticmethod
     def _prepare_test_specs(test_specs):
         return [
-            {
-                "block_size": block_size,
-                "ca_size": ca_size,
-                "iterations": iterations,
-            }
-            for block_size, ca_size, iterations in zip(
-                test_specs["block_size"],
-                test_specs["ca_size"],
-                test_specs["iterations"],
-            )
+            {k: v for k, v in zip(test_specs.keys(), v)}
+            for v in zip(*test_specs.values())
         ]

@@ -7,10 +7,7 @@ from ModelAnalyzer.settings import PARAMS_PATH
 
 
 class ParamsGenerator:
-
-    MATCH_BLOCK_SIZE = "#define BLOCK_SIZE "
-    MATCH_CA_SIZE = "#define CA_SIZE "
-    MATCH_ITERATIONS = "#define SIMULATION_ITERATIONS "
+    DEFINE = "#define"
 
     def __init__(self, test_name):
         self._log = logging.getLogger(self.__class__.__name__)
@@ -23,25 +20,35 @@ class ParamsGenerator:
         except FileNotFoundError:
             self._log.error(
                 f"Could not find the file with the simulation "
-                f"parameters: {PARAMS_PATH}"
+                f"parameters in {PARAMS_PATH}"
             )
             exit(1)
 
     def _modify_file(self, filename, test_spec):
+        test_spec_c = test_spec.copy()
         temp_file, temp_path = mkstemp()
         with open(temp_file, "w") as new_file:
-            for line in filename:
-                new_line = self._modify_line(line, **test_spec)
-                new_file.write(new_line)
+            self._change_lines_with_defines(filename, test_spec_c, new_file)
+            self._add_rest_defines_line(test_spec_c, new_file)
         remove(PARAMS_PATH)
         move(temp_path, PARAMS_PATH)
 
-    def _modify_line(self, line, block_size, ca_size, iterations):
-        if self.MATCH_BLOCK_SIZE in line:
-            return f"{self.MATCH_BLOCK_SIZE}{block_size}\n"
-        elif self.MATCH_CA_SIZE in line:
-            return f"{self.MATCH_CA_SIZE}{ca_size}\n"
-        elif self.MATCH_ITERATIONS in line:
-            return f"{self.MATCH_ITERATIONS}{iterations}\n"
-        else:
-            return line
+    def _change_lines_with_defines(self, filename, test_spec, new_file):
+        for line in filename:
+            new_file.write(self._modify_line(line, test_spec))
+
+    def _add_rest_defines_line(self, test_spec, new_file):
+        for param, value in test_spec.items():
+            new_file.write(self._get_define_line(param, value))
+
+    def _modify_line(self, line, test_spec):
+        for param, value in test_spec.items():
+            if f" {param.upper()} " in line:
+                par = param
+                val = value
+                del test_spec[param]
+                return self._get_define_line(par, val)
+        return line
+
+    def _get_define_line(self, var, val):
+        return f"{self.DEFINE} {var.upper()} {val}\n"

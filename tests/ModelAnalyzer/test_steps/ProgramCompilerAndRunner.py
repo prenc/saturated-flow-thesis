@@ -9,9 +9,8 @@ from ModelAnalyzer.settings import (
     COMPILED_DUMP,
     PROFILING_DUMP,
     TIMES_EACH_PROGRAM_IS_RUN,
+    SRC_FILES,
 )
-
-from settings import SRC_FILES
 
 
 class ProgramCompilerAndRunner:
