@@ -30,6 +30,7 @@ class ChartMaker:
                 self._create_and_save_chart(data, latex)
         except FileNotFoundError:
             self._log.error(f"Could not find the summary file: {summary_path}")
+            exit(1)
         except (JSONDecodeError, IsADirectoryError, UnicodeDecodeError):
             self._log.warning(f"No proper json file: '{summary_path}'. ")
 
