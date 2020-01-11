@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.interpolate import make_interp_spline
 
-from ModelAnalyzer.settings import CHARTS_DUMP, SUMMARIES_DUMP, LATEX_DUMP
+from ModelAnalyzer.settings import CHARTS_DUMP, LATEX_DUMP
 
 
 class ChartMaker:
@@ -23,23 +23,22 @@ class ChartMaker:
             if not os.path.exists(dir_path):
                 os.makedirs(dir_path)
 
-    def make_chart_basing_on_summary_file(self, summary_file, latex=False):
+    def make_chart_basing_on_summary_file(self, summary_path, latex=False):
         try:
-            data = self._gather_data(summary_file)
+            data = self._gather_data(summary_path)
             if "chart_params" in data.keys():
                 self._create_and_save_chart(data, latex)
         except FileNotFoundError:
-            self._log.error(f"Could not find the summary file: {summary_file}")
-        except (JSONDecodeError, IsADirectoryError):
-            self._log.warning(f"No proper json file: '{summary_file}'.")
+            self._log.error(f"Could not find the summary file: {summary_path}")
+        except (JSONDecodeError, IsADirectoryError, UnicodeDecodeError):
+            self._log.warning(f"No proper json file: '{summary_path}'. ")
 
     def _gather_data(self, summary_file):
         data = self._load_charts_data(summary_file)
         return self._prepare_data(data)
 
     @staticmethod
-    def _load_charts_data(data_file):
-        file_path = os.path.join(SUMMARIES_DUMP, data_file)
+    def _load_charts_data(file_path):
         with open(file_path, "r") as json_file:
             return json.load(json_file)
 
