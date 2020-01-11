@@ -34,8 +34,8 @@ class ArgumentParser:
             "--summaries_dir",
             type=str,
             nargs=1,
-            help="Makes charts from summary files if they have chart_params "
-            "specified",
+            help="Makes charts and exports latex tables code from summary "
+                 "files if they have chart_params specified",
         )
         self._parser.add_argument(
             "--debug",
