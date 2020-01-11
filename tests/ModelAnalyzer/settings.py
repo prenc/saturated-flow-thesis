@@ -16,13 +16,13 @@ Place to store intermediate results, if the script crashes the results can be
 manually restored from them (using e.g. sed :))
 """
 
-SUMMARIES_DUMP = os.getenv("CUDA_TEST_DUMP", "results/summaries")
+SUMMARIES_DUMP = os.getenv("MY_DUMP", "results/summaries")
 """
 Place to store final results of each test, can be set as an environment 
 variable for convenience
 """
 
-CHARTS_DUMP = os.getenv("CUDA_TEST_DUMP", "charts")
+CHARTS_DUMP = os.getenv("MY_DUMP", "charts")
 """
 Place to store charts presenting results gather in the summary file, can be 
 set as an environment variable for convenience

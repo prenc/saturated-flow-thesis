@@ -11,7 +11,7 @@ class ArgumentParser:
             in an order in which their names where passed as the script 
             arguments. 
             It is strongly recommended to set environment variable 
-            CUDA_TEST_DUMP to define a place where the result 
+            MY_DUMP to define a place where the result 
             will be placed. Charts are only created if 
             'chart_params' key is specified in the summary file 
             (chart_params object is passed from json config to the summary 
