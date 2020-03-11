@@ -1,4 +1,4 @@
-# Author: Paweł Renc & some strange guy who was sitting next to me whole time
+# Author: Paweł Renc & Tomasz Pęcak
 # Implementation time: 11.2019
 # Last update: 9.1.2020
 # for more information run script with -h option
@@ -33,7 +33,7 @@ LATEX_DUMP = CHARTS_DUMP + "/latex"
 Place to store latex code which is latex table made based on the summary file
 """
 
-TIMES_EACH_PROGRAM_IS_RUN = 3
+TIMES_EACH_PROGRAM_IS_RUN = 4
 """
 Defines how many times each program is run before an execution time is saved 
 (takes the smallest one from all results)
