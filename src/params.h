@@ -13,11 +13,13 @@
 #define SIMULATION_ITERATIONS 1000
 #define BLOCK_SIZE 16
 
+#define WRITE_OUTPUT_TO_FILE 0
+
 #define ROWS CA_SIZE
 #define COLS CA_SIZE
 
-#define CELL_SIZE_X 0.1
-#define CELL_SIZE_Y 0.1
+#define CELL_SIZE_X 10
+#define CELL_SIZE_Y 10
 
 #define AREA CELL_SIZE_X*CELL_SIZE_Y
 
@@ -28,7 +30,7 @@
 #define headFixed 50
 #define headCalculated 50
 
-#define DELTA_T 400
+#define DELTA_T 4000
 #define KERNEL_LOOP_SIZE 50
 
 //multiple wells

@@ -62,5 +62,10 @@ int main(void) {
 
 	perform_simulation_on_GPU();
 
-	return 0;
+	if(WRITE_OUTPUT_TO_FILE){
+		copy_data_from_GPU_to_CPU();
+		write_heads_to_file(h_ca.head, "global_memory");
+	}
+
+    return 0;
 }
