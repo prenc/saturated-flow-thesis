@@ -3,7 +3,6 @@
 #include "../../params.h"
 
 #define FILENAME_SIZE 100
-double delta_t_ = 4000;
 double qw = 0.001;
 
 int posSy = ROWS / 2;
@@ -97,8 +96,7 @@ void transition_function(int i, int j) {
     }
 
     Q -= read.Source[i][j];
-    double area = CELL_SIZE_X * CELL_SIZE_Y;
-    double ht1 = (Q * delta_t_) / (area * read.Sy[i][j]);
+    double ht1 = (Q * DELTA_T) / (AREA * read.Sy[i][j]);
 
     write.head[i][j] += ht1;
 }

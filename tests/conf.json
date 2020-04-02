@@ -406,6 +406,9 @@
       ],
       "simulation_iterations": [
         100
+      ],
+      "write_output_to_file": [
+        1
       ]
     },
     "chart_params": {
