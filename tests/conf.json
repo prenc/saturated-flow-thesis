@@ -434,5 +434,32 @@
       "cal_saturatedFlow_oneWell.c",
       "sequential_c_imp.c"
     ]
+  },
+  "active_cells_output_test_16": {
+    "test_specs": {
+      "block_size": [
+        16
+      ],
+      "ca_size": [
+        1000, 2000, 3000, 4000,
+        5000, 6000
+      ],
+      "simulation_iterations": [
+        6480
+      ],
+      "write_output_to_file": [
+        1
+      ]
+    },
+    "chart_params": {
+      "title": "Active cells 16",
+      "x_axis": "ca_size",
+      "x_axis_label": "CA automata dimensions"
+    },
+    "test_src": [
+      "unified_memory.cu",
+      "active_cells_gpu.cu",
+      "active_cells_gpu_const_block_number.cu"
+    ]
   }
 }
