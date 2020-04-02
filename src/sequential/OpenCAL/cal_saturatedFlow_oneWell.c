@@ -3,6 +3,9 @@
 #include <OpenCAL/cal2D.h>
 #include <OpenCAL/cal2DIO.h>
 #include <OpenCAL/cal2DRun.h>
+#include <sys/stat.h>
+#include <stdio.h>
+struct stat st = {0};
 
 #define ROWS CA_SIZE
 #define COLS CA_SIZE
@@ -139,7 +142,14 @@ int main(){
 
 	  calRun2D(satured_simulation);
 
-    //calSaveSubstate2Dr(satured, head, "./satured_head_LAST.txt"); - write final heads level to file
+	 if(WRITE_OUTPUT_TO_FILE){
+		 if (stat("output", &st) == -1) {
+			 mkdir("./output", 0700);
+		 }
+		 std::string fileName = "./output/openCAL"+"_"+std::to_string(BLOCK_SIZE)+"_"
+		                        +std::to_string(CA_SIZE)+"_"+std::to_string(SIMULATION_ITERATIONS);
+		 calSaveSubstate2Dr(satured, head, fileName);
+	 }
 
 	calRunFinalize2D(satured_simulation);
 	calFinalize2D(satured);

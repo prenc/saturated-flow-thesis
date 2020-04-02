@@ -1,6 +1,7 @@
 import os
 import time
 
+from ModelAnalyzer.DefaultParamsKeeper import DefaultParamsKeeper
 from ModelAnalyzer.settings import COMPILED_DUMP, PROFILING_DUMP, SUMMARIES_DUMP
 from ModelAnalyzer.test_steps.ParamsGenerator import ParamsGenerator
 from ModelAnalyzer.test_steps.ProgramCompilerAndRunner import (
@@ -22,6 +23,7 @@ class TestCaseHandler:
                 os.makedirs(dir_path)
 
     def perform_test_case(self, test_name, test_params):
+        dpk = DefaultParamsKeeper()
         pg = ParamsGenerator(test_name)
         pcar = ProgramCompilerAndRunner(test_params["test_src"])
         rg = ResultsHandler(
@@ -29,6 +31,7 @@ class TestCaseHandler:
             self.script_start_time,
             chart_params=test_params.get("chart_params", None),
         )
+        dpk.create_params_copy()
         result_paths = []
         test_case_start_time = time.time()
         for test_spec in self._prepare_test_specs(test_params["test_specs"]):
@@ -36,6 +39,7 @@ class TestCaseHandler:
             intermediate_results_path = pcar.perform_test(test_spec)
             result_paths.extend(intermediate_results_path)
         test_case_elapsed_time = time.time() - test_case_start_time
+        dpk.restore_params()
         return rg.save_results(result_paths, round(test_case_elapsed_time))
 
     @staticmethod

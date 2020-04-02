@@ -106,6 +106,9 @@ int main(void) {
 
 	perform_simulation_on_GPU();
 
+	if(WRITE_OUTPUT_TO_FILE){
+		write_heads_to_file(d_write.head, "stream_compaction_cpu_loop");
+	}
 	return 0;
 }
 

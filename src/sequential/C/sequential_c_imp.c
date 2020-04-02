@@ -1,8 +1,8 @@
 #include <stdio.h>
+#include <sys/stat.h>
 #include "../../params.h"
 
-
-double delta_t_ = 4000;
+#define FILENAME_SIZE 100
 double qw = 0.001;
 
 int posSy = ROWS / 2;
@@ -14,6 +14,8 @@ struct CAC {
     double K[ROWS][COLS];
     double Source[ROWS][COLS];
 } read, write;
+
+struct stat st = {0};
 
 void init_ca();
 
@@ -34,14 +36,21 @@ int main() {
         simulation_step();
     }
 
-    //write_heads_to_file();
-
+	if(WRITE_OUTPUT_TO_FILE) {
+		write_heads_to_file();
+	}
     return 0;
 }
 
 void write_heads_to_file() {
-    FILE *fp;
-    fp = fopen("heads_ca.txt", "w");
+	if (stat("output", &st) == -1) {
+		mkdir("./output", 0700);
+	}
+	char fileName[FILENAME_SIZE];
+	snprintf(fileName, FILENAME_SIZE, "./output/c_%d_%d_%d", BLOCK_SIZE, CA_SIZE, SIMULATION_ITERATIONS); // puts string into buffer
+
+	FILE *fp;
+    fp = fopen(fileName, "w");
 
     for (int i = 0; i < ROWS; i++) {
         for (int j = 0; j < COLS; j++) {
@@ -87,8 +96,7 @@ void transition_function(int i, int j) {
     }
 
     Q -= read.Source[i][j];
-    double area = CELL_SIZE_X * CELL_SIZE_Y;
-    double ht1 = (Q * delta_t_) / (area * read.Sy[i][j]);
+    double ht1 = (Q * DELTA_T) / (AREA * read.Sy[i][j]);
 
     write.head[i][j] += ht1;
 }
