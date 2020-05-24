@@ -17,7 +17,11 @@ void write_heads_to_file(double *head, std::string test_name) {
 
     for (int i = 0; i < ROWS; i++) {
         for (int j = 0; j < COLS; j++) {
-            fprintf(fp, "%lf, ", head[i * ROWS + j]);
+        	if(TRANSPOSE_OUTPUT == 1){
+		        fprintf(fp, "%lf, ", head[j * ROWS + i]);
+	        }else{
+		        fprintf(fp, "%lf, ", head[i * ROWS + j]);
+	        }
         }
         fprintf(fp, "\n");
     }
