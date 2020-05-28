@@ -34,13 +34,19 @@
 #define DELTA_T 4000
 #define KERNEL_LOOP_SIZE 50
 
+// RIVER
 #define KSB  0.00001 // streambed hydraulic conductivity
 #define M  0.5 // river bed thickness
-#define HW  48 // hydraulic head in the river
 #define W  5 // river width
+
 #define RIVER_BOTTOM  46.5
 #define RIVER_POSITION  24
-#define DAYS_NUMBER 1
+
+#define SIMULATED_DAYS_NUMBER  10
+double RIVER_HEAD[SIMULATED_DAYS_NUMBER] = {49,49,49,49,49,51,51,51,51,51};
+
+#define SECONDS_IN_DAY  86400
+#define SIMULATION_STEPS (SECONDS_IN_DAY * SIMULATED_DAYS_NUMBER) / DELTA_T
 
 //multiple wells
 #define NUMBER_OF_WELLS 1

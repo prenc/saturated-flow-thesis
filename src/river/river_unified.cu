@@ -1,6 +1,6 @@
 #include "../parallel/unified_memory/unified_memory_common.h"
 
-__global__ void simulation_step_kernel(struct CA d_ca, double *d_write_head) {
+__global__ void simulation_step_kernel(struct CA d_ca, double *d_write_head,  double river_head) {
 	unsigned idx_x = blockIdx.x * blockDim.x + threadIdx.x;
 	unsigned idx_y = blockIdx.y * blockDim.y + threadIdx.y;
 	unsigned idx_g = idx_y * COLS + idx_x;
@@ -33,15 +33,13 @@ __global__ void simulation_step_kernel(struct CA d_ca, double *d_write_head) {
 			if (idx_y == RIVER_POSITION) {
 				double first_term_Q = (KSB * CELL_SIZE_X * W )/ M;
 				if(d_ca.head[idx_g] > RIVER_BOTTOM) {
-					Q += first_term_Q* (HW-d_ca.head[idx_g]);
+					Q += first_term_Q* (river_head-d_ca.head[idx_g]);
 				}else{
-					Q += first_term_Q * (HW+M);
+					Q += first_term_Q * (river_head+M);
 				}
 			}
-
 			ht1 = Q * DELTA_T;
 			ht2 = AREA * d_ca.Sy[idx_g];
-
 			d_write_head[idx_g] = d_ca.head[idx_g] + ht1 / ht2;
 		}
 	}
@@ -53,8 +51,10 @@ void perform_simulation_on_GPU() {
 	double gridSize = ceil(sqrt(blockCount));
 	dim3 gridDim(gridSize, gridSize);
 
-	for (int i = 0; i < SIMULATION_ITERATIONS; i++) {
-		simulation_step_kernel << < gridDim, blockDim >> > (d_read, d_write.head);
+	for (int i = 0; i < SIMULATION_STEPS; i++) {
+		int current_simulated_day = i * DELTA_T / SECONDS_IN_DAY ;
+		double river_head = RIVER_HEAD[current_simulated_day];
+		simulation_step_kernel << < gridDim, blockDim >> > (d_read, d_write.head, river_head);
 
 		cudaDeviceSynchronize();
 
