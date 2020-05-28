@@ -14,7 +14,7 @@
 #define BLOCK_SIZE 16
 
 #define WRITE_OUTPUT_TO_FILE 1
-#define TRANSPOSE_OUTPUT 0
+#define TRANSPOSE_OUTPUT 1
 
 #define ROWS CA_SIZE
 #define COLS CA_SIZE
@@ -31,7 +31,7 @@
 #define headFixed 50
 #define headCalculated 50
 
-#define DELTA_T 4000
+#define DELTA_T 3600
 #define KERNEL_LOOP_SIZE 50
 
 // RIVER

@@ -51,16 +51,32 @@ void perform_simulation_on_GPU() {
 	double gridSize = ceil(sqrt(blockCount));
 	dim3 gridDim(gridSize, gridSize);
 
-	for (int i = 0; i < SIMULATION_STEPS; i++) {
-		int current_simulated_day = i * DELTA_T / SECONDS_IN_DAY ;
-		double river_head = RIVER_HEAD[current_simulated_day];
+	int day_counter, steps_in_current_day = 0;
+	double river_head;
+	for (int i = 0; i < SIMULATION_STEPS; i++ && steps_in_current_day++) {
+		river_head = RIVER_HEAD[day_counter];
+
 		simulation_step_kernel << < gridDim, blockDim >> > (d_read, d_write.head, river_head);
 
+		bool is_new_day = steps_in_current_day * DELTA_T >= SECONDS_IN_DAY;
+		if (is_new_day){
+			day_counter++;
+			is_new_day = false;
+			steps_in_current_day = 0;
+
+			if(WRITE_OUTPUT_TO_FILE){
+				write_river_heads_to_file(d_write.head, river_head, day_counter );
+			}
+		}
 		cudaDeviceSynchronize();
 
 		double *tmp1 = d_write.head;
 		d_write.head = d_read.head;
 		d_read.head = tmp1;
+	}
+	if(WRITE_OUTPUT_TO_FILE){
+		day_counter++;
+		write_river_heads_to_file(d_write.head, river_head, day_counter );
 	}
 }
 
@@ -70,10 +86,6 @@ int main(void) {
 	init_write_head();
 
 	perform_simulation_on_GPU();
-
-	if(WRITE_OUTPUT_TO_FILE){
-		write_heads_to_file(d_write.head, "unified_memory");
-	}
 
 	return 0;
 }
