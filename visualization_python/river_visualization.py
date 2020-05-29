@@ -7,8 +7,10 @@ import matplotlib.pyplot as plt
 from matplotlib import cm
 from matplotlib.ticker import LinearLocator, FormatStrFormatter
 
+PARAMS_PATH = "../params.h"
+
 def load_data():
-    heads = pd.read_csv('output/river_49.000000_1', sep=',').to_numpy()
+    heads = pd.read_csv('output/river/49.000000_1', sep=',').to_numpy()
     heads = np.delete(heads, -1, axis=1).astype(float)
     return np.delete(heads, -1, axis=1)
 
@@ -29,6 +31,22 @@ def plot_heads(heads):
     fig.colorbar(surf, shrink=0.5, aspect=5)
 
     plt.show()
+
+
+def load_config():
+        try:
+            with open(PARAMS_PATH, "r") as params_file:
+                read_defines(params_file)
+        except FileNotFoundError:
+            print(
+                f"Could not find the file with the simulation "
+                f"parameters in {PARAMS_PATH}"
+            )
+            exit(1)
+
+def read_defines(params_file):
+     for line in params_file:
+         print(line)
 
 if __name__ == '__main__':
     heads = load_data()
