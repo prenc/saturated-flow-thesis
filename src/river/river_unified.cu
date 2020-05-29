@@ -56,7 +56,7 @@ void perform_simulation_on_GPU() {
 	int day_counter, steps_in_current_day = 0;
 	double river_head;
 	for (int i = 0; i < SIMULATION_STEPS; i++ && steps_in_current_day++) {
-		river_head = RIVER_HEAD[day_counter];
+		river_head = river_heads[day_counter];
 
 		simulation_step_kernel << < gridDim, blockDim >> > (d_read, d_write.head, river_head);
 
