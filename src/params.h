@@ -42,17 +42,17 @@
 #define RIVER_BOTTOM  46.5
 #define RIVER_POSITION  24
 
-#define SIMULATED_DAYS_NUMBER  10
-double RIVER_HEAD[SIMULATED_DAYS_NUMBER] = {49,49,49,49,49,51,51,51,51,51};
+#define SIMULATED_DAYS_NUMBER 10
+double river_heads[SIMULATED_DAYS_NUMBER]         = { 49, 49, 49, 49, 49, 51, 51, 51, 51, 51 }; 
 
 #define SECONDS_IN_DAY  86400
 #define SIMULATION_STEPS (SECONDS_IN_DAY * SIMULATED_DAYS_NUMBER) / DELTA_T
 
 //multiple wells
 #define NUMBER_OF_WELLS 1
-int wellsRows[NUMBER_OF_WELLS] = {ROWS / 2};
-int wellsCols[NUMBER_OF_WELLS] = {COLS / 2};
-double wellsQW[NUMBER_OF_WELLS] = {0.001};
+int wellsRows[NUMBER_OF_WELLS]      = { 50 }; 
+int wellsCols[NUMBER_OF_WELLS]      = { 50 }; 
+double wellsQW[NUMBER_OF_WELLS]      = { 0.001 }; 
 
 struct CA {
     double *head;
