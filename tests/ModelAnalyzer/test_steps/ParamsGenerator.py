@@ -43,6 +43,13 @@ class ParamsGenerator:
 
     def _modify_line(self, line, test_spec):
         for param, value in test_spec.items():
+            if param in line:
+                if isinstance(value, list):
+                    array_definition = line.split("=")[0]
+                    array_value = f"{value}"[1:-1]
+                    array_value = "{ "+array_value+" }"
+                    del test_spec[param]
+                    return f"{array_definition} = {array_value}; \n"
             if f" {param.upper()} " in line:
                 par = param
                 val = value
@@ -52,3 +59,4 @@ class ParamsGenerator:
 
     def _get_define_line(self, var, val):
         return f"{self.DEFINE} {var.upper()} {val}\n"
+
