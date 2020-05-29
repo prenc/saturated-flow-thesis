@@ -38,6 +38,8 @@ __global__ void simulation_step_kernel(struct CA d_ca, double *d_write_head,  do
 					Q += first_term_Q * (river_head+M);
 				}
 			}
+            Q -= d_ca.Source[idx_g];
+
 			ht1 = Q * DELTA_T;
 			ht2 = AREA * d_ca.Sy[idx_g];
 			d_write_head[idx_g] = d_ca.head[idx_g] + ht1 / ht2;
