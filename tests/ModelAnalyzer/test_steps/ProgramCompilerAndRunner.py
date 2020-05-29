@@ -39,7 +39,7 @@ class ProgramCompilerAndRunner:
             )
             output_path = os.path.join(COMPILED_DUMP, new_file_name)
             exit_code = 0
-            if os.path.isfile(output_path):
+            if os.path.isfile(output_path) and not ALWAYS_COMPILE:
                 self._log.info(f"Found '{new_file_name}'. No need to compile.")
             else:
                 exit_code = self._compile_file(root, name, output_path)

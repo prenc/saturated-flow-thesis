@@ -6,6 +6,12 @@ import os
 
 # main script settings
 COMPILED_DUMP = "compiled"
+
+"""
+Compile even if previously compiled file is available 
+"""
+
+ALWAYS_COMPILE = True
 """
 Place to store compiled programs
 """

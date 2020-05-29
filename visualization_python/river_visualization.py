@@ -32,22 +32,6 @@ def plot_heads(heads):
 
     plt.show()
 
-
-def load_config():
-        try:
-            with open(PARAMS_PATH, "r") as params_file:
-                read_defines(params_file)
-        except FileNotFoundError:
-            print(
-                f"Could not find the file with the simulation "
-                f"parameters in {PARAMS_PATH}"
-            )
-            exit(1)
-
-def read_defines(params_file):
-     for line in params_file:
-         print(line)
-
 if __name__ == '__main__':
     heads = load_data()
     plot_heads(heads)
