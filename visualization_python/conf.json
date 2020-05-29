@@ -1,0 +1,20 @@
+{
+  "river": {
+    "test_specs": {
+      "river_position": [
+        10
+      ],
+      "ca_size": [
+        100
+      ]
+    },
+    "chart_params": {
+      "title": "River cells 16",
+      "x_axis": "ca_size",
+      "x_axis_label": "CA automata dimensions"
+    },
+    "test_src": [
+      "river_unified.cu"
+    ]
+  }
+}
