@@ -9,17 +9,18 @@ import matplotlib.pyplot as plt
 from matplotlib import cm
 from matplotlib.ticker import LinearLocator, FormatStrFormatter
 
-PARAMS_PATH = "../params.h"
 TEST_CONFIG_FILE = "./conf.json"
-
+DAY = 20
+TEST_NAME = 'river'
+TEST_FILE = f'output/river/{DAY}'
 
 def load_data():
-    heads = pd.read_csv('output/river/49.000000_1', sep=',').to_numpy()
+    heads = pd.read_csv(TEST_FILE, sep=',').to_numpy()
     heads = np.delete(heads, -1, axis=1).astype(float)
     return np.delete(heads, -1, axis=1)
 
 
-def plot_heads(heads, config):
+def plot_heads(heads):
     fig = plt.figure()
     ax = fig.gca(projection='3d')
 
@@ -31,24 +32,15 @@ def plot_heads(heads, config):
     # Plot the surface.
     surf = ax.plot_surface(X, Y, heads, cmap=cm.coolwarm_r,
                            linewidth=0, antialiased=False)
+    ax.set_xlabel("x [m]")
+    ax.set_ylabel("y [m]")
+    ax.set_zlabel("aquifer hydraulic head [m]")
 
     # Customize the z axis.
-    fig.colorbar(surf, shrink=0.5, aspect=5)
-    plt.title(config['river_position'])
+    plt.savefig(f'charts/{TEST_NAME}_{DAY}')
     plt.show()
 
 
-def read_config():
-    try:
-        with open(TEST_CONFIG_FILE, "r") as config_json:
-            return json.load(config_json)['river']['test_specs']
-    except FileNotFoundError:
-        self._log.error(
-            f"Could not find the config file. Make sure the file "
-            f"'{TEST_CONFIG_FILE}' is in the script directory."
-        )
-
 if __name__ == '__main__':
-    config = read_config()
     heads = load_data()
-    plot_heads(heads,config)
+    plot_heads(heads)

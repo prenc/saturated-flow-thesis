@@ -22,9 +22,7 @@ void write_river_heads_to_file(double *head, double river_head, int day) {
 	create_output_dir(output_path);
 	output_path= "./output/river/";
 	create_output_dir(output_path);
-	std::string fileName = output_path
-									+ std::to_string(river_head)
-									+ "_" + std::to_string(day);
+	std::string fileName = output_path + std::to_string(day);
 	write_to_file(head, fileName);
 }
 
