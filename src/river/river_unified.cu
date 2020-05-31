@@ -35,9 +35,10 @@ __global__ void simulation_step_kernel(struct CA d_ca, double *d_write_head,  do
 				if(d_ca.head[idx_g] > RIVER_BOTTOM) {
 					Q += first_term_Q* (river_head-d_ca.head[idx_g]);
 				}else{
-					Q += first_term_Q * (river_head+M);
+					Q += first_term_Q * (river_head-RIVER_BOTTOM+M);
 				}
 			}
+
             Q -= d_ca.Source[idx_g];
 
 			ht1 = Q * DELTA_T;
