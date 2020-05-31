@@ -31,7 +31,7 @@
 #define headFixed 50
 #define headCalculated 50
 
-#define DELTA_T 3600
+#define DELTA_T 4000
 #define KERNEL_LOOP_SIZE 50
 
 // RIVER
@@ -40,19 +40,19 @@
 #define W  5 // river width
 
 #define RIVER_BOTTOM  46.5
-#define RIVER_POSITION  24
+#define RIVER_POSITION 24
 
 #define SIMULATED_DAYS_NUMBER 10
-double river_heads[SIMULATED_DAYS_NUMBER]         = { 49, 49, 49, 49, 49, 51, 51, 51, 51, 51 }; 
+double river_heads[SIMULATED_DAYS_NUMBER] = { 49, 49, 49, 49, 49, 51, 51, 51, 51, 51 };
 
 #define SECONDS_IN_DAY  86400
 #define SIMULATION_STEPS (SECONDS_IN_DAY * SIMULATED_DAYS_NUMBER) / DELTA_T
 
 //multiple wells
 #define NUMBER_OF_WELLS 1
-int wellsRows[NUMBER_OF_WELLS]      = { 50 }; 
-int wellsCols[NUMBER_OF_WELLS]      = { 50 }; 
-double wellsQW[NUMBER_OF_WELLS]      = { 0.001 }; 
+int wellsRows[NUMBER_OF_WELLS] = { 50 };
+int wellsCols[NUMBER_OF_WELLS] = { 50 };
+double wellsQW[NUMBER_OF_WELLS] = { 0.001 };
 
 struct CA {
     double *head;
