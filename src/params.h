@@ -14,8 +14,8 @@
 #define ROWS CA_SIZE
 #define COLS CA_SIZE
 
-#define CELL_SIZE_X 0.1
-#define CELL_SIZE_Y 0.1
+#define CELL_SIZE_X 1
+#define CELL_SIZE_Y 1
 
 #define AREA CELL_SIZE_X*CELL_SIZE_Y
 
@@ -26,7 +26,7 @@
 #define headFixed 50
 #define headCalculated 50
 
-#define DELTA_T 0.4
+#define DELTA_T 40
 #define KERNEL_LOOP_SIZE 50
 
 #define WRITE_COVERAGE_TO_FILE 1
