@@ -48,7 +48,7 @@ double river_heads[SIMULATED_DAYS_NUMBER] = { 49, 49, 49, 49, 49, 51, 51, 51, 51
 //multiple wells
 #define NUMBER_OF_WELLS 1
 int wellsRows[NUMBER_OF_WELLS] = { ROWS / 2 };
-int wellsCols[NUMBER_OF_WELLS] = { COlS / 2 };
+int wellsCols[NUMBER_OF_WELLS] = { COLS / 2 };
 double wellsQW[NUMBER_OF_WELLS] = { 0.001 };
 
 struct CA {
