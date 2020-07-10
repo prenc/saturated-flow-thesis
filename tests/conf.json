@@ -8,7 +8,7 @@
         4000
       ],
       "simulation_iterations": [
-        100001
+        100000
       ]
     },
     "chart_params": {
@@ -16,7 +16,8 @@
       "x_axis": "ca_size"
     },
     "test_src": [
-      "active_cells_gpu.cu"
+      "active_cells_gpu.cu",
+      "unified_memory.cu"
     ]
   },
   "coverage_multiple_wells": {
@@ -76,7 +77,8 @@
       "x_axis": "ca_size"
     },
     "test_src": [
-      "active_cells_gpu.cu"
+      "active_cells_gpu.cu",
+      "unified_memory.cu"
     ]
   },
   "standard_16": {
