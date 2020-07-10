@@ -47,7 +47,7 @@ class ParamsGenerator:
                 if isinstance(value, list):
                     array_definition = line.split("=")[0]
                     array_value = value[1:-1]
-                    array_value = f"{ {array_value} }"
+                    array_value = f"{{ {array_value} }}"
                     del test_spec[param]
                     return f"{array_definition} = {array_value}; \n"
             if f" {param.upper()} " in line:
