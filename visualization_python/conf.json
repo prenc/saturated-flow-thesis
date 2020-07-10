@@ -1,0 +1,44 @@
+{
+  "river": {
+    "test_specs": {
+     "river_position": [
+        20
+      ],
+      "write_output_to_file": [
+        1
+      ],
+      "ca_size": [
+        100
+      ],
+      "simulated_days_number": [
+        30
+      ],
+      "river_heads": [
+        [ 48,48,48,48,48,48,48,48,48,48,
+          48.5,49,49.5,50,50.5,51,51.5,52,52.5,53,
+          52.5,52,51.5,51,50.5,50,49.5,49,48.5,48
+        ]
+      ],
+      "number_of_wells": [
+        3
+      ],
+       "wellsRows": [
+        [50,50,90]
+      ],
+      "wellsCols": [
+        [40, 50, 80]
+      ],
+      "wellsQW": [
+        [0.0,0.00,0.00]
+      ]
+    },
+    "chart_params": {
+      "title": "River cells 16",
+      "x_axis": "ca_size",
+      "x_axis_label": "CA automata dimensions"
+    },
+    "test_src": [
+      "river_unified.cu"
+    ]
+  }
+}

@@ -461,5 +461,44 @@
       "active_cells_gpu.cu",
       "active_cells_gpu_const_block_number.cu"
     ]
+  },
+  "river": {
+    "test_specs": {
+      "river_position": [
+        20
+      ],
+      "write_output_to_file": [
+        1
+      ],
+      "ca_size": [
+        100
+      ],
+      "simulated_days_number": [
+        10
+      ],
+      "river_heads": [
+        [49,49,49,49,49,51,51,51,51,51]
+      ],
+      "number_of_wells": [
+        1
+      ],
+      "wellsRows": [
+        [50]
+      ],
+      "wellsCols": [
+        [50]
+      ],
+      "wellsQW": [
+        [0.001]
+      ]
+    },
+    "chart_params": {
+      "title": "River cells 16",
+      "x_axis": "ca_size",
+      "x_axis_label": "CA automata dimensions"
+    },
+    "test_src": [
+      "river_unified.cu"
+    ]
   }
 }
