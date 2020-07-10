@@ -34,6 +34,8 @@
 #define DELTA_T 4000
 #define KERNEL_LOOP_SIZE 50
 
+#define WRITE_COVERAGE_TO_FILE 1
+#define COVERAGE_WRITE_FREQ 10
 // RIVER
 #define KSB  0.00001 // streambed hydraulic conductivity
 #define M  0.5 // river bed thickness

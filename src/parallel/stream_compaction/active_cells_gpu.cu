@@ -8,6 +8,8 @@
 __device__ int active_cells_idx[ROWS*COLS];
 __managed__ int dev_active_cells_count = 0;
 
+double coverage_vector[ROWS*COLS];
+
 __device__ int my_push_back(int mt) {
   int insert_pt = atomicAdd(&dev_active_cells_count, 1);
   if (insert_pt < ROWS*COLS){
@@ -126,6 +128,8 @@ void perform_simulation_on_GPU() {
 		double *tmp1 = d_write.head;
 		d_write.head = d_read.head;
 		d_read.head = tmp1;
+
+		coverage_vector[i] = double(dev_active_cells_count * 100) / (ROWS * COLS) ;
     }
 }
 
@@ -136,8 +140,12 @@ int main(void) {
 
     perform_simulation_on_GPU();
 
-	if(WRITE_OUTPUT_TO_FILE){
+	if (WRITE_OUTPUT_TO_FILE) {
 		write_heads_to_file(d_write.head, "stream_compaction_gpu");
+	}
+
+	if (WRITE_COVERAGE_TO_FILE) {
+		write_coverage_to_file(coverage_vector);
 	}
 
 	return 0;

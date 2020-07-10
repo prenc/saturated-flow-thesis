@@ -46,3 +46,17 @@ void free_allocated_memory(){
 	cudaFree(d_read.K);
 	cudaFree(d_read.Source);
 }
+
+void write_coverage_to_file(double *coverage_vector) {
+	std::string output_path= "./output/";
+	create_output_dir(output_path);
+	std::string fileName = output_path+"coverage.csv";
+
+	FILE *fp;
+	fp = fopen(fileName.c_str(), "w");
+	fprintf(fp, "Step, Coverage\n");
+	for (int i = COVERAGE_WRITE_FREQ - 1; i <= SIMULATION_ITERATIONS; i+=COVERAGE_WRITE_FREQ) {
+		fprintf(fp, "%d, %.2lf \n", i + 1, coverage_vector[i]);
+	}
+	fclose(fp);
+}
