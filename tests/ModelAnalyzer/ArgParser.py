@@ -6,13 +6,14 @@ class ArgumentParser:
         self._parser = argparse.ArgumentParser(
             description="""
             Runs model tests or creates charts based on summary 
-            files (and latex tabulars code). Tests are run based on their 
-            definitions in TEST_CONFIG_FILE in JSON format. They are run 
-            in an order in which their names where passed as the script 
-            arguments. 
+            files (and latex tabular code). 
+            
+            Tests are run based on their definitions in TEST_CONFIG_FILE in
+            JSON format. They are run in the order in which their names where 
+            passed as the script arguments. 
             It is strongly recommended to set environment variable 
             MY_DUMP to define a place where the result 
-            will be placed. Charts are only created if 
+            will be placed. Charts are created only if 
             'chart_params' key is specified in the summary file 
             (chart_params object is passed from json config to the summary 
             file).
@@ -27,7 +28,7 @@ class ArgumentParser:
             type=str,
             nargs="*",
             help="Runs tests with the given names from the file. If no file "
-            "name is given run all from the config file.",
+            "name is given run all tests from the config file.",
         )
         self._parser.add_argument(
             "-sd",
