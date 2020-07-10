@@ -133,7 +133,7 @@ void perform_simulation_on_GPU() {
 	}
 }
 
-int main(void) {
+int main(int argc, char *argv[]) {
     allocate_memory();
     init_read_ca();
     init_write_head();
@@ -141,7 +141,7 @@ int main(void) {
     perform_simulation_on_GPU();
 
     if(WRITE_OUTPUT_TO_FILE) {
-		write_heads_to_file(d_write.head, "stream_compaction_gpu");
+		write_heads_to_file(d_write.head, argv[0]);
 	}
 
 	if(WRITE_COVERAGE_TO_FILE) {

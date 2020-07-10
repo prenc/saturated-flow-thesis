@@ -9,7 +9,17 @@ struct stat st = {0};
 void write_to_file(double *array, std::string fileName);
 void create_output_dir(std::string path);
 
+std::string clip_filename(std::string fullname){
+	size_t lastindex = std::string(fullname).find_last_of(".");
+	std::string name_without_ext = std::string(fullname).substr(0, lastindex);
+	if("./" == name_without_ext.substr(0, 2)){
+		return name_without_ext.substr(2, name_without_ext.length() - 2);
+	}
+	return name_without_ext;
+}
+
 void write_heads_to_file(double *head, std::string test_name) {
+	test_name = clip_filename(test_name);
 	std::string output_path= "./output/";
 	create_output_dir(output_path);
 	std::string fileName = output_path +
