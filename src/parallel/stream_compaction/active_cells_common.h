@@ -55,6 +55,8 @@ void write_coverage_to_file(double *coverage_vector) {
 	                       std::to_string(CA_SIZE) +
                            "_" +
                            std::to_string(SIMULATION_ITERATIONS) +
+                           "_" +
+                           std::to_string(NUMBER_OF_WELLS) +
                            ".csv";
 
 	FILE *fp;
