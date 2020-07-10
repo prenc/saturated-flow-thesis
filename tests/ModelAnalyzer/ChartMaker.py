@@ -114,7 +114,7 @@ class ChartMaker:
             linestyle=plot_params["line_style"],
             lw=plot_params["line_width"],
             label=plot_params["plot_line_name"],
-            marker='s'
+            marker="s",
         )
 
     def _create_latex_tabular_file(self, data, x_axis, y_axis):
