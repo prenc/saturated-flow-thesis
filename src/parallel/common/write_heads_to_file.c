@@ -40,6 +40,28 @@ void write_river_heads_to_file(double *head, double river_head, int day) {
 	write_to_file(head, fileName);
 }
 
+
+void write_coverage_to_file(double *coverage_vector, double *step_time_vector) {
+	std::string output_path= "./output/";
+	create_output_dir(output_path);
+	std::string fileName = output_path + "coverage" +
+	                       "_" +
+	                       std::to_string(CA_SIZE) +
+	                       "_" +
+	                       std::to_string(SIMULATION_ITERATIONS) +
+	                       "_" +
+	                       std::to_string(NUMBER_OF_WELLS) +
+	                       ".csv";
+
+	FILE *fp;
+	fp = fopen(fileName.c_str(), "w");
+	fprintf(fp, "Step, Coverage [%%], Step time [us]\n");
+	for (int i = COVERAGE_WRITE_FREQ - 1; i <= SIMULATION_ITERATIONS; i+=COVERAGE_WRITE_FREQ) {
+		fprintf(fp, "%d, %lf, %.0lf\n", i + 1, coverage_vector[i], step_time_vector[i]);
+	}
+	fclose(fp);
+}
+
 void create_output_dir(std::string path){
 	if (stat(path.c_str(), &st) == -1) {
 		mkdir(path.c_str(), 0700);

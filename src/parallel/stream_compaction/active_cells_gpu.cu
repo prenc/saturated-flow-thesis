@@ -1,10 +1,12 @@
 #include "active_cells_common.h"
+#include <sys/time.h>
 
 __device__ int active_cells_idx[ROWS * COLS];
 
 __managed__ int dev_active_cells_count = 0;
 
 double coverage_vector[ROWS*COLS];
+double step_time_vector[ROWS*COLS];
 
 __device__ void my_push_back(int cellIdx) {
     int insert_ptr = atomicAdd(&dev_active_cells_count, 1);
@@ -104,7 +106,11 @@ void perform_simulation_on_GPU() {
 	dim3 gridDim(gridSize, gridSize);
 
 	int activeBlockCount, activeGridSize;
+
+	struct timeval t1, t2;
+
 	for (int i = 0; i < SIMULATION_ITERATIONS; i++) {
+		gettimeofday(&t1, NULL);
 
         dim3 *simulationGridDim;
 		if(dev_active_cells_count != ROWS*COLS) {
@@ -129,6 +135,9 @@ void perform_simulation_on_GPU() {
         d_write.head = d_read.head;
         d_read.head = tmp1;
 
+		gettimeofday(&t2, NULL);
+
+		step_time_vector[i] = t2.tv_usec - t1.tv_usec;
 		coverage_vector[i] = double(dev_active_cells_count * 100) / (ROWS * COLS) ;
 	}
 }
@@ -145,7 +154,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	if(WRITE_COVERAGE_TO_FILE) {
-		write_coverage_to_file(coverage_vector);
+		write_coverage_to_file(coverage_vector, step_time_vector);
 	}
 
 	return 0;
