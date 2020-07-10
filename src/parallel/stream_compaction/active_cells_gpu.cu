@@ -1,33 +1,25 @@
 #include "active_cells_common.h"
 
-#include <thrust/device_vector.h>
-#include <thrust/sort.h>
-#include <thrust/unique.h>
-#include <thrust/execution_policy.h>
+__device__ int active_cells_idx[ROWS * COLS];
 
-__device__ int active_cells_idx[ROWS*COLS];
 __managed__ int dev_active_cells_count = 0;
 
 double coverage_vector[ROWS*COLS];
 
-__device__ int my_push_back(int mt) {
-  int insert_pt = atomicAdd(&dev_active_cells_count, 1);
-  if (insert_pt < ROWS*COLS){
-	 active_cells_idx[insert_pt] = mt;
-    return insert_pt;
-  }
-  else return -1;
+__device__ void my_push_back(int cellIdx) {
+    int insert_ptr = atomicAdd(&dev_active_cells_count, 1);
+    active_cells_idx[insert_ptr] = cellIdx;
 }
 
 __global__ void simulation_step_kernel(struct CA d_ca, double *d_write_head) {
-	int activeBlockCount = ceil((double)dev_active_cells_count / (BLOCK_SIZE * BLOCK_SIZE)) ;
+	int activeBlockCount = ceil((double) dev_active_cells_count / (BLOCK_SIZE * BLOCK_SIZE));
 	int activeGridSize = ceil(sqrtf(activeBlockCount));
 
 	unsigned ac_idx_x = blockIdx.x * blockDim.x + threadIdx.x;
     unsigned ac_idx_y = blockIdx.y * blockDim.y + threadIdx.y;
     unsigned ac_idx_g = ac_idx_y * blockDim.x * activeGridSize + ac_idx_x;
 
-    if(ac_idx_g < dev_active_cells_count){
+    if(ac_idx_g < dev_active_cells_count) {
         unsigned idx_g = active_cells_idx[ac_idx_g];
 	    unsigned idx_x = idx_g % COLS;
 	    unsigned idx_y = idx_g / COLS;
@@ -71,31 +63,31 @@ __global__ void find_active_cells_kernel(struct CA d_ca) {
     unsigned idx_y = blockIdx.y * blockDim.y + threadIdx.y;
     unsigned idx_g = idx_y * COLS + idx_x;
 
-    if(idx_x < ROWS && idx_y < COLS ){
-		if(d_ca.head[idx_g]  < headFixed || d_ca.Source[idx_g] != 0 ){
+    if(idx_x < ROWS && idx_y < COLS) {
+		if(d_ca.head[idx_g] < headFixed || d_ca.Source[idx_g] != 0) {
 			my_push_back(idx_g);
 			return;
 		}
 		if (idx_x >= 1) {
-			if(d_ca.head[idx_g - 1] < headFixed){
+			if(d_ca.head[idx_g - 1] < headFixed) {
 				my_push_back(idx_g);
 				return;
 			}
 		}
 		if (idx_y >= 1) {
-			if(d_ca.head[idx_g - COLS] < headFixed){
+			if(d_ca.head[idx_g - COLS] < headFixed) {
 				my_push_back(idx_g);
 				return;
 			}
 		}
 		if (idx_x + 1 < COLS) {
-			if(d_ca.head[idx_g + 1] < headFixed){
+			if(d_ca.head[idx_g + 1] < headFixed) {
 				my_push_back(idx_g);
 				return;
 			}
 		}
 		if (idx_y + 1 < ROWS) {
-			if(d_ca.head[idx_g + COLS] < headFixed){
+			if(d_ca.head[idx_g + COLS] < headFixed) {
 				my_push_back(idx_g);
 				return;
 			}
@@ -104,33 +96,41 @@ __global__ void find_active_cells_kernel(struct CA d_ca) {
 }
 
 void perform_simulation_on_GPU() {
+
 	dim3 blockSize(BLOCK_SIZE, BLOCK_SIZE);
+
 	const int blockCount = ceil((ROWS * COLS) / (BLOCK_SIZE * BLOCK_SIZE));
-	int gridSize = ceil(sqrt(blockCount)) ;
+	int gridSize = ceil(sqrt(blockCount));
 	dim3 gridDim(gridSize, gridSize);
+
 	int activeBlockCount, activeGridSize;
 	for (int i = 0; i < SIMULATION_ITERATIONS; i++) {
-		if(dev_active_cells_count < ROWS*COLS ){
-			dev_active_cells_count = 0;
-			find_active_cells_kernel << < gridDim, blockSize >> > (d_read);
-			cudaDeviceSynchronize();
 
-			activeBlockCount = ceil((double)dev_active_cells_count / (BLOCK_SIZE * BLOCK_SIZE)) ;
-			activeGridSize = ceil(sqrt(activeBlockCount));
-			dim3 activeGridDim(activeGridSize, activeGridSize);
+        dim3 *simulationGridDim;
+		if(dev_active_cells_count != ROWS*COLS) {
 
-			simulation_step_kernel << < activeGridDim, blockSize >> > (d_read, d_write.head);
-			cudaDeviceSynchronize();
-		}else{
-			simulation_step_kernel << < gridDim, blockSize >> > (d_read, d_write.head);
-			cudaDeviceSynchronize();
-		}
-		double *tmp1 = d_write.head;
-		d_write.head = d_read.head;
-		d_read.head = tmp1;
+            dev_active_cells_count = 0;
+            find_active_cells_kernel <<<gridDim, blockSize>>> (d_read);
+            cudaDeviceSynchronize();
+
+            activeBlockCount = ceil((double) dev_active_cells_count / (BLOCK_SIZE * BLOCK_SIZE));
+            activeGridSize = ceil(sqrt(activeBlockCount));
+            dim3 activeGridDim(activeGridSize, activeGridSize);
+
+            simulationGridDim = &activeGridDim;
+        } else {
+            simulationGridDim = &gridDim;
+        }
+
+        simulation_step_kernel <<<*simulationGridDim, blockSize>>> (d_read, d_write.head);
+        cudaDeviceSynchronize();
+
+        double *tmp1 = d_write.head;
+        d_write.head = d_read.head;
+        d_read.head = tmp1;
 
 		coverage_vector[i] = double(dev_active_cells_count * 100) / (ROWS * COLS) ;
-    }
+	}
 }
 
 int main(void) {
@@ -140,22 +140,14 @@ int main(void) {
 
     perform_simulation_on_GPU();
 
-	if (WRITE_OUTPUT_TO_FILE) {
+    if(WRITE_OUTPUT_TO_FILE) {
 		write_heads_to_file(d_write.head, "stream_compaction_gpu");
 	}
 
-	if (WRITE_COVERAGE_TO_FILE) {
+	if(WRITE_COVERAGE_TO_FILE) {
 		write_coverage_to_file(coverage_vector);
 	}
 
 	return 0;
 }
-
-
-
-
-
-
-
-
 
