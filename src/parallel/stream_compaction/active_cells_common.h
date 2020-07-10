@@ -35,7 +35,7 @@ void init_read_ca() {
     }
 }
 
-void init_write_head(){
+void init_write_head() {
 	memcpy(d_write.head, d_read.head, sizeof(double)*ROWS*COLS);
 }
 
@@ -50,7 +50,12 @@ void free_allocated_memory(){
 void write_coverage_to_file(double *coverage_vector) {
 	std::string output_path= "./output/";
 	create_output_dir(output_path);
-	std::string fileName = output_path+"coverage.csv";
+	std::string fileName = output_path + "coverage" + 
+                           "_" +
+	                       std::to_string(CA_SIZE) +
+                           "_" +
+                           std::to_string(SIMULATION_ITERATIONS) +
+                           ".csv";
 
 	FILE *fp;
 	fp = fopen(fileName.c_str(), "w");

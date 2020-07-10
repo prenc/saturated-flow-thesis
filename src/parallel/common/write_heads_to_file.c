@@ -12,8 +12,12 @@ void create_output_dir(std::string path);
 void write_heads_to_file(double *head, std::string test_name) {
 	std::string output_path= "./output/";
 	create_output_dir(output_path);
-	std::string fileName = output_path+test_name+"_"+std::to_string(BLOCK_SIZE)+"_"
-	                       +std::to_string(CA_SIZE)+"_"+std::to_string(SIMULATION_ITERATIONS);
+	std::string fileName = output_path +
+                           test_name +
+                           "_" +
+	                       std::to_string(CA_SIZE) +
+                           "_" +
+                           std::to_string(SIMULATION_ITERATIONS);
 	write_to_file(head, fileName);
 }
 
