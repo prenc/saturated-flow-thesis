@@ -4,7 +4,7 @@
 
 //MODEL PARAMS
 
-#define CA_SIZE 100
+#define CA_SIZE 4000
 #define SIMULATION_ITERATIONS 1000
 #define BLOCK_SIZE 32
 
@@ -47,8 +47,8 @@ double river_heads[SIMULATED_DAYS_NUMBER] = { 49, 49, 49, 49, 49, 51, 51, 51, 51
 
 //multiple wells
 #define NUMBER_OF_WELLS 1
-int wellsRows[NUMBER_OF_WELLS] = { 50 };
-int wellsCols[NUMBER_OF_WELLS] = { 50 };
+int wellsRows[NUMBER_OF_WELLS] = { ROWS / 2 };
+int wellsCols[NUMBER_OF_WELLS] = { COlS / 2 };
 double wellsQW[NUMBER_OF_WELLS] = { 0.001 };
 
 struct CA {
