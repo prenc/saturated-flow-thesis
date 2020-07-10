@@ -1,6 +1,5 @@
 # Author: Paweł Renc & Tomasz Pęcak
-# Implementation time: 11.2019
-# Last update: 9.1.2020
+# Date of the first implemenatation: 11.2019
 # for more information run script with -h option
 import os
 
@@ -13,7 +12,7 @@ Compile even if previously compiled file is available
 
 ALWAYS_COMPILE = True
 """
-Place to store compiled programs
+Alawys recompile models, even if they are already present
 """
 
 PROFILING_DUMP = "results/profiling"
@@ -45,7 +44,6 @@ Defines how many times each program is run before an execution time is saved
 (takes the smallest one from all results)
 """
 
-# changing settings below is not advised
 LOG_FILE = "out.log"
 """
 Path to log file which is used during running tests

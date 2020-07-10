@@ -18,7 +18,7 @@ __device__ int my_push_back(int mt) {
 }
 
 __global__ void simulation_step_kernel(struct CA d_ca, double *d_write_head) {
-	int activeBlockCount = ceil((double)dev_active_cells_count / (BLOCK_SIZE * BLOCK_SIZE)) ;
+	int activeBlockCount = ceil((double) dev_active_cells_count / (BLOCK_SIZE * BLOCK_SIZE));
 	int activeGridSize = ceil(sqrtf(activeBlockCount));
 
 	unsigned ac_idx_x = blockIdx.x * blockDim.x + threadIdx.x;
