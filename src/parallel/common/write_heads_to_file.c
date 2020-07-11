@@ -1,5 +1,3 @@
-#include <iostream>
-#include <stdlib.h>
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -8,7 +6,7 @@ struct stat st = {0};
 
 using namespace std;
 
-void write_to_file(double *array, string fileName);
+void write_to_file(double *array, string filename);
 void create_output_dir(string path);
 
 string OUTPUT_PATH = "output/";
@@ -32,33 +30,25 @@ string clip_filename(string fullname){
 void write_heads_to_file(double *head, string test_name) {
     create_output_dir(OUTPUT_PATH);
 
-    string fileName = OUTPUT_PATH + clip_filename(test_name) + "_heads" + 
-        "_" + to_string(CA_SIZE) +
-        "_" + to_string(SIMULATION_ITERATIONS) + 
-        ".csv";
+    string filename = OUTPUT_PATH + clip_filename(test_name) + "_heads.csv";
 
-    write_to_file(head, fileName);
+    write_to_file(head, filename);
 }
 
 void write_river_heads_to_file(double *head, double river_head, int day) {
     string output_path = "./output/river/";
     create_output_dir(output_path);
-    string fileName = output_path + to_string(day);
-    write_to_file(head, fileName);
+    string filename = output_path + to_string(day);
+    write_to_file(head, filename);
 }
 
 
 void write_coverage_to_file(double *coverage_vector, double *step_time_vector, string filename) {
-
     create_output_dir(OUTPUT_PATH);
 
-    string fileName = OUTPUT_PATH + clip_filename(filename) + "_coverage" +
-        "_" + to_string(CA_SIZE) +
-        "_" + to_string(SIMULATION_ITERATIONS) +
-        "_" + to_string(NUMBER_OF_WELLS) +
-        ".csv";
+    string filename = OUTPUT_PATH + clip_filename(filename) + "_coverage.csv";
 
-    FILE *fp = fopen(fileName.c_str(), "w");
+    FILE *fp = fopen(filename.c_str(), "w");
     fprintf(fp, "Step, Coverage [%%], Step time [us]\n");
 
     for (int i = COVERAGE_WRITE_FREQ - 1; i <= SIMULATION_ITERATIONS; i+=COVERAGE_WRITE_FREQ) {
@@ -67,15 +57,14 @@ void write_coverage_to_file(double *coverage_vector, double *step_time_vector, s
     fclose(fp);
 }
 
-void create_output_dir(string path){
+void create_output_dir(string path) {
     if (stat(path.c_str(), &st) == -1) {
         mkdir(path.c_str(), 0770);
     }
 }
 
-void write_to_file(double *head, string fileName) {
-    FILE *fp;
-    fp = fopen(fileName.c_str(), "w");
+void write_to_file(double *head, string filename) {
+    FILE *fp = fopen(filename.c_str(), "w");
 
     for (int i = 0; i < ROWS; i++) {
         for (int j = 0; j < COLS; j++) {

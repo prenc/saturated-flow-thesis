@@ -54,13 +54,13 @@ void perform_simulation_on_GPU() {
     for (int i = 0; i < SIMULATION_ITERATIONS; i++) {
         gettimeofday(&t1, NULL);
 
-        simulation_step_kernel <<< gridDim, blockDim >>> (d_read, d_write.head);
+        simulation_step_kernel <<<gridDim, blockDim>>> (d_read, d_write.head);
 
         cudaDeviceSynchronize();
 
-        double *tmp1 = d_write.head;
+        double *tmp = d_write.head;
         d_write.head = d_read.head;
-        d_read.head = tmp1;
+        d_read.head = tmp;
 
         gettimeofday(&t2, NULL);
 

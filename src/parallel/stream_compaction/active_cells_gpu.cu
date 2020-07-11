@@ -131,9 +131,10 @@ void perform_simulation_on_GPU() {
         simulation_step_kernel <<<*simulationGridDim, blockSize>>> (d_read, d_write.head);
         cudaDeviceSynchronize();
 
-        double *tmp1 = d_write.head;
+        double *tmp = d_write.head;
         d_write.head = d_read.head;
-        d_read.head = tmp1;
+        d_read.head = tmp;
+
         gettimeofday(&t2, NULL);
 
         step_time_vector[i] = t2.tv_usec - t1.tv_usec;
