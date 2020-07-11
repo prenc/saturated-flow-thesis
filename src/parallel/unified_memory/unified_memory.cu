@@ -49,12 +49,12 @@ void perform_simulation_on_GPU() {
     double gridSize = ceil(sqrt(blockCount));
     dim3 gridDim(gridSize, gridSize);
 
-	struct timeval t1, t2;
+    struct timeval t1, t2;
 
     for (int i = 0; i < SIMULATION_ITERATIONS; i++) {
-	    gettimeofday(&t1, NULL);
+        gettimeofday(&t1, NULL);
 
-	    simulation_step_kernel << < gridDim, blockDim >> > (d_read, d_write.head);
+        simulation_step_kernel <<< gridDim, blockDim >>> (d_read, d_write.head);
 
         cudaDeviceSynchronize();
 
@@ -62,10 +62,10 @@ void perform_simulation_on_GPU() {
         d_write.head = d_read.head;
         d_read.head = tmp1;
 
-	    gettimeofday(&t2, NULL);
+        gettimeofday(&t2, NULL);
 
-	    step_time_vector[i] = t2.tv_usec - t1.tv_usec;
-	    coverage_vector[i] = 100;
+        step_time_vector[i] = t2.tv_usec - t1.tv_usec;
+        coverage_vector[i] = 100;
     }
 }
 
@@ -76,13 +76,13 @@ int main(int argc, char *argv[]) {
 
     perform_simulation_on_GPU();
 
-    if(WRITE_OUTPUT_TO_FILE){
-	    write_heads_to_file(d_write.head, argv[0]);
+    if (WRITE_OUTPUT_TO_FILE){
+        write_heads_to_file(d_write.head, argv[0]);
     }
 
-	if(WRITE_COVERAGE_TO_FILE) {
-		write_coverage_to_file(coverage_vector, step_time_vector);
-	}
+    if (WRITE_COVERAGE_TO_FILE) {
+        write_coverage_to_file(coverage_vector, step_time_vector, argv[0]);
+    }
 
     return 0;
 }
