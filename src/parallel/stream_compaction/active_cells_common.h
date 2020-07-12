@@ -35,7 +35,7 @@ void init_read_ca() {
     }
 }
 
-void init_write_head(){
+void init_write_head() {
 	memcpy(d_write.head, d_read.head, sizeof(double)*ROWS*COLS);
 }
 

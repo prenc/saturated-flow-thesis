@@ -26,8 +26,9 @@ class ResultsHandler:
             "test_name": self._test_name,
             "test_time": test_time,
             "run_tests": defaultdict(list),
-            "chart_params": self._chart_params,
         }
+        if self._chart_params:
+            summary_results["chart_params"] = self._chart_params
         for path in run_programs_paths:
             with open(path, "r") as result_file:
                 result_json = json.load(result_file)

@@ -1,4 +1,8 @@
 #include "unified_memory_common.h"
+#include <sys/time.h>
+
+double coverage_vector[ROWS*COLS];
+double step_time_vector[ROWS*COLS];
 
 __global__ void simulation_step_kernel(struct CA d_ca, double *d_write_head) {
     unsigned idx_x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -45,26 +49,39 @@ void perform_simulation_on_GPU() {
     double gridSize = ceil(sqrt(blockCount));
     dim3 gridDim(gridSize, gridSize);
 
+    struct timeval t1, t2;
+
     for (int i = 0; i < SIMULATION_ITERATIONS; i++) {
-        simulation_step_kernel << < gridDim, blockDim >> > (d_read, d_write.head);
+        gettimeofday(&t1, NULL);
+
+        simulation_step_kernel <<<gridDim, blockDim>>> (d_read, d_write.head);
 
         cudaDeviceSynchronize();
 
-        double *tmp1 = d_write.head;
+        double *tmp = d_write.head;
         d_write.head = d_read.head;
-        d_read.head = tmp1;
+        d_read.head = tmp;
+
+        gettimeofday(&t2, NULL);
+
+        step_time_vector[i] = t2.tv_usec - t1.tv_usec;
+        coverage_vector[i] = 100;
     }
 }
 
-int main(void) {
+int main(int argc, char *argv[]) {
     allocate_memory();
     init_read_ca();
     init_write_head();
 
     perform_simulation_on_GPU();
 
-    if(WRITE_OUTPUT_TO_FILE){
-	    write_heads_to_file(d_write.head, "unified_memory");
+    if (WRITE_OUTPUT_TO_FILE){
+        write_heads_to_file(d_write.head, argv[0]);
+    }
+
+    if (WRITE_COVERAGE_TO_FILE) {
+        write_coverage_to_file(coverage_vector, step_time_vector, argv[0]);
     }
 
     return 0;

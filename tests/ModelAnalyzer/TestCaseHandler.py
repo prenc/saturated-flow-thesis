@@ -2,7 +2,11 @@ import os
 import time
 
 from ModelAnalyzer.DefaultParamsKeeper import DefaultParamsKeeper
-from ModelAnalyzer.settings import COMPILED_DUMP, PROFILING_DUMP, SUMMARIES_DUMP
+from ModelAnalyzer.settings import (
+    COMPILED_DUMP,
+    PROFILING_DUMP,
+    SUMMARIES_DUMP,
+)
 from ModelAnalyzer.test_steps.ParamsGenerator import ParamsGenerator
 from ModelAnalyzer.test_steps.ProgramCompilerAndRunner import (
     ProgramCompilerAndRunner,

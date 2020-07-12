@@ -1,504 +1,571 @@
 {
-  "standard_16": {
-    "test_specs": {
-      "block_size": [
-        16
-      ],
-      "ca_size": [
-        1000, 2000, 4000, 6000,
-        6500, 7000, 7500, 8000,
-        8500, 9000, 9500, 10000,
-        10500, 11000, 11500, 12000,
-        12250, 12500, 12750, 13000
-      ],
-      "simulation_iterations": [
-        6480
-      ]
+    "coverage_single_well": {
+        "test_specs": {
+            "block_size": [
+                32
+            ],
+            "ca_size": [
+                2000
+            ],
+            "simulation_iterations": [
+                50000
+            ]
+        },
+        "test_src": [
+            "active_cells_gpu.cu",
+            "unified_memory.cu"
+        ]
     },
-    "chart_params": {
-      "title": "Standard 16",
-      "x_axis": "ca_size",
-      "x_axis_label": "CA automata dimensions"
+    "coverage_multiple_wells": {
+        "test_specs": {
+            "block_size": [
+                32
+            ],
+            "ca_size": [
+                4000
+            ],
+            "simulation_iterations": [
+                10000
+            ],
+            "number_of_wells": [
+                36
+            ],
+            "wellsRows": [
+                [
+                    333 , 333 , 333 , 333 , 333 , 333 , 
+                    999 , 999 , 999 , 999 , 999 , 999 , 
+                    1665, 1665, 1665, 1665, 1665, 1665, 
+                    2331, 2331, 2331, 2331, 2331, 2331, 
+                    2997, 2997, 2997, 2997, 2997, 2997, 
+                    3663, 3663, 3663, 3663, 3663, 3663
+                ]
+            ],
+            "wellsCols": [
+                [
+                    333, 999, 1665, 2331, 2997, 3663,
+                    333, 999, 1665, 2331, 2997, 3663,
+                    333, 999, 1665, 2331, 2997, 3663,
+                    333, 999, 1665, 2331, 2997, 3663,
+                    333, 999, 1665, 2331, 2997, 3663,
+                    333, 999, 1665, 2331, 2997, 3663
+                ]
+            ],
+            "wellsQW": [
+                [
+                    0.001, 0.001, 0.001, 0.001, 0.001, 0.001,
+                    0.001, 0.001, 0.001, 0.001, 0.001, 0.001,
+                    0.001, 0.001, 0.001, 0.001, 0.001, 0.001,
+                    0.001, 0.001, 0.001, 0.001, 0.001, 0.001,
+                    0.001, 0.001, 0.001, 0.001, 0.001, 0.001,
+                    0.001, 0.001, 0.001, 0.001, 0.001, 0.001
+                ]
+            ]
+        },
+        "test_src": [
+            "active_cells_gpu.cu",
+            "unified_memory.cu"
+        ]
     },
-    "test_src": [
-      "global_memory.cu",
-      "shared_memory.cu",
-      "unified_memory.cu",
-      "hybrid_memory.cu"
-    ]
-  },
-  "standard_32": {
-    "test_specs": {
-      "block_size": [
-        32
-      ],
-      "ca_size": [
-        1000, 2000, 4000, 6000,
-        6500, 7000, 7500, 8000,
-        8500, 9000, 9500, 10000,
-        10500, 11000, 11500, 12000,
-        12250, 12500, 12750, 13000
-      ],
-      "simulation_iterations": [
-        6480
-      ]
+    "standard_16": {
+        "test_specs": {
+            "block_size": [
+                16
+            ],
+            "ca_size": [
+                1000, 2000, 4000, 6000,
+                6500, 7000, 7500, 8000,
+                8500, 9000, 9500, 10000,
+                10500, 11000, 11500, 12000,
+                12250, 12500, 12750, 13000
+            ],
+            "simulation_iterations": [
+                6480
+            ]
+        },
+        "chart_params": {
+            "title": "Standard 16",
+            "x_axis": "ca_size",
+            "x_axis_label": "CA automata dimensions"
+        },
+        "test_src": [
+            "global_memory.cu",
+            "shared_memory.cu",
+            "unified_memory.cu",
+            "hybrid_memory.cu"
+        ]
     },
-    "chart_params": {
-      "title": "Standard 32",
-      "x_axis": "ca_size",
-      "x_axis_label": "CA automata dimensions"
+    "standard_32": {
+        "test_specs": {
+            "block_size": [
+                32
+            ],
+            "ca_size": [
+                1000, 2000, 4000, 6000,
+                6500, 7000, 7500, 8000,
+                8500, 9000, 9500, 10000,
+                10500, 11000, 11500, 12000,
+                12250, 12500, 12750, 13000
+            ],
+            "simulation_iterations": [
+                6480
+            ]
+        },
+        "chart_params": {
+            "title": "Standard 32",
+            "x_axis": "ca_size",
+            "x_axis_label": "CA automata dimensions"
+        },
+        "test_src": [
+            "global_memory.cu",
+            "shared_memory.cu",
+            "unified_memory.cu",
+            "hybrid_memory.cu"
+        ]
     },
-    "test_src": [
-      "global_memory.cu",
-      "shared_memory.cu",
-      "unified_memory.cu",
-      "hybrid_memory.cu"
-    ]
-  },
-  "standard_16_loop": {
-    "test_specs": {
-      "block_size": [
-        16
-      ],
-      "ca_size": [
-        250, 500, 750, 1000,
-        1250, 1500, 1750, 2000,
-        2250, 2500, 2750, 3000,
-        3250, 3500, 3750, 4000
-      ],
-      "simulation_iterations": [
-        6480
-      ]
+    "standard_16_loop": {
+        "test_specs": {
+            "block_size": [
+                16
+            ],
+            "ca_size": [
+                250, 500, 750, 1000,
+                1250, 1500, 1750, 2000,
+                2250, 2500, 2750, 3000,
+                3250, 3500, 3750, 4000
+            ],
+            "simulation_iterations": [
+                6480
+            ]
+        },
+        "chart_params": {
+            "title": "Standard 16 loop",
+            "x_axis": "ca_size",
+            "x_axis_label": "CA automata dimensions"
+        },
+        "test_src": [
+            "global_memory_loop.cu",
+            "shared_memory_loop.cu",
+            "unified_memory_loop.cu",
+            "hybrid_memory_loop.cu"
+        ]
     },
-    "chart_params": {
-      "title": "Standard 16 loop",
-      "x_axis": "ca_size",
-      "x_axis_label": "CA automata dimensions"
+    "standard_32_loop": {
+        "test_specs": {
+            "block_size": [
+                32
+            ],
+            "ca_size": [
+                250, 500, 750, 1000,
+                1250, 1500, 1750, 2000,
+                2250, 2500, 2750, 3000,
+                3250, 3500, 3750, 4000
+            ],
+            "simulation_iterations": [
+                6480
+            ]
+        },
+        "chart_params": {
+            "title": "Standard 32 loop",
+            "x_axis": "ca_size",
+            "x_axis_label": "CA automata dimensions"
+        },
+        "test_src": [
+            "global_memory_loop.cu",
+            "shared_memory_loop.cu",
+            "unified_memory_loop.cu",
+            "hybrid_memory_loop.cu"
+        ]
     },
-    "test_src": [
-      "global_memory_loop.cu",
-      "shared_memory_loop.cu",
-      "unified_memory_loop.cu",
-      "hybrid_memory_loop.cu"
-    ]
-  },
-  "standard_32_loop": {
-    "test_specs": {
-      "block_size": [
-        32
-      ],
-      "ca_size": [
-        250, 500, 750, 1000,
-        1250, 1500, 1750, 2000,
-        2250, 2500, 2750, 3000,
-        3250, 3500, 3750, 4000
-      ],
-      "simulation_iterations": [
-        6480
-      ]
+    "active_cells_16": {
+        "test_specs": {
+            "block_size": [
+                16
+            ],
+            "ca_size": [
+                1000, 2000, 4000, 6000,
+                6500, 7000, 7500, 8000,
+                8500, 9000, 9500, 10000,
+                10500, 11000, 11500, 12000,
+                12250, 12500, 12750, 13000
+            ],
+            "simulation_iterations": [
+                6480
+            ]
+        },
+        "chart_params": {
+            "title": "Active cells 16",
+            "x_axis": "ca_size",
+            "x_axis_label": "CA automata dimensions"
+        },
+        "test_src": [
+            "unified_memory.cu",
+            "active_cells_gpu.cu",
+            "active_cells_gpu_const_block_number.cu"
+        ]
     },
-    "chart_params": {
-      "title": "Standard 32 loop",
-      "x_axis": "ca_size",
-      "x_axis_label": "CA automata dimensions"
+    "active_cells_32": {
+        "test_specs": {
+            "block_size": [
+                32
+            ],
+            "ca_size": [
+                1000, 2000, 4000, 6000,
+                6500, 7000, 7500, 8000,
+                8500, 9000, 9500, 10000,
+                10500, 11000, 11500, 12000,
+                12250, 12500, 12750, 13000
+            ],
+            "simulation_iterations": [
+                6480
+            ]
+        },
+        "chart_params": {
+            "title": "Active cells 32",
+            "x_axis": "ca_size",
+            "x_axis_label": "CA automata dimensions"
+        },
+        "test_src": [
+            "unified_memory.cu",
+            "active_cells_gpu.cu",
+            "active_cells_gpu_const_block_number.cu"
+        ]
     },
-    "test_src": [
-      "global_memory_loop.cu",
-      "shared_memory_loop.cu",
-      "unified_memory_loop.cu",
-      "hybrid_memory_loop.cu"
-    ]
-  },
-  "active_cells_16": {
-    "test_specs": {
-      "block_size": [
-        16
-      ],
-      "ca_size": [
-        1000, 2000, 4000, 6000,
-        6500, 7000, 7500, 8000,
-        8500, 9000, 9500, 10000,
-        10500, 11000, 11500, 12000,
-        12250, 12500, 12750, 13000
-      ],
-      "simulation_iterations": [
-        6480
-      ]
+    "active_cells_16_loop": {
+        "test_specs": {
+            "block_size": [
+                16
+            ],
+            "ca_size": [
+                250, 500, 750, 1000,
+                1250, 1500, 1750, 2000,
+                2250, 2500, 2750, 3000,
+                3250, 3500, 3750, 4000
+            ],
+            "simulation_iterations": [
+                6480
+            ]
+        },
+        "chart_params": {
+            "title": "Active cells 16 loop",
+            "x_axis": "ca_size",
+            "x_axis_label": "CA automata dimensions"
+        },
+        "test_src": [
+            "unified_memory_loop.cu",
+            "active_cells_gpu_loop.cu",
+            "active_cells_gpu_const_block_number_loop.cu"
+        ]
     },
-    "chart_params": {
-      "title": "Active cells 16",
-      "x_axis": "ca_size",
-      "x_axis_label": "CA automata dimensions"
+    "active_cells_32_loop": {
+        "test_specs": {
+            "block_size": [
+                32
+            ],
+            "ca_size": [
+                250, 500, 750, 1000,
+                1250, 1500, 1750, 2000,
+                2250, 2500, 2750, 3000,
+                3250, 3500, 3750, 4000
+            ],
+            "simulation_iterations": [
+                6480
+            ]
+        },
+        "chart_params": {
+            "title": "Active cells 32 loop",
+            "x_axis": "ca_size",
+            "x_axis_label": "CA automata dimensions"
+        },
+        "test_src": [
+            "unified_memory_loop.cu",
+            "active_cells_gpu_loop.cu",
+            "active_cells_gpu_const_block_number_loop.cu"
+        ]
     },
-    "test_src": [
-      "unified_memory.cu",
-      "active_cells_gpu.cu",
-      "active_cells_gpu_const_block_number.cu"
-    ]
-  },
-  "active_cells_32": {
-    "test_specs": {
-      "block_size": [
-        32
-      ],
-      "ca_size": [
-        1000, 2000, 4000, 6000,
-        6500, 7000, 7500, 8000,
-        8500, 9000, 9500, 10000,
-        10500, 11000, 11500, 12000,
-        12250, 12500, 12750, 13000
-      ],
-      "simulation_iterations": [
-        6480
-      ]
-    },
-    "chart_params": {
-      "title": "Active cells 32",
-      "x_axis": "ca_size",
-      "x_axis_label": "CA automata dimensions"
-    },
-    "test_src": [
-      "unified_memory.cu",
-      "active_cells_gpu.cu",
-      "active_cells_gpu_const_block_number.cu"
-    ]
-  },
-  "active_cells_16_loop": {
-    "test_specs": {
-      "block_size": [
-        16
-      ],
-      "ca_size": [
-        250, 500, 750, 1000,
-        1250, 1500, 1750, 2000,
-        2250, 2500, 2750, 3000,
-        3250, 3500, 3750, 4000
-      ],
-      "simulation_iterations": [
-        6480
-      ]
-    },
-    "chart_params": {
-      "title": "Active cells 16 loop",
-      "x_axis": "ca_size",
-      "x_axis_label": "CA automata dimensions"
-    },
-    "test_src": [
-      "unified_memory_loop.cu",
-      "active_cells_gpu_loop.cu",
-      "active_cells_gpu_const_block_number_loop.cu"
-    ]
-  },
-  "active_cells_32_loop": {
-    "test_specs": {
-      "block_size": [
-        32
-      ],
-      "ca_size": [
-        250, 500, 750, 1000,
-        1250, 1500, 1750, 2000,
-        2250, 2500, 2750, 3000,
-        3250, 3500, 3750, 4000
-      ],
-      "simulation_iterations": [
-        6480
-      ]
-    },
-    "chart_params": {
-      "title": "Active cells 32 loop",
-      "x_axis": "ca_size",
-      "x_axis_label": "CA automata dimensions"
-    },
-    "test_src": [
-      "unified_memory_loop.cu",
-      "active_cells_gpu_loop.cu",
-      "active_cells_gpu_const_block_number_loop.cu"
-    ]
-  },
     "seq_vs_para": {
-    "test_specs": {
-      "block_size": [
-        32
-      ],
-      "ca_size": [
-        500, 1000, 1500, 2000,
-        2500, 3000, 3500, 4000,
-        4250, 4500, 4750, 5000
-      ],
-      "simulation_iterations": [
-        6480
-      ]
+        "test_specs": {
+            "block_size": [
+                32
+            ],
+            "ca_size": [
+                500, 1000, 1500, 2000,
+                2500, 3000, 3500, 4000,
+                4250, 4500, 4750, 5000
+            ],
+            "simulation_iterations": [
+                6480
+            ]
+        },
+        "chart_params": {
+            "title": "Sequential vs parallel implementations",
+            "x_axis": "ca_size",
+            "x_axis_label": "CA automata dimensions"
+        },
+        "test_src": [
+            "sequential_c_imp.c",
+            "unified_memory.cu",
+            "global_memory.cu"
+        ]
     },
-    "chart_params": {
-      "title": "Sequential vs parallel implementations",
-      "x_axis": "ca_size",
-      "x_axis_label": "CA automata dimensions"
-    },
-    "test_src": [
-      "sequential_c_imp.c",
-      "unified_memory.cu",
-      "global_memory.cu"
-    ]
-  },
 
-  "active_cells_cpu_16": {
-    "test_specs": {
-      "block_size": [
-        16
-      ],
-      "ca_size": [
-        250, 500, 750, 1000,
-        1250, 1500, 1750, 2000,
-        2250, 2500, 2750, 3000,
-        3250, 3500, 3750, 4000
-      ],
-      "simulation_iterations": [
-        6480
-      ]
+    "active_cells_cpu_16": {
+        "test_specs": {
+            "block_size": [
+                16
+            ],
+            "ca_size": [
+                250, 500, 750, 1000,
+                1250, 1500, 1750, 2000,
+                2250, 2500, 2750, 3000,
+                3250, 3500, 3750, 4000
+            ],
+            "simulation_iterations": [
+                6480
+            ]
+        },
+        "chart_params": {
+            "title": "Active cells 16 loop",
+            "x_axis": "ca_size",
+            "x_axis_label": "Cellular automata dimension"
+        },
+        "test_src": [
+            "active_cells_cpu.cu",
+            "active_cells_gpu.cu",
+            "active_cells_gpu_const_block_number.cu"
+        ]
     },
-    "chart_params": {
-      "title": "Active cells 16 loop",
-      "x_axis": "ca_size",
-      "x_axis_label": "Cellular automata dimension"
+    "active_cells_cpu_32": {
+        "test_specs": {
+            "block_size": [
+                32
+            ],
+            "ca_size": [
+                250, 500, 750, 1000,
+                1250, 1500, 1750, 2000,
+                2250, 2500, 2750, 3000,
+                3250, 3500, 3750, 4000
+            ],
+            "simulation_iterations": [
+                6480
+            ]
+        },
+        "chart_params": {
+            "title": "Active cells 32 loop",
+            "x_axis": "ca_size",
+            "x_axis_label": "Cellular automata dimension"
+        },
+        "test_src": [
+            "active_cells_cpu.cu",
+            "active_cells_gpu.cu",
+            "active_cells_gpu_const_block_number.cu"
+        ]
     },
-    "test_src": [
-      "active_cells_cpu.cu",
-      "active_cells_gpu.cu",
-      "active_cells_gpu_const_block_number.cu"
-    ]
-  },
-  "active_cells_cpu_32": {
-    "test_specs": {
-      "block_size": [
-        32
-      ],
-      "ca_size": [
-        250, 500, 750, 1000,
-        1250, 1500, 1750, 2000,
-        2250, 2500, 2750, 3000,
-        3250, 3500, 3750, 4000
-      ],
-      "simulation_iterations": [
-        6480
-      ]
+    "block_size_test": {
+        "test_specs": {
+            "block_size": [
+                2, 3, 4, 5, 6, 7, 8, 9,
+                10, 11, 12, 13, 14, 15, 16, 17,
+                18, 19, 20, 21, 22, 23, 24, 25,
+                26, 27, 28, 29, 30, 31, 32, 33
+            ],
+            "ca_size": [
+                8000
+            ],
+            "simulation_iterations": [
+                6480
+            ]
+        },
+        "chart_params": {
+            "title": "Block size",
+            "x_axis": "block_size",
+            "x_axis_label": "CA automata dimensions"
+        },
+        "test_src": [
+            "global_memory.cu",
+            "shared_memory.cu",
+            "unified_memory.cu",
+            "hybrid_memory.cu"
+        ]
     },
-    "chart_params": {
-      "title": "Active cells 32 loop",
-      "x_axis": "ca_size",
-      "x_axis_label": "Cellular automata dimension"
+    "block_size_test_loop": {
+        "test_specs": {
+            "block_size": [
+                2, 3, 4, 5, 6, 7, 8, 9,
+                10, 11, 12, 13, 14, 15, 16, 17,
+                18, 19, 20, 21, 22, 23, 24, 25,
+                26, 27, 28, 29, 30, 31, 32, 33
+            ],
+            "ca_size": [
+                3000
+            ],
+            "simulation_iterations": [
+                6480
+            ]
+        },
+        "chart_params": {
+            "title": "Block size loop",
+            "x_axis": "block_size",
+            "x_axis_label": "CA automata dimensions"
+        },
+        "test_src": [
+            "global_memory_loop.cu",
+            "shared_memory_loop.cu",
+            "unified_memory_loop.cu",
+            "hybrid_memory_loop.cu"
+        ]
     },
-    "test_src": [
-      "active_cells_cpu.cu",
-      "active_cells_gpu.cu",
-      "active_cells_gpu_const_block_number.cu"
-    ]
-  },
-  "block_size_test": {
-    "test_specs": {
-      "block_size": [
-        2, 3, 4, 5, 6, 7, 8, 9,
-        10, 11, 12, 13, 14, 15, 16, 17,
-        18, 19, 20, 21, 22, 23, 24, 25,
-        26, 27, 28, 29, 30, 31, 32, 33
-      ],
-      "ca_size": [
-        8000
-      ],
-      "simulation_iterations": [
-        6480
-      ]
+    "sequential": {
+        "test_specs": {
+            "block_size": [
+                0
+            ],
+            "ca_size": [
+                250, 500, 750, 1000,
+                1250, 1500, 1750, 2000,
+                2250, 2500, 2750, 3000,
+                3250, 3500, 3750, 4000
+            ],
+            "simulation_iterations": [
+                6480
+            ]
+        },
+        "chart_params": {
+            "title": "Sequential implementations",
+            "x_axis": "ca_size",
+            "x_axis_label": "CA automata dimensions"
+        },
+        "test_src": [
+            "cal_saturatedFlow_oneWell.c",
+            "sequential_c_imp.c"
+        ]
     },
-    "chart_params": {
-      "title": "Block size",
-      "x_axis": "block_size",
-      "x_axis_label": "CA automata dimensions"
+    "unified_acc_cpu": {
+        "test_specs": {
+            "block_size": [
+                16
+            ],
+            "ca_size": [
+                250, 500, 750, 1000,
+                1250, 1500, 1750, 2000,
+                2250, 2500, 2750, 3000,
+                3250, 3500, 3750, 4000
+            ],
+            "simulation_iterations": [
+                6480
+            ]
+        },
+        "chart_params": {
+            "title": "Standard 16 loop",
+            "x_axis": "ca_size",
+            "x_axis_label": "CA automata dimensions"
+        },
+        "test_src": [
+            "unified_memory.cu"
+        ]
     },
-    "test_src": [
-      "global_memory.cu",
-      "shared_memory.cu",
-      "unified_memory.cu",
-      "hybrid_memory.cu"
-    ]
-  },
-  "block_size_test_loop": {
-    "test_specs": {
-      "block_size": [
-        2, 3, 4, 5, 6, 7, 8, 9,
-        10, 11, 12, 13, 14, 15, 16, 17,
-        18, 19, 20, 21, 22, 23, 24, 25,
-        26, 27, 28, 29, 30, 31, 32, 33
-      ],
-      "ca_size": [
-        3000
-      ],
-      "simulation_iterations": [
-        6480
-      ]
+    "compilation_test": {
+        "test_specs": {
+            "block_size": [
+                16
+            ],
+            "ca_size": [
+                10
+            ],
+            "simulation_iterations": [
+                100
+            ],
+            "write_output_to_file": [
+                1
+            ]
+        },
+        "chart_params": {
+            "title": "Compilation test",
+            "x_axis": "ca_size",
+            "x_axis_label": "CA automata dimensions"
+        },
+        "test_src": [
+            "global_memory.cu",
+            "shared_memory.cu",
+            "unified_memory.cu",
+            "hybrid_memory.cu",
+            "global_memory_loop.cu",
+            "shared_memory_loop.cu",
+            "unified_memory_loop.cu",
+            "hybrid_memory_loop.cu",
+            "active_cells_cpu.cu",
+            "active_cells_gpu.cu",
+            "active_cells_gpu_const_block_number.cu",
+            "unified_memory_loop.cu",
+            "active_cells_gpu_loop.cu",
+            "active_cells_gpu_const_block_number_loop.cu",
+            "cal_saturatedFlow_oneWell.c",
+            "sequential_c_imp.c"
+        ]
     },
-    "chart_params": {
-      "title": "Block size loop",
-      "x_axis": "block_size",
-      "x_axis_label": "CA automata dimensions"
+    "active_cells_output_test_16": {
+        "test_specs": {
+            "block_size": [
+                16
+            ],
+            "ca_size": [
+                1000, 2000, 3000, 4000,
+                5000, 6000
+            ],
+            "simulation_iterations": [
+                6480
+            ],
+            "write_output_to_file": [
+                1
+            ]
+        },
+        "chart_params": {
+            "title": "Active cells 16",
+            "x_axis": "ca_size",
+            "x_axis_label": "CA automata dimensions"
+        },
+        "test_src": [
+            "unified_memory.cu",
+            "active_cells_gpu.cu",
+            "active_cells_gpu_const_block_number.cu"
+        ]
     },
-    "test_src": [
-      "global_memory_loop.cu",
-      "shared_memory_loop.cu",
-      "unified_memory_loop.cu",
-      "hybrid_memory_loop.cu"
-    ]
-  },
-  "sequential": {
-    "test_specs": {
-      "block_size": [
-        0
-      ],
-      "ca_size": [
-        250, 500, 750, 1000,
-        1250, 1500, 1750, 2000,
-        2250, 2500, 2750, 3000,
-        3250, 3500, 3750, 4000
-      ],
-      "simulation_iterations": [
-        6480
-      ]
-    },
-    "chart_params": {
-      "title": "Sequential implementations",
-      "x_axis": "ca_size",
-      "x_axis_label": "CA automata dimensions"
-    },
-    "test_src": [
-      "cal_saturatedFlow_oneWell.c",
-      "sequential_c_imp.c"
-    ]
-  },
-  "unified_acc_cpu": {
-    "test_specs": {
-      "block_size": [
-        16
-      ],
-      "ca_size": [
-        250, 500, 750, 1000,
-        1250, 1500, 1750, 2000,
-        2250, 2500, 2750, 3000,
-        3250, 3500, 3750, 4000
-      ],
-      "simulation_iterations": [
-        6480
-      ]
-    },
-    "chart_params": {
-      "title": "Standard 16 loop",
-      "x_axis": "ca_size",
-      "x_axis_label": "CA automata dimensions"
-    },
-    "test_src": [
-      "unified_memory.cu"
-    ]
-  },
-  "compilation_test": {
-    "test_specs": {
-      "block_size": [
-        16
-      ],
-      "ca_size": [
-        10
-      ],
-      "simulation_iterations": [
-        100
-      ],
-      "write_output_to_file": [
-        1
-      ]
-    },
-    "chart_params": {
-      "title": "Compilation test",
-      "x_axis": "ca_size",
-      "x_axis_label": "CA automata dimensions"
-    },
-    "test_src": [
-      "global_memory.cu",
-      "shared_memory.cu",
-      "unified_memory.cu",
-      "hybrid_memory.cu",
-      "global_memory_loop.cu",
-      "shared_memory_loop.cu",
-      "unified_memory_loop.cu",
-      "hybrid_memory_loop.cu",
-      "active_cells_cpu.cu",
-      "active_cells_gpu.cu",
-      "active_cells_gpu_const_block_number.cu",
-      "unified_memory_loop.cu",
-      "active_cells_gpu_loop.cu",
-      "active_cells_gpu_const_block_number_loop.cu",
-      "cal_saturatedFlow_oneWell.c",
-      "sequential_c_imp.c"
-    ]
-  },
-  "active_cells_output_test_16": {
-    "test_specs": {
-      "block_size": [
-        16
-      ],
-      "ca_size": [
-        1000, 2000, 3000, 4000,
-        5000, 6000
-      ],
-      "simulation_iterations": [
-        6480
-      ],
-      "write_output_to_file": [
-        1
-      ]
-    },
-    "chart_params": {
-      "title": "Active cells 16",
-      "x_axis": "ca_size",
-      "x_axis_label": "CA automata dimensions"
-    },
-    "test_src": [
-      "unified_memory.cu",
-      "active_cells_gpu.cu",
-      "active_cells_gpu_const_block_number.cu"
-    ]
-  },
-  "river": {
-    "test_specs": {
-      "river_position": [
-        20
-      ],
-      "write_output_to_file": [
-        1
-      ],
-      "ca_size": [
-        100
-      ],
-      "simulated_days_number": [
-        10
-      ],
-      "river_heads": [
-        [49,49,49,49,49,51,51,51,51,51]
-      ],
-      "number_of_wells": [
-        1
-      ],
-      "wellsRows": [
-        [50]
-      ],
-      "wellsCols": [
-        [50]
-      ],
-      "wellsQW": [
-        [0.001]
-      ]
-    },
-    "chart_params": {
-      "title": "River cells 16",
-      "x_axis": "ca_size",
-      "x_axis_label": "CA automata dimensions"
-    },
-    "test_src": [
-      "river_unified.cu"
-    ]
-  }
+    "river": {
+        "test_specs": {
+            "river_position": [
+                20
+            ],
+            "write_output_to_file": [
+                1
+            ],
+            "ca_size": [
+                100
+            ],
+            "simulated_days_number": [
+                10
+            ],
+            "river_heads": [
+                [49,49,49,49,49,51,51,51,51,51]
+            ],
+            "number_of_wells": [
+                1
+            ],
+            "wellsRows": [
+                [50]
+            ],
+            "wellsCols": [
+                [50]
+            ],
+            "wellsQW": [
+                [0.001]
+            ]
+        },
+        "chart_params": {
+            "title": "River cells 16",
+            "x_axis": "ca_size",
+            "x_axis_label": "CA automata dimensions"
+        },
+        "test_src": [
+            "river_unified.cu"
+        ]
+    }
 }
