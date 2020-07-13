@@ -47,14 +47,13 @@ void perform_simulation_on_GPU() {
     double gridSize = ceil(sqrt(blockCount));
     dim3 gridDim(gridSize, gridSize);
 
-	Timer stepTimer, trans;
+	Timer stepTimer;
 
     for (int i = 0; i < SIMULATION_ITERATIONS; i++) {
     	startTimer(&stepTimer);
-    	startTimer(&trans);
-        simulation_step_kernel <<<gridDim, blockDim>>> (d_read, d_write.head);
+
+    	simulation_step_kernel <<<gridDim, blockDim>>> (d_read, d_write.head);
         cudaDeviceSynchronize();
-	    endTimer(&trans);
 
         double *tmp = d_write.head;
         d_write.head = d_read.head;
@@ -62,7 +61,6 @@ void perform_simulation_on_GPU() {
 
 	    endTimer(&stepTimer);
 	    stats[i].stepTime = getElapsedTime(stepTimer);
-	    stats[i].transitionTime = getElapsedTime(trans);
     }
 }
 
