@@ -25,8 +25,8 @@ __global__ void simulation_step_kernel(struct CA d_ca, double *d_write_head) {
 		unsigned idx_y = idx_g / COLS;
 		if (idx_y != 0 && idx_y != ROWS - 1) {
 			double Q, diff_head, tmp_t;
-			for (int i = 0; i < SIMULATION_ITERATIONS; ++i) {
-				if (i == SIMULATION_ITERATIONS - 1){
+			for (int i = 0; i < KERNEL_LOOP_SIZE; ++i) {
+				if (i == KERNEL_LOOP_SIZE - 1){
 					Q = 0;
 				}
 				if (idx_x >= 1) {
