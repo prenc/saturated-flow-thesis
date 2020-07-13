@@ -8,7 +8,7 @@
                 4000
             ],
             "simulation_iterations": [
-                8000
+                10000
             ],
             "number_of_wells": [
                 36
@@ -58,7 +58,7 @@
                 4000
             ],
             "simulation_iterations": [
-                10000
+                8000
             ],
             "number_of_wells": [
                 36
