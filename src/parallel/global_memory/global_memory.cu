@@ -56,7 +56,7 @@ void perform_simulation_on_GPU() {
 	}
 }
 
-int main(void) {
+int main(int argc, char *argv[]) {
 	init_host_ca();
 	copy_data_from_CPU_to_GPU();
 
@@ -64,7 +64,7 @@ int main(void) {
 
 	if(WRITE_OUTPUT_TO_FILE){
 		copy_data_from_GPU_to_CPU();
-		write_heads_to_file(h_ca.head, "global_memory");
+		write_heads_to_file(h_ca.head, argv[0]);
 	}
 
     return 0;
