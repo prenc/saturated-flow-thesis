@@ -29,7 +29,7 @@
 #define DELTA_T 40
 #define KERNEL_LOOP_SIZE 50
 
-#define WRITE_COVERAGE_TO_FILE 1
+#define WRITE_STATISTICS_TO_FILE 1
 #define COVERAGE_WRITE_FREQ 10
 // RIVER
 #define KSB  0.00001 // streambed hydraulic conductivity

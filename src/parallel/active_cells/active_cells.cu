@@ -146,8 +146,8 @@ void perform_simulation_on_GPU() {
 
 int main(int argc, char *argv[]) {
     allocate_memory();
-    init_read_ca();
-    init_write_head();
+	init_read_ca();
+	init_write_head();
 
     perform_simulation_on_GPU();
 
@@ -155,7 +155,7 @@ int main(int argc, char *argv[]) {
         write_heads_to_file(d_write.head, argv[0]);
     }
 
-    if (WRITE_STATISTCS_TO_FILE) {
+    if (WRITE_STATISTICS_TO_FILE) {
 	    write_statistics_to_file(stats, argv[0]);
     }
 
