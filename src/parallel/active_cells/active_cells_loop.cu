@@ -105,18 +105,21 @@ void perform_simulation_on_GPU() {
 	int activeBlockCount, activeGridSize;
 
 	Timer stepTimer, transitionTimer, findACTimer;
+	bool isWholeGridActive = false;
 
 	for (int i = 0; i < SIMULATION_ITERATIONS; i++) {
 		startTimer(&stepTimer);
 
 		dim3 *simulationGridDim;
-		if (dev_active_cells_count != ROWS * COLS) {
+		if (isWholeGridActive) {
 
 			startTimer(&findACTimer);
 			dev_active_cells_count = 0;
 			find_active_cells_kernel <<<gridDim, blockSize>>>(d_read);
 			cudaDeviceSynchronize();
 			endTimer(&findACTimer);
+
+			isWholeGridActive = dev_active_cells_count == ROWS*COLS;
 
 			activeBlockCount = ceil((double) dev_active_cells_count / (BLOCK_SIZE * BLOCK_SIZE));
 			activeGridSize = ceil(sqrt(activeBlockCount));
