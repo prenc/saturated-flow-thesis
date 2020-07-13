@@ -28,6 +28,9 @@ __global__ void simulation_step_kernel(struct CA *d_ca, double *d_write_head, in
 
         if (idx_y != 0 && idx_y != ROWS - 1) {
             for (int i = 0; i < KERNEL_LOOP_SIZE; i++) {
+	            if (i == KERNEL_LOOP_SIZE - 1){
+		            Q = 0;
+	            }
                 if (idx_x >= 1) { // left neighbor
                     diff_head = s_heads[y][x - 1] - s_heads[y][x];
                     tmp_t = s_K[y][x] * THICKNESS;
@@ -77,7 +80,7 @@ void perform_simulation_on_GPU() {
     }
 }
 
-int main(void) {
+int main(int argc, char *argv[]) {
     init_host_ca();
 
     copy_data_from_CPU_to_GPU();
@@ -86,7 +89,7 @@ int main(void) {
 
 	if(WRITE_OUTPUT_TO_FILE){
 		copy_data_from_GPU_to_CPU();
-		write_heads_to_file(h_ca.head, "shared_memory_loop");
+		write_heads_to_file(h_ca.head, argv[0]);
 	}
     return 0;
 }
