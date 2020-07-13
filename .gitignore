@@ -1,4 +1,8 @@
-reated by .ignore support plugin (hsz.mobi)
+my_tests
+**/tags
+unical_mount_point/
+
+
 ### Python template
 # Byte-compiled / optimized / DLL files
 __pycache__/
