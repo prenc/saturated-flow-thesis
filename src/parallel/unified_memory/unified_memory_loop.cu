@@ -1,5 +1,7 @@
 #include "unified_memory_common.h"
 
+struct Statistics stats[ROWS*COLS];
+
 __global__ void simulation_step_kernel(struct CA d_ca, double *d_write_head) {
     unsigned idx_x = blockIdx.x * blockDim.x + threadIdx.x;
     unsigned idx_y = blockIdx.y * blockDim.y + threadIdx.y;
@@ -47,28 +49,36 @@ void perform_simulation_on_GPU() {
     double gridSize = ceil(sqrt(blockCount));
     dim3 blockCount2D(gridSize, gridSize);
 
-    for (int i = 0; i < SIMULATION_ITERATIONS; i++) {
-        simulation_step_kernel << < blockCount2D, blockSize >> > (d_read, d_write.head);
+	Timer stepTimer;
 
+	for (int i = 0; i < SIMULATION_ITERATIONS; i++) {
+	    startTimer(&stepTimer);
+
+	    simulation_step_kernel << < blockCount2D, blockSize >> > (d_read, d_write.head);
         cudaDeviceSynchronize();
 
         double *tmp1 = d_write.head;
         d_write.head = d_read.head;
         d_read.head = tmp1;
+
+	    endTimer(&stepTimer);
+	    stats[i].stepTime = getElapsedTime(stepTimer);
     }
 }
 
-int main(void) {
+int main(int argc, char *argv[]) {
     allocate_memory();
-
     init_read_ca();
-
     init_write_head();
 
     perform_simulation_on_GPU();
 
 	if(WRITE_OUTPUT_TO_FILE){
 		write_heads_to_file(d_write.head, "unified_memory_loop");
+	}
+
+	if (WRITE_STATISTICS_TO_FILE) {
+		write_statistics_to_file(stats, argv[0]);
 	}
 
     return 0;
