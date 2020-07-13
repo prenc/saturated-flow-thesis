@@ -111,7 +111,7 @@ void perform_simulation_on_GPU() {
 		startTimer(&stepTimer);
 
 		dim3 *simulationGridDim;
-		if (isWholeGridActive) {
+		if (!isWholeGridActive) {
 
 			startTimer(&findACTimer);
 			dev_active_cells_count = 0;
