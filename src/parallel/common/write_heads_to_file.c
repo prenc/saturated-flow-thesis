@@ -44,21 +44,6 @@ void write_river_heads_to_file(double *head, double river_head, int day) {
     write_to_file(head, filename);
 }
 
-
-void write_coverage_to_file(double *coverage_vector, double *step_time_vector, string filename) {
-    create_output_dir(OUTPUT_PATH);
-
-    string path = OUTPUT_PATH + clip_filename(filename) + "_coverage.csv";
-
-    FILE *fp = fopen(path.c_str(), "w");
-    fprintf(fp, "Step, Coverage [%%], Step time [us]\n");
-
-    for (int i = COVERAGE_WRITE_FREQ - 1; i <= SIMULATION_ITERATIONS; i+=COVERAGE_WRITE_FREQ) {
-        fprintf(fp, "%d, %lf, %.0lf\n", i + 1, coverage_vector[i], step_time_vector[i]);
-    }
-    fclose(fp);
-}
-
 void create_output_dir(string path) {
     if (stat(path.c_str(), &st) == -1) {
         mkdir(path.c_str(), 0770);

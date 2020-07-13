@@ -1,12 +1,10 @@
 #include "active_cells_common.h"
-#include <sys/time.h>
+
+struct Statistics stats[ROWS*COLS];
 
 __device__ int active_cells_idx[ROWS * COLS];
 
 __managed__ int dev_active_cells_count = 0;
-
-double coverage_vector[ROWS*COLS];
-double step_time_vector[ROWS*COLS];
 
 __device__ void my_push_back(int cellIdx) {
     int insert_ptr = atomicAdd(&dev_active_cells_count, 1);
@@ -107,17 +105,19 @@ void perform_simulation_on_GPU() {
 
     int activeBlockCount, activeGridSize;
 
-    struct timeval t1, t2;
+    Timer stepTimer, transitionTimer, findACTimer;
 
-    for (int i = 0; i < SIMULATION_ITERATIONS; i++) {
-        gettimeofday(&t1, NULL);
+	for (int i = 0; i < SIMULATION_ITERATIONS; i++) {
+        startTimer(&stepTimer);
 
         dim3 *simulationGridDim;
         if(dev_active_cells_count != ROWS*COLS) {
 
-            dev_active_cells_count = 0;
+	        startTimer(&findACTimer);
+	        dev_active_cells_count = 0;
             find_active_cells_kernel <<<gridDim, blockSize>>> (d_read);
             cudaDeviceSynchronize();
+            endTimer(&findACTimer);
 
             activeBlockCount = ceil((double) dev_active_cells_count / (BLOCK_SIZE * BLOCK_SIZE));
             activeGridSize = ceil(sqrt(activeBlockCount));
@@ -128,17 +128,19 @@ void perform_simulation_on_GPU() {
             simulationGridDim = &gridDim;
         }
 
-        simulation_step_kernel <<<*simulationGridDim, blockSize>>> (d_read, d_write.head);
+		startTimer(&transitionTimer);
+		simulation_step_kernel <<<*simulationGridDim, blockSize>>> (d_read, d_write.head);
         cudaDeviceSynchronize();
+		endTimer(&transitionTimer);
 
-        double *tmp = d_write.head;
+		double *tmp = d_write.head;
         d_write.head = d_read.head;
         d_read.head = tmp;
 
-        gettimeofday(&t2, NULL);
+		endTimer(&stepTimer);
 
-        step_time_vector[i] = t2.tv_usec - t1.tv_usec;
-        coverage_vector[i] = double(dev_active_cells_count * 100) / (ROWS * COLS) ;
+		stats[i].coverage = double(dev_active_cells_count * 100) / (ROWS * COLS);
+		setTimeStats(&stats[i], stepTimer, transitionTimer, findACTimer);
     }
 }
 
@@ -153,8 +155,8 @@ int main(int argc, char *argv[]) {
         write_heads_to_file(d_write.head, argv[0]);
     }
 
-    if (WRITE_COVERAGE_TO_FILE) {
-        write_coverage_to_file(coverage_vector, step_time_vector, argv[0]);
+    if (WRITE_STATISTCS_TO_FILE) {
+	    write_statistics_to_file(stats, argv[0]);
     }
 
     return 0;
