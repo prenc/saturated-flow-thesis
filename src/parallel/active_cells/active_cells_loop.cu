@@ -1,19 +1,14 @@
 #include "active_cells_common.h"
 
-#include <thrust/device_vector.h>
-#include <thrust/sort.h>
-#include <thrust/unique.h>
-#include <thrust/execution_policy.h>
+struct Statistics stats[ROWS * COLS];
 
 __device__ int active_cells_idx[ROWS * COLS];
+
 __managed__ int dev_active_cells_count = 0;
 
-__device__ int my_push_back(int mt) {
-	int insert_pt = atomicAdd(&dev_active_cells_count, 1);
-	if (insert_pt < ROWS * COLS) {
-		active_cells_idx[insert_pt] = mt;
-		return insert_pt;
-	} else { return -1; }
+__device__ void my_push_back(int cellIdx) {
+	int insert_ptr = atomicAdd(&dev_active_cells_count, 1);
+	active_cells_idx[insert_ptr] = cellIdx;
 }
 
 __global__ void simulation_step_kernel(struct CA d_ca, double *d_write_head) {
@@ -101,44 +96,68 @@ __global__ void find_active_cells_kernel(struct CA d_ca) {
 }
 
 void perform_simulation_on_GPU() {
-	dim3
-	blockSize(BLOCK_SIZE, BLOCK_SIZE);
+	dim3 blockSize(BLOCK_SIZE, BLOCK_SIZE);
+
 	const int blockCount = ceil((ROWS * COLS) / (BLOCK_SIZE * BLOCK_SIZE));
 	int gridSize = ceil(sqrt(blockCount));
 	dim3 gridDim(gridSize, gridSize);
+
 	int activeBlockCount, activeGridSize;
+
+	Timer stepTimer, transitionTimer, findACTimer;
+
 	for (int i = 0; i < SIMULATION_ITERATIONS; i++) {
-		if (dev_active_cells_count < ROWS * COLS) {
+		startTimer(&stepTimer);
+
+		dim3 *simulationGridDim;
+		if (dev_active_cells_count != ROWS * COLS) {
+
+			startTimer(&findACTimer);
 			dev_active_cells_count = 0;
-			find_active_cells_kernel << < gridDim, blockSize >> > (d_read);
+			find_active_cells_kernel <<<gridDim, blockSize>>>(d_read);
 			cudaDeviceSynchronize();
+			endTimer(&findACTimer);
 
 			activeBlockCount = ceil((double) dev_active_cells_count / (BLOCK_SIZE * BLOCK_SIZE));
 			activeGridSize = ceil(sqrt(activeBlockCount));
 			dim3 activeGridDim(activeGridSize, activeGridSize);
 
-			simulation_step_kernel << < activeGridDim, blockSize >> > (d_read, d_write.head);
-			cudaDeviceSynchronize();
+			simulationGridDim = &activeGridDim;
 		} else {
-			simulation_step_kernel << < gridDim, blockSize >> > (d_read, d_write.head);
-			cudaDeviceSynchronize();
+			simulationGridDim = &gridDim;
 		}
-		double *tmp1 = d_write.head;
+
+		startTimer(&transitionTimer);
+		simulation_step_kernel <<<*simulationGridDim, blockSize>>>(d_read, d_write.head);
+		cudaDeviceSynchronize();
+		endTimer(&transitionTimer);
+
+		double *tmp = d_write.head;
 		d_write.head = d_read.head;
-		d_read.head = tmp1;
+		d_read.head = tmp;
+
+		endTimer(&stepTimer);
+
+		stats[i].coverage = double(dev_active_cells_count * 100) / (ROWS * COLS);
+		setTimeStats(&stats[i], stepTimer, transitionTimer, findACTimer);
 	}
 }
 
-int main(void) {
+int main(int argc, char *argv[]) {
 	allocate_memory();
 	init_read_ca();
 	init_write_head();
 
 	perform_simulation_on_GPU();
 
-	if(WRITE_OUTPUT_TO_FILE){
-		write_heads_to_file(d_write.head, "stream_compaction_gpu_loop");
+	if (WRITE_OUTPUT_TO_FILE) {
+		write_heads_to_file(d_write.head, argv[0]);
 	}
+
+	if (WRITE_STATISTICS_TO_FILE) {
+		write_statistics_to_file(stats, argv[0]);
+	}
+
 	return 0;
 }
 
