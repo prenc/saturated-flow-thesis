@@ -56,9 +56,9 @@ void write_to_file(double *head, string filename) {
     for (int i = 0; i < ROWS; i++) {
         for (int j = 0; j < COLS; j++) {
             if(TRANSPOSE_OUTPUT == 1){
-                fprintf(fp, "%lf, ", head[j * ROWS + i]);
+                fprintf(fp, "%.15lf, ", head[j * ROWS + i]);
             }else{
-                fprintf(fp, "%lf, ", head[i * ROWS + j]);
+                fprintf(fp, "%.15lf, ", head[i * ROWS + j]);
             }
         }
         fprintf(fp, "\n");
