@@ -19,6 +19,9 @@ void endTimer(Timer *timer) {
 }
 
 double getElapsedTime(Timer timer){
-	return timer.endTime.tv_usec - timer.startTime.tv_usec;
+	unsigned long long seconds = timer.endTime.tv_sec - timer.startTime.tv_sec;
+	unsigned long long milliseconds = (timer.endTime.tv_usec - timer.startTime.tv_usec) / 1000;
+	unsigned long long totalMilliseconds = 1000 * seconds + milliseconds;
+	return totalMilliseconds;
 }
 
