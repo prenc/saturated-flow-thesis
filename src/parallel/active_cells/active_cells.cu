@@ -105,20 +105,17 @@ void perform_simulation_on_GPU() {
 
     int activeBlockCount, activeGridSize;
 
-    Timer stepTimer, transitionTimer, findACTimer;
-	bool isWholeGridActive = false;
+    Timer stepTimer;
+    bool isWholeGridActive = false;
+	startTimer(&stepTimer);
 
 	for (int i = 0; i < SIMULATION_ITERATIONS; i++) {
-        startTimer(&stepTimer);
-
         dim3 *simulationGridDim;
         if (!isWholeGridActive) {
 
-	        startTimer(&findACTimer);
 	        dev_active_cells_count = 0;
             find_active_cells_kernel <<<gridDim, blockSize>>> (d_read);
             cudaDeviceSynchronize();
-            endTimer(&findACTimer);
 
 	        isWholeGridActive = dev_active_cells_count == (ROWS*COLS);
 
@@ -140,10 +137,12 @@ void perform_simulation_on_GPU() {
         d_write.head = d_read.head;
         d_read.head = tmp;
 
-		endTimer(&stepTimer);
-
-		stats[i].coverage = double(dev_active_cells_count * 100) / (ROWS * COLS);
-		setTimeStats(&stats[i], stepTimer, transitionTimer, findACTimer);
+        if (i % STATISTICS_WRITE_FREQ == 0) {
+            endTimer(&stepTimer);
+            stats[i].coverage = double(dev_active_cells_count * 100) / (ROWS * COLS);
+            stats[i].stepTime = getElapsedTime(&stepTimer);
+            startTimer(&stepTimer);
+        }
     }
 }
 

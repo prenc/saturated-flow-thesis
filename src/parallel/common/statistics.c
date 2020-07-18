@@ -18,7 +18,7 @@ void write_statistics_to_file(Statistics *stats, string filename) {
 	FILE *fp = fopen(path.c_str(), "w");
 	fprintf(fp, "Step, Coverage [%%], Step time [us], Transition time [us], Find ac time [us]\n");
 
-	for (int i = STATISTICS_WRITE_FREQ - 1; i <= SIMULATION_ITERATIONS; i+=STATISTICS_WRITE_FREQ) {
+	for (int i = 0; i < SIMULATION_ITERATIONS; i+=STATISTICS_WRITE_FREQ) {
 		fprintf(fp, "%d, %lf, %.0lf, %.0lf, %.0lf\n", i + 1,
 		        stats[i].coverage,
 		        stats[i].stepTime,
