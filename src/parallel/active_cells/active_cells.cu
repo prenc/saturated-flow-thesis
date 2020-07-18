@@ -107,17 +107,17 @@ void perform_simulation_on_GPU() {
 
     Timer stepTimer;
     bool isWholeGridActive = false;
-	startTimer(&stepTimer);
+    startTimer(&stepTimer);
 
-	for (int i = 0; i < SIMULATION_ITERATIONS; i++) {
+    for (int i = 0; i < SIMULATION_ITERATIONS; i++) {
         dim3 *simulationGridDim;
         if (!isWholeGridActive) {
 
-	        dev_active_cells_count = 0;
+            dev_active_cells_count = 0;
             find_active_cells_kernel <<<gridDim, blockSize>>> (d_read);
             cudaDeviceSynchronize();
 
-	        isWholeGridActive = dev_active_cells_count == (ROWS*COLS);
+            isWholeGridActive = dev_active_cells_count == (ROWS*COLS);
 
             activeBlockCount = ceil((double) dev_active_cells_count / (BLOCK_SIZE * BLOCK_SIZE));
             activeGridSize = ceil(sqrt(activeBlockCount));
@@ -128,19 +128,17 @@ void perform_simulation_on_GPU() {
             simulationGridDim = &gridDim;
         }
 
-		startTimer(&transitionTimer);
-		simulation_step_kernel <<<*simulationGridDim, blockSize>>> (d_read, d_write.head);
+        simulation_step_kernel <<<*simulationGridDim, blockSize>>> (d_read, d_write.head);
         cudaDeviceSynchronize();
-		endTimer(&transitionTimer);
 
-		double *tmp = d_write.head;
+        double *tmp = d_write.head;
         d_write.head = d_read.head;
         d_read.head = tmp;
 
         if (i % STATISTICS_WRITE_FREQ == 0) {
             endTimer(&stepTimer);
             stats[i].coverage = double(dev_active_cells_count * 100) / (ROWS * COLS);
-            stats[i].stepTime = getElapsedTime(&stepTimer);
+            stats[i].stepTime = getElapsedTime(stepTimer);
             startTimer(&stepTimer);
         }
     }
@@ -148,8 +146,8 @@ void perform_simulation_on_GPU() {
 
 int main(int argc, char *argv[]) {
     allocate_memory();
-	init_read_ca();
-	init_write_head();
+    init_read_ca();
+    init_write_head();
 
     perform_simulation_on_GPU();
 
@@ -158,7 +156,7 @@ int main(int argc, char *argv[]) {
     }
 
     if (WRITE_STATISTICS_TO_FILE) {
-	    write_statistics_to_file(stats, argv[0]);
+        write_statistics_to_file(stats, argv[0]);
     }
 
     return 0;
