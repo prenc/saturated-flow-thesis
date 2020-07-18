@@ -53,9 +53,9 @@ void perform_simulation_on_GPU() {
     dim3 blockCount2D(gridSize, gridSize);
 
 	Timer stepTimer;
+    startTimer(&stepTimer);
 
 	for (int i = 0; i < SIMULATION_ITERATIONS; i++) {
-	    startTimer(&stepTimer);
 
 	    simulation_step_kernel << < blockCount2D, blockSize >> > (d_read, d_write.head);
         cudaDeviceSynchronize();
@@ -64,8 +64,12 @@ void perform_simulation_on_GPU() {
         d_write.head = d_read.head;
         d_read.head = tmp1;
 
-	    endTimer(&stepTimer);
-	    stats[i].stepTime = getElapsedTime(stepTimer);
+        if (i % STATISTICS_WRITE_FREQ == 0) {
+            endTimer(&stepTimer);
+            stats[i].coverage = double(dev_active_cells_count * 100) / (ROWS * COLS);
+            stats[i].stepTime = getElapsedTime(startTimer);
+            startTimer(&stepTimer);
+        }
     }
 }
 
