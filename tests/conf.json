@@ -45,16 +45,9 @@
             ]
         },
         "test_src": [
-            "global_memory.cu",
-            "shared_memory.cu",
-            "unified_memory.cu",
-            "hybrid_memory.cu",
-            "global_memory_loop.cu",
-            "shared_memory_loop.cu",
+            "active_cells_loop.cu",
             "unified_memory_loop.cu",
-            "hybrid_memory_loop.cu",
-            "active_cells.cu",
-            "active_cells_loop.cu"
+            "shared_memory_loop.cu"
         ]
     },
     "coverage_multiple_wells": {
