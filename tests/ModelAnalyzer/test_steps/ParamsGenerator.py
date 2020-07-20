@@ -9,7 +9,7 @@ from ModelAnalyzer.settings import PARAMS_PATH
 
 class ParamsGenerator:
     DEFINE = "#define"
-    WELLS_NUMBER = "NUMBER_OF_WELLS"
+    WELLS_NUMBER = "WELLS_DIM"
 
     def __init__(self, test_name):
         self._log = logging.getLogger(self.__class__.__name__)
