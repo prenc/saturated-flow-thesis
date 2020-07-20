@@ -83,5 +83,8 @@ class ParamsGenerator:
             updated_test_spec["WELLS_QW"] = [
                 updated_test_spec["WELLS_QW"]
             ] * number_of_wells ** 2
+        print(wells_xs)
+        print(wells_ys)
+        print(updated_test_spec["WELLS_QW"])
 
         return updated_test_spec

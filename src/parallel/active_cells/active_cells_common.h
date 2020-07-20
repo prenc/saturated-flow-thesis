@@ -7,11 +7,11 @@
 struct CA d_read, d_write;
 
 void allocate_memory() {
-	CUDASAFECALL(cudaMallocManaged(&(d_read.head), sizeof(double) * ROWS * COLS));
-	CUDASAFECALL(cudaMallocManaged(&(d_write.head), sizeof(double) * ROWS * COLS));
-	CUDASAFECALL(cudaMallocManaged(&(d_read.Sy), sizeof(double) * ROWS * COLS));
-	CUDASAFECALL(cudaMallocManaged(&(d_read.K), sizeof(double) * ROWS * COLS));
-	CUDASAFECALL(cudaMallocManaged(&(d_read.Source), sizeof(double) * ROWS * COLS));
+    CUDASAFECALL(cudaMallocManaged(&(d_read.head), sizeof(double) * ROWS * COLS));
+    CUDASAFECALL(cudaMallocManaged(&(d_write.head), sizeof(double) * ROWS * COLS));
+    CUDASAFECALL(cudaMallocManaged(&(d_read.Sy), sizeof(double) * ROWS * COLS));
+    CUDASAFECALL(cudaMallocManaged(&(d_read.K), sizeof(double) * ROWS * COLS));
+    CUDASAFECALL(cudaMallocManaged(&(d_read.Source), sizeof(double) * ROWS * COLS));
 }
 
 void init_read_ca() {
@@ -29,21 +29,21 @@ void init_read_ca() {
     int x,y;
     double source;
     for(int i = 0; i < NUMBER_OF_WELLS; i++){
-    	x = wellsRows[i];
-    	y = wellsCols[i];
-    	source = wellsQW[i];
-    	d_read.Source[y *ROWS + x] = source;
+        x = wellsRows[i];
+        y = wellsCols[i];
+        source = wellsQW[i];
+        d_read.Source[y *ROWS + x] = source;
     }
 }
 
 void init_write_head() {
-	memcpy(d_write.head, d_read.head, sizeof(double)*ROWS*COLS);
+    memcpy(d_write.head, d_read.head, sizeof(double)*ROWS*COLS);
 }
 
 void free_allocated_memory(){
-	cudaFree(d_read.head);
-	cudaFree(d_write.head);
-	cudaFree(d_read.Sy);
-	cudaFree(d_read.K);
-	cudaFree(d_read.Source);
+    cudaFree(d_read.head);
+    cudaFree(d_write.head);
+    cudaFree(d_read.Sy);
+    cudaFree(d_read.K);
+    cudaFree(d_read.Source);
 }
