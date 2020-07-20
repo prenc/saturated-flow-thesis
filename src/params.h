@@ -4,8 +4,8 @@
 
 //MODEL PARAMS
 
-#define CA_SIZE 4000
-#define SIMULATION_ITERATIONS 1000
+#define CA_SIZE 2000
+#define SIMULATION_ITERATIONS 10000
 #define BLOCK_SIZE 32
 
 #define WRITE_OUTPUT_TO_FILE 1
@@ -46,10 +46,14 @@ double river_heads[SIMULATED_DAYS_NUMBER] = { 49, 49, 49, 49, 49, 51, 51, 51, 51
 #define SIMULATION_STEPS (SECONDS_IN_DAY * SIMULATED_DAYS_NUMBER) / DELTA_T
 
 //multiple wells
-#define NUMBER_OF_WELLS 1
-int wellsRows[NUMBER_OF_WELLS] = { ROWS / 2 };
-int wellsCols[NUMBER_OF_WELLS] = { COLS / 2 };
-double wellsQW[NUMBER_OF_WELLS] = { 0.001 };
+#define NUMBER_OF_WELLS 6
+#define WELLS_Y 166, 499, 832, 1165, 1498, 1831, 166, 499, 832, 1165, 1498, 1831, 166, 499, 832, 1165, 1498, 1831, 166, 499, 832, 1165, 1498, 1831, 166, 499, 832, 1165, 1498, 1831, 166, 499, 832, 1165, 1498, 1831
+#define WELLS_X 166, 166, 166, 166, 166, 166, 499, 499, 499, 499, 499, 499, 832, 832, 832, 832, 832, 832, 1165, 1165, 1165, 1165, 1165, 1165, 1498, 1498, 1498, 1498, 1498, 1498, 1831, 1831, 1831, 1831, 1831, 1831
+#define WELLS_QW 0.001
+
+int wellsRows[] = { WELLS_Y };
+int wellsCols[] = { WELLS_X };
+double wellsQW[] = { WELLS_QW };
 
 struct CA {
     double *head;

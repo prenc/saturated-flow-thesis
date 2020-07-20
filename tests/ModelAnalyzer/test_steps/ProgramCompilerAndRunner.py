@@ -9,7 +9,8 @@ from ModelAnalyzer.settings import (
     COMPILED_DUMP,
     PROFILING_DUMP,
     TIMES_EACH_PROGRAM_IS_RUN,
-    SRC_FILES, ALWAYS_COMPILE,
+    SRC_FILES,
+    ALWAYS_COMPILE,
 )
 
 
@@ -35,7 +36,11 @@ class ProgramCompilerAndRunner:
         executables_data = []
         for root, name in self._program_paths:
             new_file_name = f"{name.split('.')[0]}_" + "_".join(
-                [str(value) for value in test_spec.values() if not isinstance(value, list)]
+                [
+                    str(value)
+                    for value in test_spec.values()
+                    if isinstance(value, int)
+                ]
             )
             output_path = os.path.join(COMPILED_DUMP, new_file_name)
             exit_code = 0
