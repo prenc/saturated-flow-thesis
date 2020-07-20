@@ -80,5 +80,8 @@ class ParamsGenerator:
             )
             updated_test_spec["WELLS_Y"] = wells_ys
             updated_test_spec["WELLS_X"] = wells_xs
+            updated_test_spec["WELLS_QW"] = [
+                updated_test_spec["WELLS_QW"]
+            ] * number_of_wells ** 2
 
         return updated_test_spec

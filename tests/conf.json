@@ -74,9 +74,9 @@
             "wells_QW": [
                 0.001
             ],
-	    "WRITE_OUTPUT_TO_FILE": [
-		0
-	    ]
+            "WRITE_OUTPUT_TO_FILE": [
+                0
+            ]
         },
         "test_src": [
             "active_cells.cu"
@@ -96,8 +96,8 @@
             "number_of_wells": [
                 6
             ],
-            "wellsQW": [
-	        0.001
+            "wells_QW": [
+                0.001
             ]
         },
         "test_src": [
