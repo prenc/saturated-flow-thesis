@@ -66,18 +66,20 @@
                 1000, 2000, 4000, 5000, 6000, 6500, 7000, 7500, 8000
             ],
             "simulation_iterations": [
-                4000
+                4000, 9000, 8000
             ],
             "number_of_wells": [
-                6, 6, 8, 8, 8, 9, 10
+                5, 6, 6, 8, 9, 11, 11, 12
             ],
             "wells_QW": [
                 0.001
-            ]
+            ],
+	    "WRITE_OUTPUT_TO_FILE": [
+		0
+	    ]
         },
         "test_src": [
-            "active_cells.cu",
-            "unified_memory.cu"
+            "active_cells.cu"
         ]
     },
     "coverage_multiple_wells_stress": {
