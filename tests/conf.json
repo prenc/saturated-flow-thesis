@@ -15,6 +15,9 @@
             ],
             "wells_QW": [
                 0.001
+            ],
+            "WRITE_OUTPUT_TO_FILE": [
+                1
             ]
         },
         "test_src": [
@@ -25,9 +28,8 @@
             "global_memory_loop.cu",
             "shared_memory_loop.cu",
             "unified_memory_loop.cu",
-            "hybrid_memory_loop.cu",
-            "active_cells.cu",
-            "active_cells_loop.cu"
+            "global_active_cells_loop.cu",
+            "unified_active_cells_loop.cu"
         ]
     },
     "coverage_multiple_wells": {
@@ -77,8 +79,8 @@
             ]
         },
         "test_src": [
-            "global_active_cells_loop.cu",
-            "global_memory_loop.cu"
+            "unified_memory_loop.cu",
+            "unified_active_cells_loop.cu"
         ]
     },
     "standard_16": {
