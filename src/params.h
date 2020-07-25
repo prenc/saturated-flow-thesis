@@ -46,7 +46,7 @@ double river_heads[SIMULATED_DAYS_NUMBER] = { 49, 49, 49, 49, 49, 51, 51, 51, 51
 #define SIMULATION_STEPS (SECONDS_IN_DAY * SIMULATED_DAYS_NUMBER) / DELTA_T
 
 //multiple wells
-#define WELLS_DIM 5
+#define WELLS_DIM 1
 #define NUMBER_OF_WELLS WELLS_DIM*WELLS_DIM
 #define WELLS_Y ROWS / 2
 #define WELLS_X COLS / 2
