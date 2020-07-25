@@ -1,7 +1,5 @@
 #include "../../unified_memory/unified_memory_common.h"
 
-struct Statistics stats[ROWS*COLS];
-
 __device__ int active_cells_idx[ROWS * COLS];
 
 __managed__ int dev_active_cells_count = 0;

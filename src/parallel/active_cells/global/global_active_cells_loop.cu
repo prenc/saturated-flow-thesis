@@ -1,7 +1,5 @@
 #include "../../global_memory/global_memory_common.h"
 
-struct Statistics stats[ROWS*COLS];
-
 __managed__ int dev_active_cells_count = 0;
 
 __device__ int active_cells_idx[ROWS*COLS];

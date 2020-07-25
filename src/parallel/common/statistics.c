@@ -2,6 +2,7 @@
 // Created by pecatoma on 13.07.2020.
 //
 #include "timer.c"
+
 struct Statistics{
 	double coverage;
 
@@ -9,6 +10,8 @@ struct Statistics{
 	double transitionTime;
 	double findACTime;
 };
+
+struct Statistics stats[ROWS*COLS];
 
 void write_statistics_to_file(Statistics *stats, string filename) {
 	create_output_dir(OUTPUT_PATH);
