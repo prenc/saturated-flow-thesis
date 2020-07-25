@@ -47,6 +47,10 @@ void perform_simulation_on_GPU() {
 	const int blockCount = ceil((ROWS * COLS) / (BLOCK_SIZE * BLOCK_SIZE));
 	int gridSize = ceil(sqrt(blockCount));
 	dim3 gridDim(gridSize, gridSize);
+
+	Timer stepTimer;
+	startTimer(&stepTimer);
+
 	for (int i = 0; i < SIMULATION_ITERATIONS; i++) {
 		simulation_step_kernel << < gridDim, blockSize >> > (d_read_ca, d_write_head);
 
@@ -56,6 +60,12 @@ void perform_simulation_on_GPU() {
 		CUDASAFECALL(
 				cudaMemcpy(&d_write_head, &(d_read_ca->head), sizeof(d_read_ca->head), cudaMemcpyDeviceToHost));
 		CUDASAFECALL(cudaMemcpy(&(d_read_ca->head), &tmp1, sizeof(tmp1), cudaMemcpyHostToDevice));
+
+		if (i % STATISTICS_WRITE_FREQ == 0) {
+			endTimer(&stepTimer);
+			stats[i].stepTime = getElapsedTime(stepTimer);
+			startTimer(&stepTimer);
+		}
 	}
 }
 
@@ -68,6 +78,10 @@ int main(int argc, char *argv[]) {
 	if(WRITE_OUTPUT_TO_FILE){
 		copy_data_from_GPU_to_CPU();
 		write_heads_to_file(h_ca.head, argv[0]);
+	}
+
+	if (WRITE_STATISTICS_TO_FILE) {
+		write_statistics_to_file(stats, argv[0]);
 	}
 
     return 0;
