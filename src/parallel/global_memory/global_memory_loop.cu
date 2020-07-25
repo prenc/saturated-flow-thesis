@@ -90,6 +90,10 @@ int main(int argc, char *argv[]) {
 		write_heads_to_file(h_ca.head, argv[0]);
 	}
 
+	if (WRITE_STATISTICS_TO_FILE) {
+		write_statistics_to_file(stats, argv[0]);
+	}
+
     return 0;
 }
 

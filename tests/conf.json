@@ -71,6 +71,9 @@
             ],
             "wells_QW": [
                 0.001
+            ],
+            "WRITE_OUTPUT_TO_FILE": [
+                0
             ]
         },
         "test_src": [
