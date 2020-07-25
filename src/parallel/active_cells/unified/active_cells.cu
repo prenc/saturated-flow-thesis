@@ -1,4 +1,4 @@
-#include "active_cells_common.h"
+#include "../../unified_memory/unified_memory_common.h"
 
 struct Statistics stats[ROWS*COLS];
 
