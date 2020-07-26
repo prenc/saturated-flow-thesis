@@ -1,14 +1,17 @@
 #include "unified_memory_common.h"
 
-__global__ void simulation_step_kernel(struct CA d_ca, double *d_write_head) {
+__global__ void simulation_step_kernel(struct CA d_ca, double *d_write_head, int gridSize) {
     unsigned idx_x = blockIdx.x * blockDim.x + threadIdx.x;
     unsigned idx_y = blockIdx.y * blockDim.y + threadIdx.y;
-    unsigned idx_g = idx_y * COLS + idx_x;
+    unsigned idx_g = idx_y * blockDim.y * gridSize + idx_x;
 
     double Q, diff_head, tmp_t, ht1, ht2;
 
     for (int i = 0; i < KERNEL_LOOP_SIZE; i++) {
-        if (idx_x < COLS && idx_y < ROWS) {
+        if (idx_g < ROWS * COLS) {
+	        unsigned idx_x = idx_g % COLS;
+	        unsigned idx_y = idx_g / COLS;
+
             Q = 0;
             if (idx_y != 0 && idx_y != ROWS - 1) {
                 if (idx_x >= 1) {
@@ -55,7 +58,7 @@ void perform_simulation_on_GPU() {
 
     for (int i = 0; i < SIMULATION_ITERATIONS; i++) {
 
-	simulation_step_kernel << < blockCount2D, blockSize >> > (d_read, d_write.head);
+	simulation_step_kernel << < blockCount2D, blockSize >> > (d_read, d_write.head, gridSize);
 	cudaDeviceSynchronize();
 
 	double *tmp1 = d_write.head;
