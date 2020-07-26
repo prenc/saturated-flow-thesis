@@ -8,7 +8,7 @@
                 4000
             ],
             "simulation_iterations": [
-                10000
+                9000
             ],
             "wells_dim": [
                 6
@@ -92,7 +92,7 @@
                 4000
             ],
             "simulation_iterations": [
-                10000
+                9000
             ],
             "wells_dim": [
                 6
