@@ -62,20 +62,20 @@
                 32
             ],
             "ca_size": [
-                3000, 4000, 5000, 5500, 6000, 6500, 6750, 7000, 7250, 7500, 7750, 8000
+                4000, 5000, 5500, 6000, 6500, 6750, 7000, 7250, 7500
             ],
             "simulation_iterations": [
-                9000, 8000
+                8000
             ],
             "wells_dim": [
-                6, 6, 8, 8, 9, 11, 11, 12
+                6, 8, 8, 9, 11, 11, 12
             ],
                "wells_QW": [
                 0.001
             ]
         },
         "test_src": [
-            "active_cells_loop.cu",
+            "unified_active_cells_loop.cu",
             "unified_memory_loop.cu"
         ]
     },
