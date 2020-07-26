@@ -80,9 +80,7 @@
         },
         "test_src": [
             "unified_memory_loop.cu",
-            "unified_active_cells_loop.cu",
-            "global_memory_loop.cu",
-            "global_active_cells_loop.cu"
+            "unified_active_cells_loop.cu"
         ]
     },
     "standard_16": {
