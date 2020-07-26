@@ -140,7 +140,7 @@ void perform_simulation_on_GPU() {
 
         if (i % STATISTICS_WRITE_FREQ == 0) {
             endTimer(&stepTimer);
-            stats[i].coverage = double(dev_active_cells_count * 100) / (ROWS * COLS);
+	        stats[i].coverage = double(dev_active_cells_count) / (ROWS * COLS);
             stats[i].stepTime = getElapsedTime(stepTimer);
             startTimer(&stepTimer);
         }
