@@ -1,4 +1,30 @@
 {
+    "coverage_stress_global": {
+        "test_specs": {
+            "block_size": [
+                32
+            ],
+            "ca_size": [
+                4000
+            ],
+            "simulation_iterations": [
+                10000
+            ],
+            "wells_dim": [
+                6
+            ],
+            "wells_QW": [
+                0.001
+            ],
+            "WRITE_OUTPUT_TO_FILE": [
+                0
+            ]
+        },
+        "test_src": [
+            "global_memory_loop.cu",
+            "global_active_cells_loop.cu"
+        ]
+    },
     "output_test": {
         "test_specs": {
             "block_size": [
