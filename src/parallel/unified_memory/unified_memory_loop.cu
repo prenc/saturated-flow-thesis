@@ -9,8 +9,8 @@ __global__ void simulation_step_kernel(struct CA d_ca, double *d_write_head, int
 
     for (int i = 0; i < KERNEL_LOOP_SIZE; i++) {
         if (idx_g < ROWS * COLS) {
-	        unsigned idx_x = idx_g % COLS;
-	        unsigned idx_y = idx_g / COLS;
+            unsigned idx_x = idx_g % COLS;
+            unsigned idx_y = idx_g / COLS;
 
             Q = 0;
             if (idx_y != 0 && idx_y != ROWS - 1) {
@@ -58,18 +58,18 @@ void perform_simulation_on_GPU() {
 
     for (int i = 0; i < SIMULATION_ITERATIONS; i++) {
 
-	simulation_step_kernel << < blockCount2D, blockSize >> > (d_read, d_write.head, gridSize);
-	cudaDeviceSynchronize();
+        simulation_step_kernel << < blockCount2D, blockSize >> > (d_read, d_write.head, gridSize);
+        cudaDeviceSynchronize();
 
-	double *tmp1 = d_write.head;
-	d_write.head = d_read.head;
-	d_read.head = tmp1;
+        double *tmp1 = d_write.head;
+        d_write.head = d_read.head;
+        d_read.head = tmp1;
 
-	if (i % STATISTICS_WRITE_FREQ == 0) {
-	    endTimer(&stepTimer);
-	    stats[i].stepTime = getElapsedTime(stepTimer);
-	    startTimer(&stepTimer);
-	}
+        if (i % STATISTICS_WRITE_FREQ == 0) {
+            endTimer(&stepTimer);
+            stats[i].stepTime = getElapsedTime(stepTimer);
+            startTimer(&stepTimer);
+        }
     }
 }
 
@@ -81,16 +81,13 @@ int main(int argc, char *argv[]) {
     perform_simulation_on_GPU();
 
     if(WRITE_OUTPUT_TO_FILE){
-	write_heads_to_file(d_write.head, argv[0]);
+        write_heads_to_file(d_write.head, argv[0]);
     }
 
     if (WRITE_STATISTICS_TO_FILE) {
-	write_statistics_to_file(stats, argv[0]);
+        write_statistics_to_file(stats, argv[0]);
     }
 
     return 0;
 }
-
-
-
 
