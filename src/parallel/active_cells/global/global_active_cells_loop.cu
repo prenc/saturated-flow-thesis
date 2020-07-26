@@ -17,15 +17,15 @@ __global__ void simulation_step_kernel(struct CA *d_ca, double *d_write_head) {
 	unsigned ac_idx_y = blockIdx.y * blockDim.y + threadIdx.y;
 	unsigned ac_idx_g = ac_idx_y * blockDim.x * activeGridSize + ac_idx_x;
 
-	double Q=0, diff_head, tmp_t, ht1, ht2;
+	double Q, diff_head, tmp_t, ht1, ht2;
 	for (int i = 0; i < KERNEL_LOOP_SIZE; i++) {
 		if(ac_idx_g < dev_active_cells_count) {
 			unsigned idx_g = active_cells_idx[ac_idx_g];
 			unsigned idx_x = idx_g % COLS;
 			unsigned idx_y = idx_g / COLS;
 
+            Q = 0;
 			if (idx_y != 0 && idx_y != ROWS - 1) {
-				Q = 0;
 				if (idx_x >= 1) {
 					diff_head = d_ca->head[idx_g - 1] - d_ca->head[idx_g];
 					tmp_t = d_ca->K[idx_g] * THICKNESS;
