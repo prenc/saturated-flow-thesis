@@ -30,6 +30,32 @@
             "active_cells_loop.cu"
         ]
     },
+    "coverage_standard_test": {
+        "test_specs": {
+            "block_size": [
+                32
+            ],
+            "ca_size": [
+                4000
+            ],
+            "simulation_iterations": [
+                9000
+            ],
+            "wells_dim": [
+                6
+            ],
+            "wells_QW": [
+                0.001
+            ],
+            "WRITE_OUTPUT_TO_FILE": [
+                1
+            ]
+        },
+        "test_src": [
+            "unified_memory.cu",
+            "active_cells.cu"
+        ]
+    },
     "coverage_multiple_wells": {
         "test_specs": {
             "block_size": [

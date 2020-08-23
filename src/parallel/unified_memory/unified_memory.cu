@@ -1,12 +1,15 @@
 #include "unified_memory_common.h"
 
 __global__ void simulation_step_kernel(struct CA d_ca, double *d_write_head) {
-    unsigned idx_x = blockIdx.x * blockDim.x + threadIdx.x;
-    unsigned idx_y = blockIdx.y * blockDim.y + threadIdx.y;
-    unsigned idx_g = idx_y * COLS + idx_x;
+    unsigned x = blockIdx.x * blockDim.x + threadIdx.x;
+    unsigned y = blockIdx.y * blockDim.y + threadIdx.y;
+    unsigned idx_g = y * blockDim.y * gridDim.x + x;
 
     double Q, diff_head, tmp_t, ht1, ht2;
-    if (idx_x < COLS && idx_y < ROWS) {
+    if (idx_g < ROWS * COLS) {
+        unsigned idx_x = idx_g % COLS;
+        unsigned idx_y = idx_g / COLS;
+
         if (idx_y != 0 && idx_y != ROWS - 1) {
             Q = 0;
             if (idx_x >= 1) {

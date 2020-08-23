@@ -10,12 +10,9 @@ __device__ void my_push_back(int cellIdx) {
 }
 
 __global__ void simulation_step_kernel(struct CA d_ca, double *d_write_head) {
-    int activeBlockCount = ceil((double) dev_active_cells_count / (BLOCK_SIZE * BLOCK_SIZE));
-    int activeGridSize = ceil(sqrtf(activeBlockCount));
-
     unsigned ac_idx_x = blockIdx.x * blockDim.x + threadIdx.x;
     unsigned ac_idx_y = blockIdx.y * blockDim.y + threadIdx.y;
-    unsigned ac_idx_g = ac_idx_y * blockDim.x * activeGridSize + ac_idx_x;
+    unsigned ac_idx_g = ac_idx_y * blockDim.x * gridDim.x + ac_idx_x;
 
     if(ac_idx_g < dev_active_cells_count) {
         unsigned idx_g = active_cells_idx[ac_idx_g];
