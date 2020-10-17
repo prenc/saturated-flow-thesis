@@ -36,17 +36,18 @@ def set_logging(args):
 
 
 def main():
-    tdp, tch, cm, args = init_program()
+    tcr, tch, cm, args = init_program()
     set_logging(args)
 
     if args.summaries_dir:
         cm.make_charts_in_dir(args.summaries_dir)
     else:
-        test_data = tdp.get_test_data(args.test_names)
+        test_data = tcr.get_test_data(args.test_names)
         for test_name, test_params in test_data.items():
             summary_file = tch.perform_test_case(test_name, test_params)
-            cm.make_chart_basing_on_summary_file(os.path.join(SUMMARIES_DUMP,
-                                                              summary_file))
+            cm.make_chart_basing_on_summary_file(
+                os.path.join(SUMMARIES_DUMP, summary_file)
+            )
 
 
 if __name__ == "__main__":

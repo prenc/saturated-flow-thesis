@@ -1,6 +1,7 @@
 #include "../../params.h"
 #include "../common/cuda_error_check.cu"
 #include "../common/write_heads_to_file.c"
+#include "../common/statistics.c"
 #include <iostream>
 #include <numeric>
 struct CA h_ca;

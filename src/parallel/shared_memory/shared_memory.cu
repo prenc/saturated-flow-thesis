@@ -53,6 +53,9 @@ __global__ void simulation_step_kernel(struct CA *d_ca, double *d_write_head, in
             ht2 = AREA * d_ca->Sy[idx_g];
 
             d_write_head[idx_g] = s_heads[y][x] + ht1 / ht2;
+	        if (d_write_head[idx_g] < 0) {
+		        d_write_head[idx_g] = 0;
+	        }
         }
     }
 }
@@ -75,7 +78,7 @@ void perform_simulation_on_GPU() {
     }
 }
 
-int main(void) {
+int main(int argc, char *argv[]) {
     init_host_ca();
     copy_data_from_CPU_to_GPU();
 
@@ -83,7 +86,7 @@ int main(void) {
 
 	if(WRITE_OUTPUT_TO_FILE){
 		copy_data_from_GPU_to_CPU();
-		write_heads_to_file(h_ca.head, "shared_memory");
+		write_heads_to_file(h_ca.head, argv[0]);
 	}
 
     return 0;
