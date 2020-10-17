@@ -1,10 +1,8 @@
-#include "../../params.h"
-#include "../common/cuda_error_check.cu"
-#include "../common/write_heads_to_file.c"
-#include "../common/statistics.c"
-#include <iostream>
-#include <numeric>
-struct CA d_read, d_write;
+#include "unified_memory_management.cuh"
+
+int wellsRows[] = { WELLS_Y };
+int wellsCols[] = { WELLS_X };
+double wellsQW[] = { WELLS_QW };
 
 void allocate_memory() {
 	CUDASAFECALL(cudaMallocManaged(&(d_read.head), sizeof(double) * ROWS * COLS));

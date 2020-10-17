@@ -1,4 +1,6 @@
-#include "hybrid_memory_common.h"
+#include "../../params.h"
+#include "../common/memory_management.cuh"
+#include "../common/statistics.h"
 
 __global__ void simulation_step_kernel(struct CA *d_ca, double *d_write_head) {
     __shared__ double s_heads[BLOCK_SIZE][BLOCK_SIZE];

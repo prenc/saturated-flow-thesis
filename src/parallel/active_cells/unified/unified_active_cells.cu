@@ -1,4 +1,5 @@
-#include "../../unified_memory/unified_memory_common.h"
+#include "../../common/unified_memory_management.cuh"
+#include "../../common/statistics.h"
 
 __device__ int active_cells_idx[ROWS * COLS];
 
@@ -154,7 +155,7 @@ int main(int argc, char *argv[]) {
     }
 
     if (WRITE_STATISTICS_TO_FILE) {
-        write_statistics_to_file(stats, argv[0]);
+        write_statistics_to_file( argv[0]);
     }
 
     return 0;

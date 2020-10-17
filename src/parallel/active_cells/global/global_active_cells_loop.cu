@@ -1,4 +1,5 @@
-#include "../../global_memory/global_memory_common.h"
+#include "../../common/memory_management.cuh"
+#include "../../common/statistics.h"
 
 __managed__ int dev_active_cells_count = 0;
 
@@ -158,7 +159,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	if (WRITE_STATISTICS_TO_FILE) {
-		write_statistics_to_file(stats, argv[0]);
+		write_statistics_to_file( argv[0]);
 	}
 
 	return 0;

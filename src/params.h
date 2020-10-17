@@ -1,8 +1,5 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <math.h>
-
-//MODEL PARAMS
+#ifndef PARAMS
+#define PARAMS
 
 #define CA_SIZE 1000
 #define SIMULATION_ITERATIONS 4000
@@ -31,6 +28,7 @@
 
 #define WRITE_STATISTICS_TO_FILE 1
 #define STATISTICS_WRITE_FREQ 10
+#define OUTPUT_PATH "out/"
 // RIVER
 #define KSB  0.00001 // streambed hydraulic conductivity
 #define M  0.5 // river bed thickness
@@ -40,7 +38,7 @@
 #define RIVER_POSITION 24
 
 #define SIMULATED_DAYS_NUMBER 10
-double river_heads[SIMULATED_DAYS_NUMBER] = { 49, 49, 49, 49, 49, 51, 51, 51, 51, 51 };
+#define RIVER_HEADS { 49.0, 49.1, 49.2, 49.3, 49.4, 51.5, 51, 51, 51, 51 }
 
 #define SECONDS_IN_DAY  86400
 #define SIMULATION_STEPS (SECONDS_IN_DAY * SIMULATED_DAYS_NUMBER) / DELTA_T
@@ -52,13 +50,11 @@ double river_heads[SIMULATED_DAYS_NUMBER] = { 49, 49, 49, 49, 49, 51, 51, 51, 51
 #define WELLS_X COLS / 2
 #define WELLS_QW 0.001
 
-int wellsRows[] = { WELLS_Y };
-int wellsCols[] = { WELLS_X };
-double wellsQW[] = { WELLS_QW };
-
 struct CA {
     double *head;
     double *Sy;
     double *K;
     double *Source;
 };
+
+#endif //PARAMS

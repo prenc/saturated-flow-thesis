@@ -1,24 +1,14 @@
-//
-// Created by pecatoma on 13.07.2020.
-//
-#include "timer.c"
+#include "statistics.h"
 
-struct Statistics{
-	double coverage;
+using namespace std;
 
-	double stepTime;
-	double transitionTime;
-	double findACTime;
-};
-
-struct Statistics stats[ROWS*COLS];
-
-void write_statistics_to_file(Statistics *stats, string filename) {
+void write_statistics_to_file(string filename) {
 	create_output_dir(OUTPUT_PATH);
 
 	string path = OUTPUT_PATH + clip_filename(filename) + "_coverage.csv";
 
 	FILE *fp = fopen(path.c_str(), "w");
+
 	fprintf(fp, "Step, Coverage [%%], Step time [us], Transition time [us], Find ac time [us]\n");
 
 	for (int i = 0; i < SIMULATION_ITERATIONS; i+=STATISTICS_WRITE_FREQ) {
@@ -31,7 +21,7 @@ void write_statistics_to_file(Statistics *stats, string filename) {
 	fclose(fp);
 }
 
-void setTimeStats(Statistics *stats, Timer stepTimer, Timer transitionTimer, Timer findACTimer){
+void setTimeStats( Timer stepTimer, Timer transitionTimer, Timer findACTimer){
 	stats->stepTime = getElapsedTime(stepTimer);
 	stats->transitionTime = getElapsedTime(transitionTimer);
 	stats->findACTime = getElapsedTime(findACTimer);
