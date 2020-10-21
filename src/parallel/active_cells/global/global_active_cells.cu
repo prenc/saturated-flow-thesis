@@ -181,10 +181,10 @@ int main(int argc, char *argv[])
     if (WRITE_OUTPUT_TO_FILE)
     {
         copyDataFromGpuToCpu();
-        write_heads_to_file(h_ca.heads, argv[0]);
+        writeHeadsToFile(h_ca.heads, argv[0]);
     }
 
-    write_statistics_to_file(argv[0]);
+    writeStatisticsToFile(argv[0]);
 
     return 0;
 }

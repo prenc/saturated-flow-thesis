@@ -12,7 +12,7 @@ static struct stat st = {0};
 using namespace std;
 
 string clip_filename(string fullname);
-void write_heads_to_file(double *head, string test_name);
+void writeHeadsToFile(double *head, string test_name);
 void write_river_heads_to_file(double *head, double river_head, int day);
 void create_output_dir(string path);
 void write_to_file(double *head, string filename);

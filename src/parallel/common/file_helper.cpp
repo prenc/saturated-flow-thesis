@@ -16,7 +16,7 @@ string clip_filename(string fullname){
     return name_without_ext;
 }
 
-void write_heads_to_file(double *head, string test_name) {
+void writeHeadsToFile(double *head, string test_name) {
     create_output_dir(OUTPUT_PATH);
 
     string filename = OUTPUT_PATH + clip_filename(test_name) + "_heads.csv";

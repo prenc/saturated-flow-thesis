@@ -1,14 +1,16 @@
 #include "../common/memory_management.cuh"
-#include "../common/timer.h"
-#include "../kernels/iteration_step.cuh"
 #include "../common/statistics.h"
+#include "../kernels/iteration_step.cuh"
+
 
 int main(int argc, char *argv[])
 {
     CA *h_ca = initializeCA();
-    auto headsWrite = new double[ROWS * COLS];
+    CA *d_ca = new CA();
+    double *headsWrite;
 
-    allocateManagedMemory(h_ca, headsWrite);
+    allocateMemory(d_ca, headsWrite);
+    copyDataFromCpuToGpu(h_ca, d_ca);
 
     dim3 blockSize(BLOCK_SIZE, BLOCK_SIZE);
     const int blockCount = ceil((double) (ROWS * COLS) / (BLOCK_SIZE * BLOCK_SIZE));
@@ -20,11 +22,19 @@ int main(int argc, char *argv[])
 
     for (unsigned i{}; i < SIMULATION_ITERATIONS; ++i)
     {
-        kernels::standard_step <<< gridDims, blockSize >>>(*h_ca, headsWrite);
+#ifdef STANDARD
+        kernels::standard_step <<< gridDims, blockSize >>>(*d_ca, headsWrite);
+#endif
+#ifdef HYBRID
+        kernels::hybrid_step <<< gridDims, blockSize >>>(*d_ca, headsWrite);
+#endif
+#ifdef SHARED
+        kernels::shared_step <<< gridDims, blockSize >>>(*d_ca, headsWrite, gridSize);
+#endif
         cudaDeviceSynchronize();
 
-        double *tmpHeads = h_ca->heads;
-        h_ca->heads = headsWrite;
+        double *tmpHeads = d_ca->heads;
+        d_ca->heads = headsWrite;
         headsWrite = tmpHeads;
 
         if (i % STATISTICS_WRITE_FREQ == 0)
@@ -37,6 +47,7 @@ int main(int argc, char *argv[])
 
     if (WRITE_OUTPUT_TO_FILE)
     {
+        copyDataFromGpuToCpu(h_ca, d_ca);
         writeHeadsToFile(h_ca->heads, argv[0]);
     }
 
@@ -45,5 +56,5 @@ int main(int argc, char *argv[])
         writeStatisticsToFile(argv[0]);
     }
 
-    freeAllocatedMemory(h_ca, headsWrite);
+    freeAllocatedMemory(d_ca, headsWrite);
 }

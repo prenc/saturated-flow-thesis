@@ -22,6 +22,6 @@ void copyDataFromCpuToGpu(CA *&h_ca, CA *&d_ca);
 
 void copyDataFromGpuToCpu(CA *&h_ca, CA *&d_ca);
 
-void free_allocated_memory(CA *&d_ca, double *&headsWrite);
+void freeAllocatedMemory(CA *&d_ca, double *&headsWrite);
 
 #endif //SATURATED_FLOW_THESIS_MEMORY_MANAGEMENT

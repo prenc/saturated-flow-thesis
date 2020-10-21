@@ -82,11 +82,11 @@ int main(int argc, char *argv[]) {
     perform_simulation_on_GPU();
 
     if(WRITE_OUTPUT_TO_FILE){
-        write_heads_to_file(d_write.heads, argv[0]);
+        writeHeadsToFile(d_write.heads, argv[0]);
     }
 
     if (WRITE_STATISTICS_TO_FILE) {
-	    write_statistics_to_file( argv[0]);
+        writeStatisticsToFile(argv[0]);
     }
 
     return 0;

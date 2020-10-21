@@ -68,7 +68,7 @@ void copyDataFromGpuToCpu(CA *&h_ca, CA *&d_ca)
     ERROR_CHECK(cudaMemcpy(h_ca->heads, d_ca->heads, sizeof(double) * ROWS * COLS, cudaMemcpyDeviceToHost));
 }
 
-void free_allocated_memory(CA *&d_ca, double *&headsWrite)
+void freeAllocatedMemory(CA *&d_ca, double *&headsWrite)
 {
     cudaFree(headsWrite);
     cudaFree(d_ca->heads);
