@@ -12,7 +12,7 @@ __global__ void simulation_step_kernel(struct CA *d_ca, double *d_write_head) {
     double Q, diff_head, tmp_t, ht1, ht2;
 
     if (idx_x < COLS && idx_y < ROWS) {
-        s_heads[threadIdx.y][threadIdx.x] = d_ca->head[idx_g];
+        s_heads[threadIdx.y][threadIdx.x] = d_ca->heads[idx_g];
         s_K[threadIdx.y][threadIdx.x] = d_ca->K[idx_g];
         __syncthreads();
         if (idx_y != 0 && idx_y != ROWS - 1) {
@@ -26,7 +26,7 @@ __global__ void simulation_step_kernel(struct CA *d_ca, double *d_write_head) {
                     if (threadIdx.x >= 1)
                         diff_head = s_heads[threadIdx.y][threadIdx.x - 1] - s_heads[threadIdx.y][threadIdx.x];
                     else
-                        diff_head = d_ca->head[idx_g - 1] - s_heads[threadIdx.y][threadIdx.x];
+                        diff_head = d_ca->heads[idx_g - 1] - s_heads[threadIdx.y][threadIdx.x];
                     tmp_t = s_K[threadIdx.y][threadIdx.x] * THICKNESS;
                     Q += diff_head * tmp_t;
                 }
@@ -34,7 +34,7 @@ __global__ void simulation_step_kernel(struct CA *d_ca, double *d_write_head) {
                     if (threadIdx.y >= 1)
                         diff_head = s_heads[threadIdx.y - 1][threadIdx.x] - s_heads[threadIdx.y][threadIdx.x];
                     else
-                        diff_head = d_ca->head[(idx_y - 1) * COLS + idx_x] - s_heads[threadIdx.y][threadIdx.x];
+                        diff_head = d_ca->heads[(idx_y - 1) * COLS + idx_x] - s_heads[threadIdx.y][threadIdx.x];
                     tmp_t = s_K[threadIdx.y][threadIdx.x] * THICKNESS;
                     Q += diff_head * tmp_t;
                 }
@@ -42,7 +42,7 @@ __global__ void simulation_step_kernel(struct CA *d_ca, double *d_write_head) {
                     if (threadIdx.x < BLOCK_SIZE - 1)
                         diff_head = s_heads[threadIdx.y][threadIdx.x + 1] - s_heads[threadIdx.y][threadIdx.x];
                     else
-                        diff_head = d_ca->head[idx_g + 1] - s_heads[threadIdx.y][threadIdx.x];
+                        diff_head = d_ca->heads[idx_g + 1] - s_heads[threadIdx.y][threadIdx.x];
                     tmp_t = s_K[threadIdx.y][threadIdx.x] * THICKNESS;
                     Q += diff_head * tmp_t;
                 }
@@ -50,13 +50,13 @@ __global__ void simulation_step_kernel(struct CA *d_ca, double *d_write_head) {
                     if (threadIdx.y < BLOCK_SIZE - 1)
                         diff_head = s_heads[threadIdx.y + 1][threadIdx.x] - s_heads[threadIdx.y][threadIdx.x];
                     else
-                        diff_head = d_ca->head[(idx_y + 1) * COLS + idx_x] - s_heads[threadIdx.y][threadIdx.x];
+                        diff_head = d_ca->heads[(idx_y + 1) * COLS + idx_x] - s_heads[threadIdx.y][threadIdx.x];
                     tmp_t = s_K[threadIdx.y][threadIdx.x] * THICKNESS;
                     Q += diff_head * tmp_t;
                 }
             }
 
-            Q -= d_ca->Source[idx_g];
+            Q -= d_ca->sources[idx_g];
             ht1 = Q * DELTA_T;
             ht2 = AREA * d_ca->Sy[idx_g];
 
@@ -80,21 +80,21 @@ void perform_simulation_on_GPU() {
         cudaDeviceSynchronize();
 
         double *tmp1 = d_write_head;
-        CUDASAFECALL(
-                cudaMemcpy(&d_write_head, &(d_read_ca->head), sizeof(d_read_ca->head), cudaMemcpyDeviceToHost));
-        CUDASAFECALL(cudaMemcpy(&(d_read_ca->head), &tmp1, sizeof(tmp1), cudaMemcpyHostToDevice));
+        ERROR_CHECK(
+                cudaMemcpy(&d_write_head, &(d_read_ca->heads), sizeof(d_read_ca->heads), cudaMemcpyDeviceToHost));
+        ERROR_CHECK(cudaMemcpy(&(d_read_ca->heads), &tmp1, sizeof(tmp1), cudaMemcpyHostToDevice));
     }
 }
 
 int main(int argc, char *argv[]) {
-    init_host_ca();
-    copy_data_from_CPU_to_GPU();
+    initializeCA();
+    copyDataFromCpuToGpu();
 
     perform_simulation_on_GPU();
 
 	if(WRITE_OUTPUT_TO_FILE){
-		copy_data_from_GPU_to_CPU();
-		write_heads_to_file(h_ca.head, argv[0]);
+        copyDataFromGpuToCpu();
+		write_heads_to_file(h_ca.heads, argv[0]);
 	}
 
     return 0;

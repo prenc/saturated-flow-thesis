@@ -1,12 +1,12 @@
 #ifndef PARAMS
 #define PARAMS
 
-#define CA_SIZE 1000
-#define SIMULATION_ITERATIONS 4000
+#define CA_SIZE 20
+#define SIMULATION_ITERATIONS 4'000
 #define BLOCK_SIZE 32
 
-#define WRITE_OUTPUT_TO_FILE 0
-#define TRANSPOSE_OUTPUT 1
+#define WRITE_OUTPUT_TO_FILE 1
+#define TRANSPOSE_OUTPUT 0
 
 #define ROWS CA_SIZE
 #define COLS CA_SIZE
@@ -29,6 +29,7 @@
 #define WRITE_STATISTICS_TO_FILE 1
 #define STATISTICS_WRITE_FREQ 10
 #define OUTPUT_PATH "out/"
+
 // RIVER
 #define KSB  0.00001 // streambed hydraulic conductivity
 #define M  0.5 // river bed thickness
@@ -49,12 +50,5 @@
 #define WELLS_Y ROWS / 2
 #define WELLS_X COLS / 2
 #define WELLS_QW 0.001
-
-struct CA {
-    double *head;
-    double *Sy;
-    double *K;
-    double *Source;
-};
 
 #endif //PARAMS

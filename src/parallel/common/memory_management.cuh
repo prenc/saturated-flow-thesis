@@ -3,13 +3,25 @@
 
 #include "cuda_error_check.cuh"
 #include "../../params.h"
-extern struct CA h_ca;
 
-extern double *d_write_head;
-extern CA *d_read_ca;
+struct CA
+{
+    double *heads;
+    double *Sy;
+    double *K;
+    double *sources;
+};
 
-void copy_data_from_CPU_to_GPU();
-void init_host_ca();
-void copy_data_from_GPU_to_CPU();
+CA *initializeCA();
+
+void allocateManagedMemory(CA *&ca, double *&heads_write);
+
+void allocateMemory(CA *&ca, double *&heads_write);
+
+void copyDataFromCpuToGpu(CA *&h_ca, CA *&d_ca);
+
+void copyDataFromGpuToCpu(CA *&h_ca, CA *&d_ca);
+
+void free_allocated_memory(CA *&d_ca, double *&headsWrite);
 
 #endif //SATURATED_FLOW_THESIS_MEMORY_MANAGEMENT

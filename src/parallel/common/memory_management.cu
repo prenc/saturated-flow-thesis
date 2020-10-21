@@ -1,68 +1,78 @@
 #include "memory_management.cuh"
-struct CA h_ca;
 
-double *d_write_head;
-CA *d_read_ca;
-
-int wellsRows[] = { WELLS_Y };
-int wellsCols[] = { WELLS_X };
-double wellsQW[] = { WELLS_QW };
-
-void copy_data_from_CPU_to_GPU() {
-	double *d_read_head, *d_read_Sy, *d_read_K, *d_read_Source;
-
-	CUDASAFECALL(cudaMalloc((void **) &d_read_ca, sizeof(*d_read_ca)));
-	CUDASAFECALL(cudaMalloc((void **) &d_read_head, sizeof(*d_read_head) * ROWS * COLS));
-	CUDASAFECALL(cudaMalloc((void **) &d_write_head, sizeof(double) * ROWS * COLS));
-	CUDASAFECALL(cudaMalloc(&d_read_Sy, sizeof(double) * ROWS * COLS));
-	CUDASAFECALL(cudaMalloc(&d_read_K, sizeof(double) * ROWS * COLS));
-	CUDASAFECALL(cudaMalloc(&d_read_Source, sizeof(double) * ROWS * COLS));
-
-	CUDASAFECALL(cudaMemcpy(d_read_head, h_ca.head, sizeof(*d_read_head) * ROWS * COLS, cudaMemcpyHostToDevice));
-	CUDASAFECALL(cudaMemcpy(&(d_read_ca->head), &d_read_head, sizeof(d_read_ca->head), cudaMemcpyHostToDevice));
-
-	CUDASAFECALL(cudaMemcpy(d_read_Sy, h_ca.Sy, sizeof(double) * ROWS * COLS, cudaMemcpyHostToDevice));
-	CUDASAFECALL(cudaMemcpy(&(d_read_ca->Sy), &d_read_Sy, sizeof(d_read_ca->Sy), cudaMemcpyHostToDevice));
-
-	CUDASAFECALL(cudaMemcpy(d_read_K, h_ca.K, sizeof(double) * ROWS * COLS, cudaMemcpyHostToDevice));
-	CUDASAFECALL(cudaMemcpy(&(d_read_ca->K), &d_read_K, sizeof(d_read_ca->K), cudaMemcpyHostToDevice));
-
-	CUDASAFECALL(cudaMemcpy(d_read_Source, h_ca.Source, sizeof(double) * ROWS * COLS, cudaMemcpyHostToDevice));
-	CUDASAFECALL(
-			cudaMemcpy(&(d_read_ca->Source), &d_read_Source, sizeof(d_read_ca->Source), cudaMemcpyHostToDevice));
-
-	CUDASAFECALL(cudaMemcpy(d_write_head, h_ca.head, sizeof(double) * ROWS * COLS, cudaMemcpyHostToDevice));
-
+void allocateManagedMemory(CA *&ca, double *&heads_write)
+{
+    ERROR_CHECK(cudaMallocManaged((void **) &heads_write, sizeof(double) * ROWS * COLS));
+    ERROR_CHECK(cudaMallocManaged((void **) &ca->heads, sizeof(double) * ROWS * COLS));
+    ERROR_CHECK(cudaMallocManaged((void **) &ca->K, sizeof(double) * ROWS * COLS));
+    ERROR_CHECK(cudaMallocManaged((void **) &ca->Sy, sizeof(double) * ROWS * COLS));
+    ERROR_CHECK(cudaMallocManaged((void **) &ca->sources, sizeof(double) * ROWS * COLS));
 }
 
-void init_host_ca() {
-	h_ca.head = new double[ROWS * COLS]();
-	h_ca.Sy = new double[ROWS * COLS]();
-	h_ca.K = new double[ROWS * COLS]();
-	h_ca.Source = new double[ROWS * COLS]();
-
-	for (int i = 0; i < ROWS; i++)
-		for (int j = 0; j < COLS; j++) {
-			h_ca.head[i * ROWS + j] = headFixed;
-			if (j == COLS - 1) {
-				h_ca.head[i * ROWS + j] = headCalculated;
-			}
-			h_ca.Sy[i * ROWS + j] = Syinitial;
-			h_ca.K[i * ROWS + j] = Kinitial;
-			h_ca.Source[i * ROWS + j] = 0;
-		}
-
-	int x,y;
-	double source;
-	for(int i = 0; i < NUMBER_OF_WELLS; i++){
-		x = wellsRows[i];
-		y = wellsCols[i];
-		source = wellsQW[i];
-		h_ca.Source[y *ROWS + x] = source;
-	}
+void allocateMemory(CA *&ca, double *&headsWrite)
+{
+    ERROR_CHECK(cudaMalloc((void **) &headsWrite, sizeof(double) * ROWS * COLS));
+    ERROR_CHECK(cudaMalloc((void **) &ca->heads, sizeof(double) * ROWS * COLS));
+    ERROR_CHECK(cudaMalloc((void **) &ca->K, sizeof(double) * ROWS * COLS));
+    ERROR_CHECK(cudaMalloc((void **) &ca->Sy, sizeof(double) * ROWS * COLS));
+    ERROR_CHECK(cudaMalloc((void **) &ca->sources, sizeof(double) * ROWS * COLS));
 }
 
-void copy_data_from_GPU_to_CPU() {
-	CUDASAFECALL(cudaMemcpy(h_ca.head, d_write_head, sizeof(double) * ROWS * COLS, cudaMemcpyDeviceToHost));
+void copyDataFromCpuToGpu(CA *&h_ca, CA *&d_ca)
+{
+    ERROR_CHECK(cudaMemcpy(d_ca->heads, h_ca->heads, sizeof(double) * ROWS * COLS, cudaMemcpyHostToDevice));
+    ERROR_CHECK(cudaMemcpy(d_ca->K, h_ca->K, sizeof(double) * ROWS * COLS, cudaMemcpyHostToDevice));
+    ERROR_CHECK(cudaMemcpy(d_ca->Sy, h_ca->Sy, sizeof(double) * ROWS * COLS, cudaMemcpyHostToDevice));
+    ERROR_CHECK(cudaMemcpy(d_ca->sources, h_ca->sources, sizeof(double) * ROWS * COLS, cudaMemcpyHostToDevice));
 }
 
+CA *initializeCA()
+{
+    int wellsRows[] = {WELLS_Y};
+    int wellsCols[] = {WELLS_X};
+    double wellsQW[] = {WELLS_QW};
+
+    auto ca = new CA();
+    ca->heads = new double[ROWS * COLS]();
+    ca->Sy = new double[ROWS * COLS]();
+    ca->K = new double[ROWS * COLS]();
+    ca->sources = new double[ROWS * COLS]();
+
+    for (int i{}; i < ROWS; ++i)
+        for (int j{}; j < COLS; ++j)
+        {
+            ca->heads[i * ROWS + j] = headFixed;
+            if (j == COLS - 1)
+            {
+                ca->heads[i * ROWS + j] = headCalculated;
+            }
+            ca->Sy[i * ROWS + j] = Syinitial;
+            ca->K[i * ROWS + j] = Kinitial;
+            ca->sources[i * ROWS + j] = 0;
+        }
+
+    int x, y;
+    double source;
+    for (int i{}; i < NUMBER_OF_WELLS; ++i)
+    {
+        x = wellsRows[i];
+        y = wellsCols[i];
+        source = wellsQW[i];
+        ca->sources[y * ROWS + x] = source;
+    }
+    return ca;
+}
+
+void copyDataFromGpuToCpu(CA *&h_ca, CA *&d_ca)
+{
+    ERROR_CHECK(cudaMemcpy(h_ca->heads, d_ca->heads, sizeof(double) * ROWS * COLS, cudaMemcpyDeviceToHost));
+}
+
+void free_allocated_memory(CA *&d_ca, double *&headsWrite)
+{
+    cudaFree(headsWrite);
+    cudaFree(d_ca->heads);
+    cudaFree(d_ca->Sy);
+    cudaFree(d_ca->K);
+    cudaFree(d_ca->sources);
+}

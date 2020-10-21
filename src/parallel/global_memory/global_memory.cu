@@ -1,88 +1,100 @@
 #include "../common/memory_management.cuh"
 #include "../common/statistics.h"
 
-__global__ void simulation_step_kernel(struct CA *d_ca, double *d_write_head) {
-	unsigned idx_x = blockIdx.x * blockDim.x + threadIdx.x;
-	unsigned idx_y = blockIdx.y * blockDim.y + threadIdx.y;
-	unsigned idx_g = idx_y * COLS + idx_x;
+__global__ void simulation_step_kernel(struct CA ca, double *heads_write)
+{
+    unsigned idx_x = blockIdx.x * blockDim.x + threadIdx.x;
+    unsigned idx_y = blockIdx.y * blockDim.y + threadIdx.y;
+    unsigned idx_g = idx_y * COLS + idx_x;
 
-	double Q, diff_head, tmp_t, ht1, ht2;
-	if (idx_x < COLS && idx_y < ROWS) {
-		if (idx_y != 0 && idx_y != ROWS - 1) {
-			Q = 0;
-			if (idx_x >= 1) {
-				diff_head = d_ca->head[idx_g - 1] - d_ca->head[idx_g];
-				tmp_t = d_ca->K[idx_g] * THICKNESS;
-				Q += diff_head * tmp_t;
-			}
-			if (idx_y >= 1) {
-				diff_head = d_ca->head[(idx_y - 1) * COLS + idx_x] - d_ca->head[idx_g];
-				tmp_t = d_ca->K[idx_g] * THICKNESS;
-				Q += diff_head * tmp_t;
-			}
-			if (idx_x + 1 < COLS) {
-				diff_head = d_ca->head[idx_g + 1] - d_ca->head[idx_g];
-				tmp_t = d_ca->K[idx_g] * THICKNESS;
-				Q += diff_head * tmp_t;
-			}
-			if (idx_y + 1 < ROWS) {
-				diff_head = d_ca->head[(idx_y + 1) * COLS + idx_x] - d_ca->head[idx_g];
-				tmp_t = d_ca->K[idx_g] * THICKNESS;
-				Q += diff_head * tmp_t;
-			}
+    double Q, diff_head, tmp_t, ht1, ht2;
+    if (idx_x < COLS && idx_y < ROWS)
+    {
+        if (idx_y != 0 && idx_y != ROWS - 1)
+        {
+            Q = 0;
+            if (idx_x >= 1)
+            {
+                diff_head = ca.heads[idx_g - 1] - ca.heads[idx_g];
+                tmp_t = ca.K[idx_g] * THICKNESS;
+                Q += diff_head * tmp_t;
+            }
+            if (idx_y >= 1)
+            {
+                diff_head = ca.heads[(idx_y - 1) * COLS + idx_x] - ca.heads[idx_g];
+                tmp_t = ca.K[idx_g] * THICKNESS;
+                Q += diff_head * tmp_t;
+            }
+            if (idx_x + 1 < COLS)
+            {
+                diff_head = ca.heads[idx_g + 1] - ca.heads[idx_g];
+                tmp_t = ca.K[idx_g] * THICKNESS;
+                Q += diff_head * tmp_t;
+            }
+            if (idx_y + 1 < ROWS)
+            {
+                diff_head = ca.heads[(idx_y + 1) * COLS + idx_x] - ca.heads[idx_g];
+                tmp_t = ca.K[idx_g] * THICKNESS;
+                Q += diff_head * tmp_t;
+            }
 
-			Q -= d_ca->Source[idx_g];
-			ht1 = Q * DELTA_T;
-			ht2 = AREA * d_ca->Sy[idx_g];
+            Q -= ca.sources[idx_g];
+            ht1 = Q * DELTA_T;
+            ht2 = AREA * ca.Sy[idx_g];
 
-			d_write_head[idx_g] = d_ca->head[idx_g] + ht1 / ht2;
-			if (d_write_head[idx_g] < 0) {
-				d_write_head[idx_g] = 0;
-			}
-		}
-	}
+            heads_write[idx_g] = ca.heads[idx_g] + ht1 / ht2;
+            if (heads_write[idx_g] < 0)
+            {
+                heads_write[idx_g] = 0;
+            }
+        }
+    }
 }
 
-void perform_simulation_on_GPU() {
-	dim3 blockSize(BLOCK_SIZE, BLOCK_SIZE);
-	const int blockCount = ceil((ROWS * COLS) / (BLOCK_SIZE * BLOCK_SIZE));
-	int gridSize = ceil(sqrt(blockCount));
-	dim3 gridDim(gridSize, gridSize);
+int main(int argc, char *argv[])
+{
+    CA *h_ca = initializeCA();
+    CA *d_ca = new CA();
+    double *headsWrite;
 
-	Timer stepTimer;
-	startTimer(&stepTimer);
+    allocateMemory(d_ca, headsWrite);
+    copyDataFromCpuToGpu(h_ca, d_ca);
 
-	for (int i = 0; i < SIMULATION_ITERATIONS; i++) {
-		simulation_step_kernel << < gridDim, blockSize >> > (d_read_ca, d_write_head);
+    dim3 blockSize(BLOCK_SIZE, BLOCK_SIZE);
+    const int blockCount = ceil((double) (ROWS * COLS) / (BLOCK_SIZE * BLOCK_SIZE));
+    int gridSize = ceil(sqrt(blockCount));
+    dim3 gridDims(gridSize, gridSize);
 
-		cudaDeviceSynchronize();
+    Timer stepTimer{};
+    startTimer(&stepTimer);
 
-		double *tmp1 = d_write_head;
-		CUDASAFECALL(
-				cudaMemcpy(&d_write_head, &(d_read_ca->head), sizeof(d_read_ca->head), cudaMemcpyDeviceToHost));
-		CUDASAFECALL(cudaMemcpy(&(d_read_ca->head), &tmp1, sizeof(tmp1), cudaMemcpyHostToDevice));
+    for (unsigned i{}; i < SIMULATION_ITERATIONS; ++i)
+    {
+        simulation_step_kernel <<< gridDims, blockSize >>>(*d_ca, headsWrite);
+        cudaDeviceSynchronize();
 
-		if (i % STATISTICS_WRITE_FREQ == 0) {
-			endTimer(&stepTimer);
-			stats[i].stepTime = getElapsedTime(stepTimer);
-			startTimer(&stepTimer);
-		}
-	}
-}
+        double *tmpHeads = d_ca->heads;
+        d_ca->heads = headsWrite;
+        headsWrite = tmpHeads;
 
-int main(int argc, char *argv[]) {
-	init_host_ca();
+        if (i % STATISTICS_WRITE_FREQ == 0)
+        {
+            endTimer(&stepTimer);
+            stats[i].stepTime = getElapsedTime(stepTimer);
+            startTimer(&stepTimer);
+        }
+    }
 
-	perform_simulation_on_GPU();
+    if (WRITE_OUTPUT_TO_FILE)
+    {
+        copyDataFromGpuToCpu(h_ca, d_ca);
+        write_heads_to_file(h_ca->heads, argv[0]);
+    }
 
-	if(WRITE_OUTPUT_TO_FILE){
-		copy_data_from_GPU_to_CPU();
-		write_heads_to_file(h_ca.head, argv[0]);
-	}
+    if (WRITE_STATISTICS_TO_FILE)
+    {
+        write_statistics_to_file(argv[0]);
+    }
 
-	if (WRITE_STATISTICS_TO_FILE) {
-		write_statistics_to_file( argv[0]);
-	}
-
-    return 0;
+    free_allocated_memory(d_ca, headsWrite);
 }

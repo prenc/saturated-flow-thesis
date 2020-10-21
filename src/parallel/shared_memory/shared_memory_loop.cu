@@ -15,17 +15,17 @@ __global__ void simulation_step_kernel(struct CA *d_ca, double *d_write_head, in
         unsigned x = threadIdx.x + 1;
         unsigned y = threadIdx.y + 1;
 
-        s_heads[y][x] = d_ca->head[idx_g];
+        s_heads[y][x] = d_ca->heads[idx_g];
         s_K[y][x] = d_ca->K[idx_g];
 
         if (threadIdx.x == 0 && blockIdx.x != 0) // left
-            s_heads[y][x - 1] = d_ca->head[idx_g - 1];
+            s_heads[y][x - 1] = d_ca->heads[idx_g - 1];
         if (threadIdx.x == BLOCK_SIZE - 1 && blockIdx.x != grid_size - 1) // right
-            s_heads[y][x + 1] = d_ca->head[idx_g + 1];
+            s_heads[y][x + 1] = d_ca->heads[idx_g + 1];
         if (threadIdx.y == 0 && blockIdx.y != 0) // upper
-            s_heads[y - 1][x] = d_ca->head[idx_g - COLS];
+            s_heads[y - 1][x] = d_ca->heads[idx_g - COLS];
         if (threadIdx.y == BLOCK_SIZE - 1 && blockIdx.y != grid_size - 1) // bottom
-            s_heads[y + 1][x] = d_ca->head[idx_g + COLS];
+            s_heads[y + 1][x] = d_ca->heads[idx_g + COLS];
         __syncthreads();
 
         if (idx_y != 0 && idx_y != ROWS - 1) {
@@ -57,7 +57,7 @@ __global__ void simulation_step_kernel(struct CA *d_ca, double *d_write_head, in
                 }
             }
 
-            Q -= d_ca->Source[idx_g];
+            Q -= d_ca->sources[idx_g];
             ht1 = Q * DELTA_T;
             ht2 = AREA * d_ca->Sy[idx_g];
 
@@ -81,22 +81,22 @@ void perform_simulation_on_GPU() {
         cudaDeviceSynchronize();
 
         double *tmp1 = d_write_head;
-        CUDASAFECALL(
-                cudaMemcpy(&d_write_head, &(d_read_ca->head), sizeof(d_read_ca->head), cudaMemcpyDeviceToHost));
-        CUDASAFECALL(cudaMemcpy(&(d_read_ca->head), &tmp1, sizeof(tmp1), cudaMemcpyHostToDevice));
+        ERROR_CHECK(
+                cudaMemcpy(&d_write_head, &(d_read_ca->heads), sizeof(d_read_ca->heads), cudaMemcpyDeviceToHost));
+        ERROR_CHECK(cudaMemcpy(&(d_read_ca->heads), &tmp1, sizeof(tmp1), cudaMemcpyHostToDevice));
     }
 }
 
 int main(int argc, char *argv[]) {
-    init_host_ca();
+    initializeCA();
 
-    copy_data_from_CPU_to_GPU();
+    copyDataFromCpuToGpu();
 
     perform_simulation_on_GPU();
 
 	if(WRITE_OUTPUT_TO_FILE){
-		copy_data_from_GPU_to_CPU();
-		write_heads_to_file(h_ca.head, argv[0]);
+        copyDataFromGpuToCpu();
+		write_heads_to_file(h_ca.heads, argv[0]);
 	}
     return 0;
 }

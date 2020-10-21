@@ -28,32 +28,32 @@ __global__ void simulation_step_kernel(struct CA d_ca, double *d_write_head) {
 			Q = 0;
 			if (idx_y != 0 && idx_y != ROWS - 1) {
 				if (idx_x >= 1) {
-					diff_head = d_ca.head[idx_g - 1] - d_ca.head[idx_g];
+					diff_head = d_ca.heads[idx_g - 1] - d_ca.heads[idx_g];
 					tmp_t = d_ca.K[idx_g] * THICKNESS;
 					Q += diff_head * tmp_t;
 				}
 				if (idx_y >= 1) {
-					diff_head = d_ca.head[(idx_y - 1) * COLS + idx_x] - d_ca.head[idx_g];
+					diff_head = d_ca.heads[(idx_y - 1) * COLS + idx_x] - d_ca.heads[idx_g];
 					tmp_t = d_ca.K[idx_g] * THICKNESS;
 					Q += diff_head * tmp_t;
 				}
 				if (idx_x + 1 < COLS) {
-					diff_head = d_ca.head[idx_g + 1] - d_ca.head[idx_g];
+					diff_head = d_ca.heads[idx_g + 1] - d_ca.heads[idx_g];
 					tmp_t = d_ca.K[idx_g] * THICKNESS;
 					Q += diff_head * tmp_t;
 				}
 				if (idx_y + 1 < ROWS) {
-					diff_head = d_ca.head[(idx_y + 1) * COLS + idx_x] - d_ca.head[idx_g];
+					diff_head = d_ca.heads[(idx_y + 1) * COLS + idx_x] - d_ca.heads[idx_g];
 					tmp_t = d_ca.K[idx_g] * THICKNESS;
 					Q += diff_head * tmp_t;
 				}
 			}
-			Q -= d_ca.Source[idx_g];
+			Q -= d_ca.sources[idx_g];
 
 			ht1 = Q * DELTA_T;
 			ht2 = AREA * d_ca.Sy[idx_g];
 
-			d_write_head[idx_g] = d_ca.head[idx_g] + ht1 / ht2;
+			d_write_head[idx_g] = d_ca.heads[idx_g] + ht1 / ht2;
 			if (d_write_head[idx_g] < 0) {
 				d_write_head[idx_g] = 0;
 			}
@@ -67,30 +67,30 @@ __global__ void find_active_cells_kernel(struct CA d_ca) {
 	unsigned idx_g = idx_y * COLS + idx_x;
 
 	if (idx_x < ROWS && idx_y < COLS) {
-		if (d_ca.head[idx_g] < headFixed || d_ca.Source[idx_g] != 0) {
+		if (d_ca.heads[idx_g] < headFixed || d_ca.sources[idx_g] != 0) {
 			my_push_back(idx_g);
 			return;
 		}
 		if (idx_x >= 1) {
-			if (d_ca.head[idx_g - 1] < headFixed) {
+			if (d_ca.heads[idx_g - 1] < headFixed) {
 				my_push_back(idx_g);
 				return;
 			}
 		}
 		if (idx_y >= 1) {
-			if (d_ca.head[idx_g - COLS] < headFixed) {
+			if (d_ca.heads[idx_g - COLS] < headFixed) {
 				my_push_back(idx_g);
 				return;
 			}
 		}
 		if (idx_x + 1 < COLS) {
-			if (d_ca.head[idx_g + 1] < headFixed) {
+			if (d_ca.heads[idx_g + 1] < headFixed) {
 				my_push_back(idx_g);
 				return;
 			}
 		}
 		if (idx_y + 1 < ROWS) {
-			if (d_ca.head[idx_g + COLS] < headFixed) {
+			if (d_ca.heads[idx_g + COLS] < headFixed) {
 				my_push_back(idx_g);
 				return;
 			}
@@ -132,12 +132,12 @@ void perform_simulation_on_GPU() {
 			simulationGridDim = &gridDim;
 		}
 
-		simulation_step_kernel <<<*simulationGridDim, blockSize>>>(d_read, d_write.head);
+		simulation_step_kernel <<<*simulationGridDim, blockSize>>>(d_read, d_write.heads);
 		cudaDeviceSynchronize();
 
-		double *tmp = d_write.head;
-		d_write.head = d_read.head;
-		d_read.head = tmp;
+		double *tmp = d_write.heads;
+		d_write.heads = d_read.heads;
+		d_read.heads = tmp;
 
 		if (i % STATISTICS_WRITE_FREQ == 0) {
 			endTimer(&stepTimer);
@@ -156,7 +156,7 @@ int main(int argc, char *argv[]) {
 	perform_simulation_on_GPU();
 
 	if (WRITE_OUTPUT_TO_FILE) {
-		write_heads_to_file(d_write.head, argv[0]);
+		write_heads_to_file(d_write.heads, argv[0]);
 	}
 
 	if (WRITE_STATISTICS_TO_FILE) {
