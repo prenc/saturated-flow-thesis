@@ -1,4 +1,7 @@
-#include "../parallel/unified_memory/unified_memory_common.h"
+#include "../parallel/common/unified_memory_management.cuh"
+#include "../parallel/common/statistics.h"
+
+double river_heads[] = RIVER_HEADS;
 
 __global__ void simulation_step_kernel(struct CA d_ca, double *d_write_head,  double river_head) {
 	unsigned idx_x = blockIdx.x * blockDim.x + threadIdx.x;

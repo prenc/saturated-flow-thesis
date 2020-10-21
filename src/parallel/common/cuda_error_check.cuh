@@ -1,3 +1,6 @@
+#ifndef SATURATED_FLOW_ERROR
+#define SATURATED_FLOW_ERROR
+
 #define CUDASAFECALL( err ) __cudaSafeCall( err, __FILE__, __LINE__ )
 #define CUDACHECKERROR()    __cudaCheckError( __FILE__, __LINE__ )
 
@@ -49,3 +52,4 @@ inline void __cudaCheckError( const char *file, const int line )
 
 	return;
 }
+#endif //SATURATED_FLOW_ERROR

@@ -1,17 +1,4 @@
-#include <iostream>
-#include <stdlib.h>
-#include <stdio.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
-struct stat st = {0};
-
-using namespace std;
-
-void write_to_file(double *array, string filename);
-void create_output_dir(string path);
-
-string OUTPUT_PATH = "output/";
+#include "file_helper.h"
 
 string clip_filename(string fullname){
     string name_without_ext = fullname;

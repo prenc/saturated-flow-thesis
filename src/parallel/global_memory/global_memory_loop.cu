@@ -1,4 +1,6 @@
-#include "global_memory_common.h"
+#include "../../params.h"
+#include "../common/memory_management.cuh"
+#include "../common/statistics.h"
 
 __global__ void simulation_step_kernel(struct CA *d_ca, double *d_write_head) {
     unsigned idx_x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -90,7 +92,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	if (WRITE_STATISTICS_TO_FILE) {
-		write_statistics_to_file(stats, argv[0]);
+		write_statistics_to_file( argv[0]);
 	}
 
     return 0;
