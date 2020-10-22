@@ -1,12 +1,16 @@
+#include <filesystem>
 #include "statistics.h"
 
-void writeStatisticsToFile(vector<StatPoint> &stats, string filename)
+void writeStatisticsToFile(std::vector<StatPoint> &stats, const std::string& filename)
 {
-    create_output_dir(OUTPUT_PATH);
+    std::filesystem::path testName(filename);
+    std::filesystem::path statsPath(OUTPUT_PATH);
+    statsPath /= "coverage_";
+    statsPath += testName.stem().string();
+    statsPath += ".csv";
+    std::filesystem::create_directories(statsPath.parent_path());
 
-    string path = OUTPUT_PATH + clip_filename(filename) + "_coverage.csv";
-
-    FILE *fp = fopen(path.c_str(), "w");
+    FILE *fp = fopen(statsPath.c_str(), "w");
 
     fprintf(fp, "Step, Coverage [%%], Step time [us], Transition time [us], Find ac time [us]\n");
 

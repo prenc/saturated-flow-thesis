@@ -7,6 +7,9 @@ cuda_select_nvcc_arch_flags(ARCH_FLAGS)
 
 enable_language(CUDA)
 
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CUDA_STANDARD 14)
+
 file(GLOB COMMON
         params.h
         parallel/common/cuda_error_check.cuh
@@ -22,6 +25,7 @@ file(GLOB COMMON
         parallel/kernels/iteration_step.cuh
         )
 
+
 add_executable(g_standard parallel/global_memory/g_standard.cu ${COMMON})
 add_executable(g_standard_loop parallel/global_memory/g_standard_loop.cu ${COMMON})
 add_executable(g_shared parallel/global_memory/g_shared.cu ${COMMON})
@@ -36,7 +40,6 @@ add_executable(u_shared_loop parallel/unified_memory/u_shared_loop.cu ${COMMON})
 add_executable(u_hybrid parallel/unified_memory/u_hybrid.cu ${COMMON})
 add_executable(u_hybrid_loop parallel/unified_memory/u_hybrid_loop.cu ${COMMON})
 
-# todo for Tomasz
 add_executable(global_active_cells parallel/active_cells/global/global_active_cells.cu ${COMMON})
 add_executable(global_active_cells_loop parallel/active_cells/global/global_active_cells_loop.cu ${COMMON})
 add_executable(active_cells parallel/active_cells/unified/unified_active_cells.cu ${COMMON})

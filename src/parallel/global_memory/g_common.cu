@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
     int gridSize = ceil(sqrt(blockCount));
     dim3 gridDims(gridSize, gridSize);
 
-    vector<StatPoint> stats;
+    std::vector<StatPoint> stats;
     Timer stepTimer;
     stepTimer.start();
 
@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
     if (WRITE_OUTPUT_TO_FILE)
     {
         copyDataFromGpuToCpu(h_ca, d_ca);
-        writeHeadsToFile(h_ca->heads, argv[0]);
+        saveHeadsInFile(h_ca->heads, argv[0]);
     }
 
     if (WRITE_STATISTICS_TO_FILE)

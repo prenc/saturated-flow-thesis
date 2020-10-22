@@ -16,6 +16,6 @@ struct StatPoint
     double findACTime;
 };
 
-void writeStatisticsToFile(vector<StatPoint> &stats, string filename);
+void writeStatisticsToFile(std::vector<StatPoint> &stats, const std::string& filename);
 
 #endif //SATURATED_FLOW_THESIS_STATISTICS_H

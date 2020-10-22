@@ -156,7 +156,7 @@ int main(int argc, char *argv[]) {
 	perform_simulation_on_GPU();
 
 	if (WRITE_OUTPUT_TO_FILE) {
-        writeHeadsToFile(d_write.heads, argv[0]);
+        writeHeads(d_write.heads, argv[0]);
 	}
 
 	if (WRITE_STATISTICS_TO_FILE) {
