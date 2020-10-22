@@ -1,8 +1,6 @@
 #include "statistics.h"
 
-using namespace std;
-
-void writeStatisticsToFile(string filename)
+void writeStatisticsToFile(vector<StatPoint> &stats, string filename)
 {
     create_output_dir(OUTPUT_PATH);
 
@@ -12,14 +10,16 @@ void writeStatisticsToFile(string filename)
 
     fprintf(fp, "Step, Coverage [%%], Step time [us], Transition time [us], Find ac time [us]\n");
 
+    auto it = stats.begin();
     for (int i{1}; i < SIMULATION_ITERATIONS; i += STATISTICS_WRITE_FREQ)
     {
-        cout << i << endl;
-        fprintf(fp, "%d, %lf, %.0lf, %.0lf, %.0lf\n", i,
-                stats[i].coverage,
-                stats[i].stepTime,
-                stats[i].transitionTime,
-                stats[i].findACTime);
+        fprintf(fp, "%d, %lf, %.0lf, %.0lf, %.0lf\n",
+                i,
+                (*it).coverage,
+                (*it).stepTime,
+                (*it).transitionTime,
+                (*it).findACTime);
+        ++it;
     }
     fclose(fp);
 }

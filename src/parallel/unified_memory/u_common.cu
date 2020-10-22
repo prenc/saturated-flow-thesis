@@ -16,6 +16,7 @@ int main(int argc, char *argv[])
     int gridSize = ceil(sqrt(blockCount));
     dim3 gridDims(gridSize, gridSize);
 
+    vector<StatPoint> stats;
     Timer stepTimer{};
     stepTimer.start();
 
@@ -39,8 +40,9 @@ int main(int argc, char *argv[])
         if (i % STATISTICS_WRITE_FREQ == 1)
         {
             stepTimer.stop();
-            stats[i].stepTime = stepTimer.elapsedMilliseconds();
-            cout << stepTimer.elapsedMilliseconds() << endl;
+            auto stat = new StatPoint();
+            stat->stepTime = stepTimer.elapsedNanoseconds();
+            stats.push_back(*stat);
             stepTimer.start();
         }
     }
@@ -52,7 +54,7 @@ int main(int argc, char *argv[])
 
     if (WRITE_STATISTICS_TO_FILE)
     {
-        writeStatisticsToFile(argv[0]);
+        writeStatisticsToFile(stats, argv[0]);
     }
 
     freeAllocatedMemory(h_ca, headsWrite);

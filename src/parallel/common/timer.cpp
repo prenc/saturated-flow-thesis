@@ -15,3 +15,8 @@ double Timer::elapsedMilliseconds()
 {
     return std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
 }
+
+double Timer::elapsedNanoseconds()
+{
+    return std::chrono::duration_cast<std::chrono::nanoseconds>(endTime - startTime).count();
+}
