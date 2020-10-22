@@ -1,55 +1,37 @@
+#include <filesystem>
 #include "file_helper.h"
 
-string clip_filename(string fullname){
-    string name_without_ext = fullname;
-
-    size_t last_slash_idx = name_without_ext.find_last_of("/");
-    if (last_slash_idx != string::npos) {
-        name_without_ext = name_without_ext.substr(last_slash_idx + 1);
-    }
-
-    size_t last_dot_idx = name_without_ext.find_last_of(".");
-    if (last_dot_idx != string::npos) {
-        name_without_ext = name_without_ext.substr(0, last_dot_idx);
-    }
-
-    return name_without_ext;
+void saveHeadsInFile(double *&head, char *test_name)
+{
+    std::filesystem::path testName(test_name);
+    std::filesystem::path testResultPath(OUTPUT_PATH);
+    testResultPath /= "heads_";
+    testResultPath += testName.stem().string();
+    testResultPath += ".csv";
+    writeHeads(head, testResultPath.string());
 }
 
-void writeHeadsToFile(double *head, string test_name) {
-    create_output_dir(OUTPUT_PATH);
-
-    string filename = OUTPUT_PATH + clip_filename(test_name) + "_heads.csv";
-
-    write_to_file(head, filename);
+void saveRiverHeadsInFile(double *&head, double &river_head, int &day)
+{
+    std::filesystem::path riverResultPath(OUTPUT_PATH);
+    riverResultPath /= "river";
+    riverResultPath /= std::to_string(day);
+    writeHeads(head, riverResultPath.string());
 }
 
-void write_river_heads_to_file(double *head, double river_head, int day) {
-    string output_path = "./output/river/";
-    create_output_dir(output_path);
-    string filename = output_path + to_string(day);
-    write_to_file(head, filename);
-}
+void writeHeads(double *&heads, const std::string &file_path)
+{
+    std::filesystem::path filePath(file_path);
+    std::filesystem::create_directories(filePath.parent_path());
+    FILE *fp = fopen(filePath.c_str(), "w");
 
-void create_output_dir(string path) {
-    if (stat(path.c_str(), &st) == -1) {
-        mkdir(path.c_str(), 0770);
-    }
-}
-
-void write_to_file(double *head, string filename) {
-    FILE *fp = fopen(filename.c_str(), "w");
-
-    for (int i = 0; i < ROWS; i++) {
-        for (int j = 0; j < COLS; j++) {
-            if(TRANSPOSE_OUTPUT == 1){
-                fprintf(fp, "%.15lf, ", head[j * ROWS + i]);
-            }else{
-                fprintf(fp, "%.15lf, ", head[i * ROWS + j]);
-            }
+    for (int i = 0; i < ROWS; i++)
+    {
+        for (int j = 0; j < COLS; j++)
+        {
+            fprintf(fp, "%.15lf, ", heads[i * ROWS + j]);
         }
         fprintf(fp, "\n");
     }
-
     fclose(fp);
 }

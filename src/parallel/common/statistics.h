@@ -2,23 +2,20 @@
 #define SATURATED_FLOW_THESIS_STATISTICS_H
 
 #include <string>
+#include <vector>
 
 #include "timer.h"
 #include "../../params.h"
 #include "file_helper.h"
 
-using namespace std;
-
-struct Statistics{
-		double coverage;
-		double stepTime;
-		double transitionTime;
-		double findACTime;
+struct StatPoint
+{
+    double coverage;
+    double stepTime;
+    double transitionTime;
+    double findACTime;
 };
 
-static Statistics stats[SIMULATION_ITERATIONS];
-
-void writeStatisticsToFile(string filename);
-void setTimeStats( Timer stepTimer, Timer transitionTimer, Timer findACTimer);
+void writeStatisticsToFile(std::vector<StatPoint> &stats, const std::string& filename);
 
 #endif //SATURATED_FLOW_THESIS_STATISTICS_H

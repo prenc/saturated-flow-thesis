@@ -85,7 +85,7 @@ void perform_simulation_on_GPU()
 
             if (WRITE_OUTPUT_TO_FILE)
             {
-                write_river_heads_to_file(d_write.heads, river_head, day_counter);
+                saveRiverHeadsInFile(d_write.heads, river_head, day_counter);
             }
         }
         cudaDeviceSynchronize();
@@ -97,7 +97,7 @@ void perform_simulation_on_GPU()
     if (WRITE_OUTPUT_TO_FILE)
     {
         day_counter++;
-        write_river_heads_to_file(d_write.heads, river_head, day_counter);
+        saveRiverHeadsInFile(d_write.heads, river_head, day_counter);
     }
 }
 

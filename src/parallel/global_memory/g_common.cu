@@ -23,8 +23,9 @@ int main(int argc, char *argv[])
     int gridSize = ceil(sqrt(blockCount));
     dim3 gridDims(gridSize, gridSize);
 
-    Timer stepTimer{};
-    startTimer(&stepTimer);
+    std::vector<StatPoint> stats;
+    Timer stepTimer;
+    stepTimer.start();
 
     for (unsigned i{}; i < SIMULATION_ITERATIONS; ++i)
     {
@@ -45,21 +46,23 @@ int main(int argc, char *argv[])
 
         if (i % STATISTICS_WRITE_FREQ == 0)
         {
-            endTimer(&stepTimer);
-            stats[i].stepTime = getElapsedTime(stepTimer);
-            startTimer(&stepTimer);
+            stepTimer.stop();
+            auto stat = new StatPoint();
+            stat->stepTime = stepTimer.elapsedNanoseconds();
+            stats.push_back(*stat);
+            stepTimer.start();
         }
     }
 
     if (WRITE_OUTPUT_TO_FILE)
     {
         copyDataFromGpuToCpu(h_ca, d_ca);
-        writeHeadsToFile(h_ca->heads, argv[0]);
+        saveHeadsInFile(h_ca->heads, argv[0]);
     }
 
     if (WRITE_STATISTICS_TO_FILE)
     {
-        writeStatisticsToFile(argv[0]);
+        writeStatisticsToFile(stats, argv[0]);
     }
 
     freeAllocatedMemory(d_ca, headsWrite);

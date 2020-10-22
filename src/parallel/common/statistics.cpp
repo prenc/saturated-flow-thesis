@@ -1,28 +1,29 @@
+#include <filesystem>
 #include "statistics.h"
 
-using namespace std;
+void writeStatisticsToFile(std::vector<StatPoint> &stats, const std::string& filename)
+{
+    std::filesystem::path testName(filename);
+    std::filesystem::path statsPath(OUTPUT_PATH);
+    statsPath /= "coverage_";
+    statsPath += testName.stem().string();
+    statsPath += ".csv";
+    std::filesystem::create_directories(statsPath.parent_path());
 
-void writeStatisticsToFile(string filename) {
-	create_output_dir(OUTPUT_PATH);
+    FILE *fp = fopen(statsPath.c_str(), "w");
 
-	string path = OUTPUT_PATH + clip_filename(filename) + "_coverage.csv";
+    fprintf(fp, "Step, Coverage [%%], Step time [us], Transition time [us], Find ac time [us]\n");
 
-	FILE *fp = fopen(path.c_str(), "w");
-
-	fprintf(fp, "Step, Coverage [%%], Step time [us], Transition time [us], Find ac time [us]\n");
-
-	for (int i = 0; i < SIMULATION_ITERATIONS; i+=STATISTICS_WRITE_FREQ) {
-		fprintf(fp, "%d, %lf, %.0lf, %.0lf, %.0lf\n", i + 1,
-		        stats[i].coverage,
-		        stats[i].stepTime,
-		        stats[i].transitionTime,
-		        stats[i].findACTime);
-	}
-	fclose(fp);
-}
-
-void setTimeStats( Timer stepTimer, Timer transitionTimer, Timer findACTimer){
-	stats->stepTime = getElapsedTime(stepTimer);
-	stats->transitionTime = getElapsedTime(transitionTimer);
-	stats->findACTime = getElapsedTime(findACTimer);
+    auto it = stats.begin();
+    for (int i{1}; i < SIMULATION_ITERATIONS; i += STATISTICS_WRITE_FREQ)
+    {
+        fprintf(fp, "%d, %lf, %.0lf, %.0lf, %.0lf\n",
+                i,
+                (*it).coverage,
+                (*it).stepTime,
+                (*it).transitionTime,
+                (*it).findACTime);
+        ++it;
+    }
+    fclose(fp);
 }

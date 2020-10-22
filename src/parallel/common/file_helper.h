@@ -2,19 +2,12 @@
 #define SATURATED_FLOW_THESIS_FILE_HELPER_H
 
 #include <iostream>
-#include <stdio.h>
-#include <sys/stat.h>
-#include <unistd.h>
 #include "../../params.h"
 
-static struct stat st = {0};
+void saveHeadsInFile(double *&head, char *test_name);
 
-using namespace std;
+void saveRiverHeadsInFile(double *&head, double &river_head, int &day);
 
-string clip_filename(string fullname);
-void writeHeadsToFile(double *head, string test_name);
-void write_river_heads_to_file(double *head, double river_head, int day);
-void create_output_dir(string path);
-void write_to_file(double *head, string filename);
+void writeHeads(double *&heads, const std::string& file_path);
 
 #endif //SATURATED_FLOW_THESIS_FILE_HELPER_H
