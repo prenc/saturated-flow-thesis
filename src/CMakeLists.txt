@@ -22,17 +22,24 @@ file(GLOB COMMON
         parallel/kernels/iteration_step.cuh
         )
 
-add_executable(standard parallel/global_memory/standard.cu ${COMMON})
-add_executable(standard_loop parallel/global_memory/standard_loop.cu ${COMMON})
-add_executable(shared parallel/global_memory/shared.cu ${COMMON})
-add_executable(shared_loop parallel/global_memory/shared_loop.cu ${COMMON})
-add_executable(hybrid parallel/global_memory/hybrid.cu ${COMMON})
-add_executable(hybrid_loop parallel/global_memory/hybrid_loop.cu ${COMMON})
+add_executable(g_standard parallel/global_memory/g_standard.cu ${COMMON})
+add_executable(g_standard_loop parallel/global_memory/g_standard_loop.cu ${COMMON})
+add_executable(g_shared parallel/global_memory/g_shared.cu ${COMMON})
+add_executable(g_shared_loop parallel/global_memory/g_shared_loop.cu ${COMMON})
+add_executable(g_hybrid parallel/global_memory/g_hybrid.cu ${COMMON})
+add_executable(g_hybrid_loop parallel/global_memory/g_hybrid_loop.cu ${COMMON})
 
+add_executable(u_standard parallel/unified_memory/u_standard.cu ${COMMON})
+add_executable(u_standard_loop parallel/unified_memory/u_standard_loop.cu ${COMMON})
+add_executable(u_shared parallel/unified_memory/u_shared.cu ${COMMON})
+add_executable(u_shared_loop parallel/unified_memory/u_shared_loop.cu ${COMMON})
+add_executable(u_hybrid parallel/unified_memory/u_hybrid.cu ${COMMON})
+add_executable(u_hybrid_loop parallel/unified_memory/u_hybrid_loop.cu ${COMMON})
+
+# todo for Tomasz
 add_executable(global_active_cells parallel/active_cells/global/global_active_cells.cu ${COMMON})
 add_executable(global_active_cells_loop parallel/active_cells/global/global_active_cells_loop.cu ${COMMON})
-add_executable(unified_memory_loop parallel/unified_memory/unified_memory_loop.cu ${COMMON})
-add_executable(unified_memory parallel/unified_memory/unified_memory.cu ${COMMON})
 add_executable(active_cells parallel/active_cells/unified/unified_active_cells.cu ${COMMON})
 add_executable(active_cells_loop parallel/active_cells/unified/unified_active_cells_loop.cu ${COMMON})
+
 add_executable(river river/river_unified.cu ${COMMON})

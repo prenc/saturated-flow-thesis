@@ -26,17 +26,11 @@ void copyDataFromCpuToGpu(CA *&h_ca, CA *&d_ca)
     ERROR_CHECK(cudaMemcpy(d_ca->sources, h_ca->sources, sizeof(double) * ROWS * COLS, cudaMemcpyHostToDevice));
 }
 
-CA *initializeCA()
+void initializeCA(CA *&ca)
 {
     int wellsRows[] = {WELLS_Y};
     int wellsCols[] = {WELLS_X};
     double wellsQW[] = {WELLS_QW};
-
-    auto ca = new CA();
-    ca->heads = new double[ROWS * COLS]();
-    ca->Sy = new double[ROWS * COLS]();
-    ca->K = new double[ROWS * COLS]();
-    ca->sources = new double[ROWS * COLS]();
 
     for (int i{}; i < ROWS; ++i)
         for (int j{}; j < COLS; ++j)
@@ -51,16 +45,12 @@ CA *initializeCA()
             ca->sources[i * ROWS + j] = 0;
         }
 
-    int x, y;
-    double source;
     for (int i{}; i < NUMBER_OF_WELLS; ++i)
     {
-        x = wellsRows[i];
-        y = wellsCols[i];
-        source = wellsQW[i];
-        ca->sources[y * ROWS + x] = source;
+        int x = wellsRows[i];
+        int y = wellsCols[i];
+        ca->sources[y * ROWS + x] = wellsQW[i];
     }
-    return ca;
 }
 
 void copyDataFromGpuToCpu(CA *&h_ca, CA *&d_ca)

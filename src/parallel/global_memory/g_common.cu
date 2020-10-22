@@ -5,9 +5,16 @@
 
 int main(int argc, char *argv[])
 {
-    CA *h_ca = initializeCA();
     CA *d_ca = new CA();
+    CA *h_ca = new CA();
     double *headsWrite;
+
+    h_ca->heads = new double[ROWS * COLS]();
+    h_ca->Sy = new double[ROWS * COLS]();
+    h_ca->K = new double[ROWS * COLS]();
+    h_ca->sources = new double[ROWS * COLS]();
+
+    initializeCA(h_ca);
 
     allocateMemory(d_ca, headsWrite);
     copyDataFromCpuToGpu(h_ca, d_ca);

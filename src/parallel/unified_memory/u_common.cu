@@ -5,10 +5,12 @@
 
 int main(int argc, char *argv[])
 {
-    CA *h_ca = initializeCA();
-    auto headsWrite = new double[ROWS * COLS];
-
+    auto h_ca = new CA();
+    double *headsWrite;
     allocateManagedMemory(h_ca, headsWrite);
+
+    initializeCA(h_ca);
+    memcpy(headsWrite, h_ca->heads, sizeof(double) * ROWS * COLS);
 
     dim3 blockSize(BLOCK_SIZE, BLOCK_SIZE);
     const int blockCount = ceil((double) (ROWS * COLS) / (BLOCK_SIZE * BLOCK_SIZE));
@@ -20,10 +22,18 @@ int main(int argc, char *argv[])
 
     for (unsigned i{}; i < SIMULATION_ITERATIONS; ++i)
     {
+#ifdef STANDARD
         kernels::standard_step <<< gridDims, blockSize >>>(*h_ca, headsWrite);
+#endif
+#ifdef HYBRID
+        kernels::hybrid_step <<< gridDims, blockSize >>>(*h_ca, headsWrite);
+#endif
+#ifdef SHARED
+        kernels::shared_step <<< gridDims, blockSize >>>(*h_ca, headsWrite, gridSize);
+#endif
         cudaDeviceSynchronize();
 
-        double *tmpHeads = h_ca->heads;
+        auto tmpHeads = h_ca->heads;
         h_ca->heads = headsWrite;
         headsWrite = tmpHeads;
 
@@ -37,7 +47,7 @@ int main(int argc, char *argv[])
 
     if (WRITE_OUTPUT_TO_FILE)
     {
-        writeHeadsToFile(h_ca->heads, argv[0]);
+        writeHeadsToFile(headsWrite, argv[0]);
     }
 
     if (WRITE_STATISTICS_TO_FILE)

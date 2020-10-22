@@ -59,7 +59,7 @@ __global__ void kernels::standard_step(struct CA ca, double *headsWrite)
     }
 }
 
-__global__ void kernels::hybrid_step(struct CA d_ca, double *headsWrite)
+__global__ void kernels::hybrid_step(struct CA ca, double *headsWrite)
 {
     __shared__ double s_heads[BLOCK_SIZE][BLOCK_SIZE];
     __shared__ double s_K[BLOCK_SIZE][BLOCK_SIZE];
@@ -70,8 +70,8 @@ __global__ void kernels::hybrid_step(struct CA d_ca, double *headsWrite)
     double Q{}, diff_head, tmp_t, ht1, ht2;
     if (idx_x < COLS && idx_y < ROWS)
     {
-        s_heads[threadIdx.y][threadIdx.x] = d_ca.heads[idx_g];
-        s_K[threadIdx.y][threadIdx.x] = d_ca.K[idx_g];
+        s_heads[threadIdx.y][threadIdx.x] = ca.heads[idx_g];
+        s_K[threadIdx.y][threadIdx.x] = ca.K[idx_g];
         __syncthreads();
 
         if (idx_y != 0 && idx_y != ROWS - 1)
@@ -92,7 +92,7 @@ __global__ void kernels::hybrid_step(struct CA d_ca, double *headsWrite)
                 if (threadIdx.x >= 1)
                     diff_head = s_heads[threadIdx.y][threadIdx.x - 1] - s_heads[threadIdx.y][threadIdx.x];
                 else
-                    diff_head = d_ca.heads[idx_g - 1] - s_heads[threadIdx.y][threadIdx.x];
+                    diff_head = ca.heads[idx_g - 1] - s_heads[threadIdx.y][threadIdx.x];
                 tmp_t = s_K[threadIdx.y][threadIdx.x] * THICKNESS;
                 Q += diff_head * tmp_t;
             }
@@ -101,7 +101,7 @@ __global__ void kernels::hybrid_step(struct CA d_ca, double *headsWrite)
                 if (threadIdx.y >= 1)
                     diff_head = s_heads[threadIdx.y - 1][threadIdx.x] - s_heads[threadIdx.y][threadIdx.x];
                 else
-                    diff_head = d_ca.heads[(idx_y - 1) * COLS + idx_x] - s_heads[threadIdx.y][threadIdx.x];
+                    diff_head = ca.heads[(idx_y - 1) * COLS + idx_x] - s_heads[threadIdx.y][threadIdx.x];
                 tmp_t = s_K[threadIdx.y][threadIdx.x] * THICKNESS;
                 Q += diff_head * tmp_t;
             }
@@ -110,7 +110,7 @@ __global__ void kernels::hybrid_step(struct CA d_ca, double *headsWrite)
                 if (threadIdx.x < BLOCK_SIZE - 1)
                     diff_head = s_heads[threadIdx.y][threadIdx.x + 1] - s_heads[threadIdx.y][threadIdx.x];
                 else
-                    diff_head = d_ca.heads[idx_g + 1] - s_heads[threadIdx.y][threadIdx.x];
+                    diff_head = ca.heads[idx_g + 1] - s_heads[threadIdx.y][threadIdx.x];
                 tmp_t = s_K[threadIdx.y][threadIdx.x] * THICKNESS;
                 Q += diff_head * tmp_t;
             }
@@ -119,17 +119,17 @@ __global__ void kernels::hybrid_step(struct CA d_ca, double *headsWrite)
                 if (threadIdx.y < BLOCK_SIZE - 1)
                     diff_head = s_heads[threadIdx.y + 1][threadIdx.x] - s_heads[threadIdx.y][threadIdx.x];
                 else
-                    diff_head = d_ca.heads[(idx_y + 1) * COLS + idx_x] - s_heads[threadIdx.y][threadIdx.x];
+                    diff_head = ca.heads[(idx_y + 1) * COLS + idx_x] - s_heads[threadIdx.y][threadIdx.x];
                 tmp_t = s_K[threadIdx.y][threadIdx.x] * THICKNESS;
                 Q += diff_head * tmp_t;
             }
 #ifdef LOOP
             }
 #endif
-            Q -= d_ca.sources[idx_g];
+            Q -= ca.sources[idx_g];
 
             ht1 = Q * DELTA_T;
-            ht2 = AREA * d_ca.Sy[idx_g];
+            ht2 = AREA * ca.Sy[idx_g];
 
             headsWrite[idx_g] = s_heads[threadIdx.y][threadIdx.x] + ht1 / ht2;
             if (headsWrite[idx_g] < 0)
@@ -140,7 +140,7 @@ __global__ void kernels::hybrid_step(struct CA d_ca, double *headsWrite)
     }
 }
 
-__global__ void kernels::shared_step(struct CA d_ca, double *d_write_head, int grid_size)
+__global__ void kernels::shared_step(struct CA ca, double *headsWrite, int grid_size)
 {
     __shared__ double s_heads[BLOCK_SIZE + 2][BLOCK_SIZE + 2];
     __shared__ double s_K[BLOCK_SIZE + 2][BLOCK_SIZE + 2];
@@ -154,17 +154,17 @@ __global__ void kernels::shared_step(struct CA d_ca, double *d_write_head, int g
         unsigned x = threadIdx.x + 1;
         unsigned y = threadIdx.y + 1;
 
-        s_heads[y][x] = d_ca.heads[idx_g];
-        s_K[y][x] = d_ca.K[idx_g];
+        s_heads[y][x] = ca.heads[idx_g];
+        s_K[y][x] = ca.K[idx_g];
 
         if (threadIdx.x == 0 && blockIdx.x != 0) // left
-            s_heads[y][x - 1] = d_ca.heads[idx_g - 1];
+            s_heads[y][x - 1] = ca.heads[idx_g - 1];
         if (threadIdx.x == BLOCK_SIZE - 1 && blockIdx.x != grid_size - 1) // right
-            s_heads[y][x + 1] = d_ca.heads[idx_g + 1];
+            s_heads[y][x + 1] = ca.heads[idx_g + 1];
         if (threadIdx.y == 0 && blockIdx.y != 0) // upper
-            s_heads[y - 1][x] = d_ca.heads[idx_g - COLS];
+            s_heads[y - 1][x] = ca.heads[idx_g - COLS];
         if (threadIdx.y == BLOCK_SIZE - 1 && blockIdx.y != grid_size - 1) // bottom
-            s_heads[y + 1][x] = d_ca.heads[idx_g + COLS];
+            s_heads[y + 1][x] = ca.heads[idx_g + COLS];
         __syncthreads();
 
         if (idx_y != 0 && idx_y != ROWS - 1)
@@ -177,7 +177,6 @@ __global__ void kernels::shared_step(struct CA d_ca, double *d_write_head, int g
                     if (Q) {Q = 0;}
                 }
 #endif
-            Q = 0;
             if (idx_x >= 1)
             { // left neighbor
                 diff_head = s_heads[y][x - 1] - s_heads[y][x];
@@ -205,14 +204,14 @@ __global__ void kernels::shared_step(struct CA d_ca, double *d_write_head, int g
 #ifdef LOOP
             }
 #endif
-            Q -= d_ca.sources[idx_g];
+            Q -= ca.sources[idx_g];
             ht1 = Q * DELTA_T;
-            ht2 = AREA * d_ca.Sy[idx_g];
+            ht2 = AREA * ca.Sy[idx_g];
 
-            d_write_head[idx_g] = s_heads[y][x] + ht1 / ht2;
-            if (d_write_head[idx_g] < 0)
+            headsWrite[idx_g] = s_heads[y][x] + ht1 / ht2;
+            if (headsWrite[idx_g] < 0)
             {
-                d_write_head[idx_g] = 0;
+                headsWrite[idx_g] = 0;
             }
         }
     }

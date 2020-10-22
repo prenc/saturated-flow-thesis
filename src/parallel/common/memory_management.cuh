@@ -12,7 +12,7 @@ struct CA
     double *sources;
 };
 
-CA *initializeCA();
+void initializeCA(CA *&ca);
 
 void allocateManagedMemory(CA *&ca, double *&heads_write);
 
