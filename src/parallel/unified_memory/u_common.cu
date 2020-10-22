@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
     dim3 gridDims(gridSize, gridSize);
 
     Timer stepTimer{};
-    startTimer(&stepTimer);
+    stepTimer.start();
 
     for (unsigned i{}; i < SIMULATION_ITERATIONS; ++i)
     {
@@ -36,11 +36,12 @@ int main(int argc, char *argv[])
         h_ca->heads = headsWrite;
         headsWrite = tmpHeads;
 
-        if (i % STATISTICS_WRITE_FREQ == 0)
+        if (i % STATISTICS_WRITE_FREQ == 1)
         {
-            endTimer(&stepTimer);
-            stats[i].stepTime = getElapsedTime(stepTimer);
-            startTimer(&stepTimer);
+            stepTimer.stop();
+            stats[i].stepTime = stepTimer.elapsedMilliseconds();
+            cout << stepTimer.elapsedMilliseconds() << endl;
+            stepTimer.start();
         }
     }
 

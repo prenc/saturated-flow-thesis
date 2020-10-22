@@ -9,16 +9,16 @@
 
 using namespace std;
 
-struct Statistics{
-		double coverage;
-		double stepTime;
-		double transitionTime;
-		double findACTime;
+struct Statistics
+{
+    double coverage;
+    double stepTime;
+    double transitionTime;
+    double findACTime;
 };
 
 static Statistics stats[SIMULATION_ITERATIONS];
 
 void writeStatisticsToFile(string filename);
-void setTimeStats( Timer stepTimer, Timer transitionTimer, Timer findACTimer);
 
 #endif //SATURATED_FLOW_THESIS_STATISTICS_H

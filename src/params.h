@@ -6,7 +6,6 @@
 #define BLOCK_SIZE 32
 
 #define WRITE_OUTPUT_TO_FILE 1
-#define TRANSPOSE_OUTPUT 0
 
 #define ROWS CA_SIZE
 #define COLS CA_SIZE

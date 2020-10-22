@@ -1,17 +1,22 @@
 #ifndef SATURATED_FLOW_THESIS_TIMER_H
 #define SATURATED_FLOW_THESIS_TIMER_H
 
-#include <cstddef>
-#include <sys/time.h>
+#include <ctime>
+#include <chrono>
 
-struct Timer{
-	struct timeval startTime;
-	struct timeval endTime;
-	struct timeval elapsedTime;
+class Timer
+{
+public:
+    void start();
+
+    void stop();
+
+    double elapsedMilliseconds();
+
+private:
+    std::chrono::time_point<std::chrono::system_clock> startTime;
+    std::chrono::time_point<std::chrono::system_clock> endTime;
 };
 
-void startTimer(struct Timer *timer);
-void endTimer(struct Timer *timer);
-double getElapsedTime(struct Timer timer);
 
 #endif //SATURATED_FLOW_THESIS_TIMER_H
