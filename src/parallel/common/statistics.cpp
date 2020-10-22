@@ -2,7 +2,7 @@
 
 using namespace std;
 
-void write_statistics_to_file(string filename) {
+void writeStatisticsToFile(string filename) {
 	create_output_dir(OUTPUT_PATH);
 
 	string path = OUTPUT_PATH + clip_filename(filename) + "_coverage.csv";

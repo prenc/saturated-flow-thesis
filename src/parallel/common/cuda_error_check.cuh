@@ -1,55 +1,22 @@
 #ifndef SATURATED_FLOW_ERROR
 #define SATURATED_FLOW_ERROR
 
-#define CUDASAFECALL( err ) __cudaSafeCall( err, __FILE__, __LINE__ )
-#define CUDACHECKERROR()    __cudaCheckError( __FILE__, __LINE__ )
+#include <cstdio>
 
-inline void __cudaSafeCall( cudaError err, const char *file, const int line )
+#define ERROR_CHECK(err) __cudaSafeCall(err, __FILE__, __LINE__)
+
+inline void __cudaSafeCall(cudaError err, const char *file, const int line)
 {
-#ifdef CUDA_ERROR_CHECK
-	if ( cudaSuccess != err )
-	{
-		fprintf( stderr, "cudaSafeCall() failed at %s:%i : %s\n",
-				file, line, cudaGetErrorString( err ) );
+    if (cudaSuccess != err)
+    {
+        fprintf(stderr, "cudaSafeCall() failed at %s:%i : %s\n",
+                file, line, cudaGetErrorString(err));
 
-		fprintf( stdout, "cudaSafeCall() failed at %s:%i : %s\n",
-						file, line, cudaGetErrorString( err ) );
-		exit( -1 );
-	}
-#endif
-
-	return;
+        fprintf(stdout, "cudaSafeCall() failed at %s:%i : %s\n",
+                file, line, cudaGetErrorString(err));
+        exit(-1);
+    }
+    return;
 }
 
-inline void __cudaCheckError( const char *file, const int line )
-{
-#ifdef CUDA_ERROR_CHECK
-	cudaError err = cudaGetLastError();
-	if ( cudaSuccess != err )
-	{
-		fprintf( stderr, "cudaCheckError() failed at %s:%i : %s\n",
-				file, line, cudaGetErrorString( err ) );
-
-		fprintf( stdout, "cudaCheckError() failed at %s:%i : %s\n",
-						file, line, cudaGetErrorString( err ) );
-		exit( -1 );
-	}
-
-	// More careful checking. However, this will affect performance.
-	// Comment away if needed.
-	err = cudaDeviceSynchronize();
-	if( cudaSuccess != err )
-	{
-		fprintf( stderr, "cudaCheckError() with sync failed at %s:%i : %s\n",
-				file, line, cudaGetErrorString( err ) );
-
-		fprintf( stdout, "cudaCheckError() with sync failed at %s:%i : %s\n",
-						file, line, cudaGetErrorString( err ) );
-
-		exit( -1 );
-	}
-#endif
-
-	return;
-}
 #endif //SATURATED_FLOW_ERROR
