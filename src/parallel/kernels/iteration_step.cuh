@@ -7,7 +7,7 @@ namespace kernels
 {
     __global__ void standard_step(struct CA ca, double *headsWrite);
     __global__ void hybrid_step(struct CA d_ca, double *headsWrite);
-    __global__ void shared_step(struct CA d_ca, double *d_write_head, int grid_size);
+    __global__ void shared_step(struct CA d_ca, double *d_write_head);
 }
 
 

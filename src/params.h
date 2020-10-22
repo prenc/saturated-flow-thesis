@@ -1,7 +1,7 @@
 #ifndef PARAMS
 #define PARAMS
 
-#define CA_SIZE 20
+#define CA_SIZE 200
 #define SIMULATION_ITERATIONS 4'000
 #define BLOCK_SIZE 32
 

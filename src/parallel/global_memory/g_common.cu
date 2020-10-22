@@ -1,7 +1,6 @@
 #include "../common/memory_management.cuh"
-#include "../common/statistics.h"
 #include "../kernels/iteration_step.cuh"
-
+#include "../common/statistics.h"
 
 int main(int argc, char *argv[])
 {
@@ -36,7 +35,7 @@ int main(int argc, char *argv[])
         kernels::hybrid_step <<< gridDims, blockSize >>>(*d_ca, headsWrite);
 #endif
 #ifdef SHARED
-        kernels::shared_step <<< gridDims, blockSize >>>(*d_ca, headsWrite, gridSize);
+        kernels::shared_step <<< gridDims, blockSize >>>(*d_ca, headsWrite);
 #endif
         cudaDeviceSynchronize();
 
