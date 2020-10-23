@@ -23,7 +23,14 @@ __global__ void simulation_step_kernel(struct CA ca, double *headsWrite)
         unsigned idx_g = activeCellsIdx[ac_idx_g];
         unsigned idx_x = idx_g % COLS;
         unsigned idx_y = idx_g / COLS;
-
+#ifdef LOOP
+        for (int i = 0; i < KERNEL_LOOP_SIZE; i++)
+        {
+            if (i == KERNEL_LOOP_SIZE - 1)
+            {
+                if (Q) { Q = 0; }
+            }
+#endif
         if (idx_x >= 1)
         {
             diff_head = ca.heads[idx_g - 1] - ca.heads[idx_g];
@@ -48,7 +55,9 @@ __global__ void simulation_step_kernel(struct CA ca, double *headsWrite)
             tmp_t = ca.K[idx_g] * THICKNESS;
             Q += diff_head * tmp_t;
         }
-
+#ifdef LOOP
+        }
+#endif
         Q -= ca.sources[idx_g];
         ht1 = Q * DELTA_T;
         ht2 = AREA * ca.Sy[idx_g];

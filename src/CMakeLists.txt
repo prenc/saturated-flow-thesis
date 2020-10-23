@@ -40,9 +40,9 @@ add_executable(u_shared_loop parallel/unified_memory/u_shared_loop.cu ${COMMON})
 add_executable(u_hybrid parallel/unified_memory/u_hybrid.cu ${COMMON})
 add_executable(u_hybrid_loop parallel/unified_memory/u_hybrid_loop.cu ${COMMON})
 
-add_executable(global_active_cells parallel/active_cells/global/global_active_cells.cu ${COMMON})
-add_executable(global_active_cells_loop parallel/active_cells/global/global_active_cells_loop.cu ${COMMON})
-add_executable(active_cells parallel/active_cells/unified/unified_active_cells.cu ${COMMON})
-add_executable(active_cells_loop parallel/active_cells/unified/unified_active_cells_loop.cu ${COMMON})
+add_executable(ac_g_standard parallel/active_cells/global/g_ac_standard.cu ${COMMON})
+add_executable(ac_g_standard_loop parallel/active_cells/global/g_ac_standard_loop.cu ${COMMON})
+add_executable(ac_u_standard parallel/active_cells/unified/u_ac_standard.cu ${COMMON})
+add_executable(ac_u_standard_loop parallel/active_cells/unified/u_ac_standard_loop.cu ${COMMON})
 
 add_executable(river river/river_unified.cu ${COMMON})
