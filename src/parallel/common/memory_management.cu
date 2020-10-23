@@ -33,17 +33,15 @@ void initializeCA(CA *&ca)
     double wellsQW[] = {WELLS_QW};
 
     for (int i{}; i < ROWS; ++i)
+    {
         for (int j{}; j < COLS; ++j)
         {
-            ca->heads[i * ROWS + j] = headFixed;
-            if (j == COLS - 1)
-            {
-                ca->heads[i * ROWS + j] = headCalculated;
-            }
-            ca->Sy[i * ROWS + j] = Syinitial;
-            ca->K[i * ROWS + j] = Kinitial;
+            ca->heads[i * ROWS + j] = INITIAL_HEAD;
+            ca->Sy[i * ROWS + j] = INITIAL_SY;
+            ca->K[i * ROWS + j] = INITIAL_K;
             ca->sources[i * ROWS + j] = 0;
         }
+    }
 
     for (int i{}; i < NUMBER_OF_WELLS; ++i)
     {

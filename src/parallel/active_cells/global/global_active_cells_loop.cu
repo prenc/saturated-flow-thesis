@@ -1,17 +1,17 @@
 #include "../../common/memory_management.cuh"
 #include "../../common/statistics.h"
 
-__managed__ int dev_active_cells_count = 0;
+__managed__ int devActiveCellsCount = 0;
 
-__device__ int active_cells_idx[ROWS * COLS];
+__device__ int activeCellsIdx[ROWS * COLS];
 
 __device__ void my_push_back(int cellIdx) {
-	int insert_ptr = atomicAdd(&dev_active_cells_count, 1);
-	active_cells_idx[insert_ptr] = cellIdx;
+	int insert_ptr = atomicAdd(&devActiveCellsCount, 1);
+    activeCellsIdx[insert_ptr] = cellIdx;
 }
 
 __global__ void simulation_step_kernel(struct CA *d_ca, double *d_write_head) {
-	int activeBlockCount = ceil((double) dev_active_cells_count / (BLOCK_SIZE * BLOCK_SIZE));
+	int activeBlockCount = ceil((double) devActiveCellsCount / (BLOCK_SIZE * BLOCK_SIZE));
 	int activeGridSize = ceil(sqrtf(activeBlockCount));
 
 	unsigned ac_idx_x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -20,8 +20,8 @@ __global__ void simulation_step_kernel(struct CA *d_ca, double *d_write_head) {
 
 	double Q, diff_head, tmp_t, ht1, ht2;
 	for (int i = 0; i < KERNEL_LOOP_SIZE; i++) {
-		if (ac_idx_g < dev_active_cells_count) {
-			unsigned idx_g = active_cells_idx[ac_idx_g];
+		if (ac_idx_g < devActiveCellsCount) {
+			unsigned idx_g = activeCellsIdx[ac_idx_g];
 			unsigned idx_x = idx_g % COLS;
 			unsigned idx_y = idx_g / COLS;
 
@@ -60,36 +60,36 @@ __global__ void simulation_step_kernel(struct CA *d_ca, double *d_write_head) {
 	}
 }
 
-__global__ void find_active_cells_kernel(struct CA *d_ca) {
+__global__ void findActiveCells(struct CA *d_ca) {
 	unsigned idx_x = blockIdx.x * blockDim.x + threadIdx.x;
 	unsigned idx_y = blockIdx.y * blockDim.y + threadIdx.y;
 	unsigned idx_g = idx_y * COLS + idx_x;
 
 	if (idx_x < ROWS && idx_y < COLS) {
-		if (d_ca->heads[idx_g] < headFixed || d_ca->sources[idx_g] != 0) {
+		if (d_ca->heads[idx_g] < INITIAL_HEAD || d_ca->sources[idx_g] != 0) {
 			my_push_back(idx_g);
 			return;
 		}
 		if (idx_x >= 1) {
-			if (d_ca->heads[idx_g - 1] < headFixed) {
+			if (d_ca->heads[idx_g - 1] < INITIAL_HEAD) {
 				my_push_back(idx_g);
 				return;
 			}
 		}
 		if (idx_y >= 1) {
-			if (d_ca->heads[idx_g - COLS] < headFixed) {
+			if (d_ca->heads[idx_g - COLS] < INITIAL_HEAD) {
 				my_push_back(idx_g);
 				return;
 			}
 		}
 		if (idx_x + 1 < COLS) {
-			if (d_ca->heads[idx_g + 1] < headFixed) {
+			if (d_ca->heads[idx_g + 1] < INITIAL_HEAD) {
 				my_push_back(idx_g);
 				return;
 			}
 		}
 		if (idx_y + 1 < ROWS) {
-			if (d_ca->heads[idx_g + COLS] < headFixed) {
+			if (d_ca->heads[idx_g + COLS] < INITIAL_HEAD) {
 				my_push_back(idx_g);
 				return;
 			}
@@ -114,13 +114,13 @@ void perform_simulation_on_GPU() {
 		dim3 *simulationGridDim;
 		if (!isWholeGridActive) {
 
-			dev_active_cells_count = 0;
-			find_active_cells_kernel <<<gridDim, blockSize>>>(d_read_ca);
+            devActiveCellsCount = 0;
+            findActiveCells <<<gridDim, blockSize>>>(d_read_ca);
 			cudaDeviceSynchronize();
 
-			isWholeGridActive = dev_active_cells_count == (ROWS * COLS);
+			isWholeGridActive = devActiveCellsCount == (ROWS * COLS);
 
-			activeBlockCount = ceil((double) dev_active_cells_count / (BLOCK_SIZE * BLOCK_SIZE));
+			activeBlockCount = ceil((double) devActiveCellsCount / (BLOCK_SIZE * BLOCK_SIZE));
 			activeGridSize = ceil(sqrt(activeBlockCount));
 			dim3 activeGridDim(activeGridSize, activeGridSize);
 
@@ -140,7 +140,7 @@ void perform_simulation_on_GPU() {
 
 		if (i % STATISTICS_WRITE_FREQ == 0) {
 			endTimer(&stepTimer);
-			stats[i].coverage = double(dev_active_cells_count) / (ROWS * COLS);
+			stats[i].coverage = double(devActiveCellsCount) / (ROWS * COLS);
 			stats[i].stepTime = getElapsedTime(stepTimer);
 			startTimer(&stepTimer);
 		}

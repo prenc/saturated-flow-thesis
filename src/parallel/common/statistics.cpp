@@ -1,7 +1,7 @@
 #include <filesystem>
 #include "statistics.h"
 
-void writeStatisticsToFile(std::vector<StatPoint> &stats, const std::string& filename)
+void writeStatisticsToFile(std::vector<StatPoint> &stats, const std::string &filename)
 {
     std::filesystem::path testName(filename);
     std::filesystem::path statsPath(OUTPUT_PATH);
@@ -12,7 +12,7 @@ void writeStatisticsToFile(std::vector<StatPoint> &stats, const std::string& fil
 
     FILE *fp = fopen(statsPath.c_str(), "w");
 
-    fprintf(fp, "Step, Coverage [%%], Step time [us], Transition time [us], Find ac time [us]\n");
+    fprintf(fp, "Step, Coverage [%%], Step time [ns], Transition time [ns], Find ac time [ns]\n");
 
     auto it = stats.begin();
     for (int i{1}; i < SIMULATION_ITERATIONS; i += STATISTICS_WRITE_FREQ)
@@ -27,3 +27,7 @@ void writeStatisticsToFile(std::vector<StatPoint> &stats, const std::string& fil
     }
     fclose(fp);
 }
+
+StatPoint::StatPoint(double coverage, double stepTime, double transitionTime, double findACTime) :
+        coverage(coverage), stepTime(stepTime), transitionTime(transitionTime), findACTime(findACTime)
+{}

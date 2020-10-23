@@ -14,6 +14,9 @@ struct StatPoint
     double stepTime;
     double transitionTime;
     double findACTime;
+
+    StatPoint() = default;
+    StatPoint(double coverage, double stepTime, double transitionTime, double findACTime);
 };
 
 void writeStatisticsToFile(std::vector<StatPoint> &stats, const std::string& filename);
