@@ -1,88 +1,6 @@
 {
-    "output_test": {
+    "ac_coverage": {
         "params": {
-            "block_size": [
-                32
-            ],
-            "ca_size": [
-                100
-            ],
-            "simulation_iterations": [
-                100
-            ],
-            "wells_dim": [
-                6
-            ],
-            "wells_QW": [
-                0.001
-            ]
-        },
-        "targets": [
-            "u_hybrid",
-            "g_hybrid",
-            "u_shared",
-            "g_shared",
-            "u_standard",
-            "g_standard"
-        ]
-    },
-    "coverage_standard_test": {
-        "params": {
-            "block_size": [
-                32
-            ],
-            "ca_size": [
-                4000
-            ],
-            "simulation_iterations": [
-                9000
-            ],
-            "wells_dim": [
-                6
-            ],
-            "wells_QW": [
-                0.001
-            ],
-            "WRITE_OUTPUT_TO_FILE": [
-                1
-            ]
-        },
-        "targets": [
-            "unified_memory.cu",
-            "active_cells.cu"
-        ]
-    },
-    "coverage_multiple_wells": {
-        "params": {
-            "block_size": [
-                32
-            ],
-            "ca_size": [
-                4000, 5000, 5500, 6000, 6500, 6750, 7000, 7250, 7500
-            ],
-            "simulation_iterations": [
-                8000
-            ],
-            "wells_dim": [
-                6, 8, 8, 9, 11, 11, 12
-            ],
-            "wells_QW": [
-                0.001
-            ],
-            "WRITE_OUTPUT_TO_FILE": [
-                0
-            ]
-        },
-        "targets": [
-            "unified_memory.cu",
-            "active_cells.cu"
-        ]
-    },
-    "coverage_multiple_wells_stress": {
-        "params": {
-            "block_size": [
-                32
-            ],
             "ca_size": [
                 4000, 5000, 5500, 6000, 6500, 6750, 7000, 7250, 7500
             ],
@@ -94,18 +12,23 @@
             ],
                "wells_QW": [
                 0.001
+            ],
+            "WRITE_OUTPUT_TO_FILE": [
+                0
+            ],
+            "WRITE_STATISTICS_TO_FILE": [
+                1
             ]
         },
         "targets": [
-            "unified_active_cells_loop.cu",
-            "unified_memory_loop.cu"
+            "g_standard",
+            "u_standard",
+            "g_ac_standard",
+            "u_ac_standard"
         ]
     },
-    "standard_16": {
+    "ac_ca_size": {
         "params": {
-            "block_size": [
-                16
-            ],
             "ca_size": [
                 1000, 2000, 4000, 6000,
                 6500, 7000, 7500, 8000,
@@ -115,345 +38,259 @@
             ],
             "simulation_iterations": [
                 6480
+            ],
+            "wells_dim": [
+                3, 3, 6, 8, 8, 9, 11, 11, 12
+            ],
+            "wells_QW": [
+                0.001
+            ],
+            "WRITE_OUTPUT_TO_FILE": [
+                0
             ]
         },
         "chart_params": {
-            "title": "Standard 16",
+            "title": "Global implementations test",
             "x_axis": "ca_size",
-            "x_axis_label": "CA automata dimensions"
+            "x_axis_label": "CA dimensions"
         },
         "targets": [
-            "global_memory.c",
-            "shared_memory.c",
-            "unified_memory.c",
-            "hybrid_memory.c"
-        ]
-    },
-    "standard_32": {
-        "params": {
-            "block_size": [
-                32
-            ],
-            "ca_size": [
-                1000, 2000, 4000, 6000,
-                6500, 7000, 7500, 8000,
-                8500, 9000, 9500, 10000,
-                10500, 11000, 11500, 12000,
-                12250, 12500, 12750, 13000
-            ],
-            "simulation_iterations": [
-                6480
-            ]
-        },
-        "chart_params": {
-            "title": "Standard 32",
-            "x_axis": "ca_size",
-            "x_axis_label": "CA automata dimensions"
-        },
-        "targets": [
-            "global_memory.cu",
-            "shared_memory.cu",
-            "unified_memory.cu",
-            "hybrid_memory.cu"
-        ]
-    },
-    "standard_16_loop": {
-        "params": {
-            "block_size": [
-                16
-            ],
-            "ca_size": [
-                250, 500, 750, 1000,
-                1250, 1500, 1750, 2000,
-                2250, 2500, 2750, 3000,
-                3250, 3500, 3750, 4000
-            ],
-            "simulation_iterations": [
-                6480
-            ]
-        },
-        "chart_params": {
-            "title": "Standard 16 loop",
-            "x_axis": "ca_size",
-            "x_axis_label": "CA automata dimensions"
-        },
-        "targets": [
-            "global_memory_loop.cu",
-            "shared_memory_loop.cu",
-            "unified_memory_loop.cu",
-            "hybrid_memory_loop.cu"
-        ]
-    },
-    "standard_32_loop": {
-        "params": {
-            "block_size": [
-                32
-            ],
-            "ca_size": [
-                250, 500, 750, 1000,
-                1250, 1500, 1750, 2000,
-                2250, 2500, 2750, 3000,
-                3250, 3500, 3750, 4000
-            ],
-            "simulation_iterations": [
-                6480
-            ]
-        },
-        "chart_params": {
-            "title": "Standard 32 loop",
-            "x_axis": "ca_size",
-            "x_axis_label": "CA automata dimensions"
-        },
-        "targets": [
-            "global_memory_loop.cu",
-            "shared_memory_loop.cu",
-            "unified_memory_loop.cu",
-            "hybrid_memory_loop.cu"
-        ]
-    },
-    "active_cells_16": {
-        "params": {
-            "block_size": [
-                16
-            ],
-            "ca_size": [
-                1000, 2000, 4000, 6000,
-                6500, 7000, 7500, 8000,
-                8500, 9000, 9500, 10000,
-                10500, 11000, 11500, 12000,
-                12250, 12500, 12750, 13000
-            ],
-            "simulation_iterations": [
-                6480
-            ]
-        },
-        "chart_params": {
-            "title": "Active cells 16",
-            "x_axis": "ca_size",
-            "x_axis_label": "CA automata dimensions"
-        },
-        "targets": [
-            "unified_memory.cu",
-            "active_cells_gpu.cu",
-            "active_cells_gpu_const_block_number.cu"
-        ]
-    },
-    "active_cells_32": {
-        "params": {
-            "block_size": [
-                32
-            ],
-            "ca_size": [
-                1000, 2000, 4000, 6000,
-                6500, 7000, 7500, 8000,
-                8500, 9000, 9500, 10000,
-                10500, 11000, 11500, 12000,
-                12250, 12500, 12750, 13000
-            ],
-            "simulation_iterations": [
-                6480
-            ]
-        },
-        "chart_params": {
-            "title": "Active cells 32",
-            "x_axis": "ca_size",
-            "x_axis_label": "CA automata dimensions"
-        },
-        "targets": [
-            "unified_memory.cu",
-            "active_cells_gpu.cu",
-            "active_cells_gpu_const_block_number.cu"
-        ]
-    },
-    "active_cells_16_loop": {
-        "params": {
-            "block_size": [
-                16
-            ],
-            "ca_size": [
-                250, 500, 750, 1000,
-                1250, 1500, 1750, 2000,
-                2250, 2500, 2750, 3000,
-                3250, 3500, 3750, 4000
-            ],
-            "simulation_iterations": [
-                6480
-            ]
-        },
-        "chart_params": {
-            "title": "Active cells 16 loop",
-            "x_axis": "ca_size",
-            "x_axis_label": "CA automata dimensions"
-        },
-        "targets": [
-            "unified_memory_loop.cu",
-            "active_cells_gpu_loop.cu",
-            "active_cells_gpu_const_block_number_loop.cu"
-        ]
-    },
-    "active_cells_32_loop": {
-        "params": {
-            "block_size": [
-                32
-            ],
-            "ca_size": [
-                250, 500, 750, 1000,
-                1250, 1500, 1750, 2000,
-                2250, 2500, 2750, 3000,
-                3250, 3500, 3750, 4000
-            ],
-            "simulation_iterations": [
-                6480
-            ]
-        },
-        "chart_params": {
-            "title": "Active cells 32 loop",
-            "x_axis": "ca_size",
-            "x_axis_label": "CA automata dimensions"
-        },
-        "targets": [
-            "unified_memory_loop.cu",
-            "active_cells_gpu_loop.cu",
-            "active_cells_gpu_const_block_number_loop.cu"
-        ]
-    },
-    "seq_vs_para": {
-        "params": {
-            "block_size": [
-                32
-            ],
-            "ca_size": [
-                500, 1000, 1500, 2000,
-                2500, 3000, 3500, 4000,
-                4250, 4500, 4750, 5000
-            ],
-            "simulation_iterations": [
-                6480
-            ]
-        },
-        "chart_params": {
-            "title": "Sequential vs parallel implementations",
-            "x_axis": "ca_size",
-            "x_axis_label": "CA automata dimensions"
-        },
-        "targets": [
-            "sequential_c_imp.c",
-            "unified_memory.cu",
-            "global_memory.cu"
+            "g_standard",
+            "u_standard",
+            "g_ac_standard",
+            "u_ac_standard"
         ]
     },
 
-    "active_cells_cpu_16": {
+    "g_ca_size": {
         "params": {
-            "block_size": [
-                16
-            ],
             "ca_size": [
-                250, 500, 750, 1000,
-                1250, 1500, 1750, 2000,
-                2250, 2500, 2750, 3000,
-                3250, 3500, 3750, 4000
+                1000, 2000, 4000, 6000,
+                6500, 7000, 7500, 8000,
+                8500, 9000, 9500, 10000,
+                10500, 11000, 11500, 12000,
+                12250, 12500, 12750, 13000
             ],
             "simulation_iterations": [
                 6480
+            ],
+            "wells_dim": [
+                3, 3, 6, 8, 8, 9, 11, 11, 12
+            ],
+            "wells_QW": [
+                0.001
+            ],
+            "WRITE_OUTPUT_TO_FILE": [
+                0
             ]
         },
         "chart_params": {
-            "title": "Active cells 16 loop",
+            "title": "Global implementations test",
             "x_axis": "ca_size",
-            "x_axis_label": "Cellular automata dimension"
+            "x_axis_label": "CA dimensions"
         },
         "targets": [
-            "active_cells_cpu.cu",
-            "active_cells_gpu.cu",
-            "active_cells_gpu_const_block_number.cu"
+            "g_hybrid",
+            "g_shared",
+            "g_standard"
         ]
     },
-    "active_cells_cpu_32": {
+    "u_ca_size": {
         "params": {
-            "block_size": [
-                32
-            ],
             "ca_size": [
-                250, 500, 750, 1000,
-                1250, 1500, 1750, 2000,
-                2250, 2500, 2750, 3000,
-                3250, 3500, 3750, 4000
+                1000, 2000, 4000, 6000,
+                6500, 7000, 7500, 8000,
+                8500, 9000, 9500, 10000,
+                10500, 11000, 11500, 12000,
+                12250, 12500, 12750, 13000
             ],
             "simulation_iterations": [
                 6480
+            ],
+            "wells_dim": [
+                3, 3, 6, 8, 8, 9, 11, 11, 12
+            ],
+            "wells_QW": [
+                0.001
+            ],
+            "WRITE_OUTPUT_TO_FILE": [
+                0
             ]
         },
         "chart_params": {
-            "title": "Active cells 32 loop",
+            "title": "Unified implementations test",
             "x_axis": "ca_size",
-            "x_axis_label": "Cellular automata dimension"
+            "x_axis_label": "CA dimensions"
         },
         "targets": [
-            "active_cells_cpu.cu",
-            "active_cells_gpu.cu",
-            "active_cells_gpu_const_block_number.cu"
+            "u_hybrid",
+            "u_shared",
+            "u_standard"
         ]
     },
-    "block_size_test": {
+
+    "shared_ca_size": {
         "params": {
-            "block_size": [
-                2, 3, 4, 5, 6, 7, 8, 9,
-                10, 11, 12, 13, 14, 15, 16, 17,
-                18, 19, 20, 21, 22, 23, 24, 25,
-                26, 27, 28, 29, 30, 31, 32, 33
-            ],
             "ca_size": [
+                1000, 2000, 4000, 6000,
+                6500, 7000, 7500, 8000,
+                8500, 9000, 9500, 10000,
+                10500, 11000, 11500, 12000,
+                12250, 12500, 12750, 13000
+            ],
+            "simulation_iterations": [
+                6480
+            ],
+            "wells_dim": [
+                3, 3, 6, 8, 8, 9, 11, 11, 12
+            ],
+            "wells_QW": [
+                0.001
+            ],
+            "WRITE_OUTPUT_TO_FILE": [
+                0
+            ]
+        },
+        "chart_params": {
+            "title": "Shared variant test",
+            "x_axis": "ca_size",
+            "x_axis_label": "CA dimensions"
+        },
+        "targets": [
+            "g_shared",
+            "u_shared"
+        ]
+    },
+    "hybrid_ca_size": {
+        "params": {
+            "ca_size": [
+                1000, 2000, 4000, 6000,
+                6500, 7000, 7500, 8000,
+                8500, 9000, 9500, 10000,
+                10500, 11000, 11500, 12000,
+                12250, 12500, 12750, 13000
+            ],
+            "simulation_iterations": [
+                6480
+            ],
+            "wells_dim": [
+                3, 3, 6, 8, 8, 9, 11, 11, 12
+            ],
+            "wells_QW": [
+                0.001
+            ],
+            "WRITE_OUTPUT_TO_FILE": [
+                0
+            ]
+        },
+        "chart_params": {
+            "title": "Hybrid variant test",
+            "x_axis": "ca_size",
+            "x_axis_label": "CA dimensions"
+        },
+        "targets": [
+            "g_hybrid",
+            "u_hybrid"
+        ]
+    },
+    "standard_ca_size": {
+        "params": {
+            "ca_size": [
+                1000, 2000, 4000, 6000,
+                6500, 7000, 7500, 8000,
+                8500, 9000, 9500, 10000,
+                10500, 11000, 11500, 12000,
+                12250, 12500, 12750, 13000
+            ],
+            "simulation_iterations": [
+                6480
+            ],
+            "wells_dim": [
+                3, 3, 6, 8, 8, 9, 11, 11, 12
+            ],
+            "wells_QW": [
+                0.001
+            ],
+            "WRITE_OUTPUT_TO_FILE": [
+                0
+            ]
+        },
+        "chart_params": {
+            "title": "Standard variant test",
+            "x_axis": "ca_size",
+            "x_axis_label": "CA dimensions"
+        },
+        "targets": [
+            "g_standard",
+            "u_standard"
+        ]
+    },
+
+    "ac_coverage_loop": {
+        "params": {
+            "ca_size": [
+                4000, 5000, 5500, 6000, 6500, 6750, 7000, 7250, 7500
+            ],
+            "simulation_iterations": [
                 8000
             ],
-            "simulation_iterations": [
-                6480
-            ]
-        },
-        "chart_params": {
-            "title": "Block size",
-            "x_axis": "block_size",
-            "x_axis_label": "CA automata dimensions"
-        },
-        "targets": [
-            "global_memory.cu",
-            "shared_memory.cu",
-            "unified_memory.cu",
-            "hybrid_memory.cu"
-        ]
-    },
-    "block_size_test_loop": {
-        "params": {
-            "block_size": [
-                2, 3, 4, 5, 6, 7, 8, 9,
-                10, 11, 12, 13, 14, 15, 16, 17,
-                18, 19, 20, 21, 22, 23, 24, 25,
-                26, 27, 28, 29, 30, 31, 32, 33
+            "wells_dim": [
+                6, 8, 8, 9, 11, 11, 12
             ],
-            "ca_size": [
-                3000
+               "wells_QW": [
+                0.001
             ],
-            "simulation_iterations": [
-                6480
-            ]
-        },
-        "chart_params": {
-            "title": "Block size loop",
-            "x_axis": "block_size",
-            "x_axis_label": "CA automata dimensions"
-        },
-        "targets": [
-            "global_memory_loop.cu",
-            "shared_memory_loop.cu",
-            "unified_memory_loop.cu",
-            "hybrid_memory_loop.cu"
-        ]
-    },
-    "sequential": {
-        "params": {
-            "block_size": [
+            "WRITE_OUTPUT_TO_FILE": [
                 0
             ],
+            "WRITE_STATISTICS_TO_FILE": [
+                1
+            ]
+        },
+        "targets": [
+            "g_standard_loop",
+            "u_standard_loop",
+            "g_ac_standard_loop",
+            "u_ac_standard_loop"
+        ]
+    },
+    "ac_ca_size_loop": {
+        "params": {
+            "ca_size": [
+                1000, 2000, 4000, 6000,
+                6500, 7000, 7500, 8000,
+                8500, 9000, 9500, 10000,
+                10500, 11000, 11500, 12000,
+                12250, 12500, 12750, 13000
+            ],
+            "simulation_iterations": [
+                6480
+            ],
+            "wells_dim": [
+                3, 3, 6, 8, 8, 9, 11, 11, 12
+            ],
+            "wells_QW": [
+                0.001
+            ],
+            "WRITE_OUTPUT_TO_FILE": [
+                0
+            ]
+        },
+        "chart_params": {
+            "title": "Global implementations test",
+            "x_axis": "ca_size",
+            "x_axis_label": "CA dimensions"
+        },
+        "targets": [
+            "g_standard_loop",
+            "u_standard_loop",
+            "g_ac_standard_loop",
+            "u_ac_standard_loop"
+        ]
+    },
+
+    "g_ca_size_loop": {
+        "params": {
             "ca_size": [
                 250, 500, 750, 1000,
                 1250, 1500, 1750, 2000,
@@ -462,23 +299,30 @@
             ],
             "simulation_iterations": [
                 6480
+            ],
+            "wells_dim": [
+                1, 1, 1, 1,
+                2, 2, 2, 2,
+                4, 4, 4, 4,
+                6, 6, 6, 6
+            ],
+            "wells_QW": [
+                0.001
             ]
         },
         "chart_params": {
-            "title": "Sequential implementations",
+            "title": "Global implementations stress test",
             "x_axis": "ca_size",
-            "x_axis_label": "CA automata dimensions"
+            "x_axis_label": "CA dimensions"
         },
         "targets": [
-            "cal_saturatedFlow_oneWell.c",
-            "sequential_c_imp.c"
+            "g_hybrid_loop",
+            "g_shared_loop",
+            "g_standard_loop"
         ]
     },
-    "unified_acc_cpu": {
+    "u_ca_size_loop": {
         "params": {
-            "block_size": [
-                16
-            ],
             "ca_size": [
                 250, 500, 750, 1000,
                 1250, 1500, 1750, 2000,
@@ -487,120 +331,121 @@
             ],
             "simulation_iterations": [
                 6480
+            ],
+            "wells_dim": [
+                1, 1, 1, 1,
+                2, 2, 2, 2,
+                4, 4, 4, 4,
+                6, 6, 6, 6
+            ],
+            "wells_QW": [
+                0.001
             ]
         },
         "chart_params": {
-            "title": "Standard 16 loop",
+            "title": "Unified implementations stress test",
             "x_axis": "ca_size",
-            "x_axis_label": "CA automata dimensions"
+            "x_axis_label": "CA dimensions"
         },
-        "targets": [
-            "unified_memory.cu"
+        "targets":[
+            "u_hybrid_loop",
+            "u_shared_loop",
+            "u_standard_loop"
         ]
     },
-    "compilation_test": {
+
+    "shared_ca_size_loop": {
         "params": {
-            "block_size": [
-                16
-            ],
             "ca_size": [
-                10
-            ],
-            "simulation_iterations": [
-                100
-            ],
-            "write_output_to_file": [
-                1
-            ]
-        },
-        "chart_params": {
-            "title": "Compilation test",
-            "x_axis": "ca_size",
-            "x_axis_label": "CA automata dimensions"
-        },
-        "targets": [
-            "global_memory.cu",
-            "shared_memory.cu",
-            "unified_memory.cu",
-            "hybrid_memory.cu",
-            "global_memory_loop.cu",
-            "shared_memory_loop.cu",
-            "unified_memory_loop.cu",
-            "hybrid_memory_loop.cu",
-            "active_cells_cpu.cu",
-            "active_cells_gpu.cu",
-            "active_cells_gpu_const_block_number.cu",
-            "unified_memory_loop.cu",
-            "active_cells_gpu_loop.cu",
-            "active_cells_gpu_const_block_number_loop.cu",
-            "cal_saturatedFlow_oneWell.c",
-            "sequential_c_imp.c"
-        ]
-    },
-    "active_cells_output_test_16": {
-        "params": {
-            "block_size": [
-                16
-            ],
-            "ca_size": [
-                1000, 2000, 3000, 4000,
-                5000, 6000
+                250, 500, 750, 1000,
+                1250, 1500, 1750, 2000,
+                2250, 2500, 2750, 3000,
+                3250, 3500, 3750, 4000
             ],
             "simulation_iterations": [
                 6480
             ],
-            "write_output_to_file": [
-                1
+            "wells_dim": [
+                1, 1, 1, 1,
+                2, 2, 2, 2,
+                4, 4, 4, 4,
+                6, 6, 6, 6
+            ],
+            "wells_QW": [
+                0.001
             ]
         },
         "chart_params": {
-            "title": "Active cells 16",
+            "title": "Shared variant stress test",
             "x_axis": "ca_size",
-            "x_axis_label": "CA automata dimensions"
+            "x_axis_label": "CA dimensions"
         },
         "targets": [
-            "unified_memory.cu",
-            "active_cells_gpu.cu",
-            "active_cells_gpu_const_block_number.cu"
+            "g_shared_loop",
+            "u_shared_loop"
         ]
     },
-    "river": {
+    "hybrid_ca_size_loop": {
         "params": {
-            "river_position": [
-                20
-            ],
-            "write_output_to_file": [
-                1
-            ],
             "ca_size": [
-                100
+                250, 500, 750, 1000,
+                1250, 1500, 1750, 2000,
+                2250, 2500, 2750, 3000,
+                3250, 3500, 3750, 4000
             ],
-            "simulated_days_number": [
-                10
+            "simulation_iterations": [
+                6480
             ],
-            "river_heads": [
-                [49,49,49,49,49,51,51,51,51,51]
+            "wells_dim": [
+                1, 1, 1, 1,
+                2, 2, 2, 2,
+                4, 4, 4, 4,
+                6, 6, 6, 6
             ],
-            "number_of_wells": [
-                1
-            ],
-            "wellsRows": [
-                [50]
-            ],
-            "wellsCols": [
-                [50]
-            ],
-            "wellsQW": [
-                [0.001]
+            "wells_QW": [
+                0.001
             ]
         },
         "chart_params": {
-            "title": "River cells 16",
+            "title": "Hybrid variant stress test",
             "x_axis": "ca_size",
-            "x_axis_label": "CA automata dimensions"
+            "x_axis_label": "CA dimensions"
         },
         "targets": [
-            "river_unified.cu"
+            "g_hybrid_loop",
+            "u_hybrid_loop"
+        ]
+    },
+    "standard_ca_size_loop": {
+        "params": {
+            "ca_size": [
+                250, 500, 750, 1000,
+                1250, 1500, 1750, 2000,
+                2250, 2500, 2750, 3000,
+                3250, 3500, 3750, 4000
+            ],
+            "simulation_iterations": [
+                6480
+            ],
+            "wells_dim": [
+                1, 1, 1, 1,
+                2, 2, 2, 2,
+                4, 4, 4, 4,
+                6, 6, 6, 6
+            ],
+            "wells_QW": [
+                0.001
+            ]
+        },
+        "chart_params": {
+            "title": "Standard variant stress test",
+            "x_axis": "ca_size",
+            "x_axis_label": "CA dimensions"
+        },
+        "targets": [
+            "g_standard_loop",
+            "u_standard_loop"
         ]
     }
+
 }
