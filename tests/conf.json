@@ -5,7 +5,7 @@
                 4000, 5000, 5500, 6000, 6500, 6750, 7000, 7250, 7500
             ],
             "simulation_iterations": [
-                8000
+                9000
             ],
             "wells_dim": [
                 6, 8, 8, 9, 11, 11, 12
@@ -23,8 +23,8 @@
         "targets": [
             "g_standard",
             "u_standard",
-            "g_ac_standard",
-            "u_ac_standard"
+            "ac_g_standard",
+            "ac_g_standard"
         ]
     },
     "ac_ca_size": {
@@ -57,8 +57,8 @@
         "targets": [
             "g_standard",
             "u_standard",
-            "g_ac_standard",
-            "u_ac_standard"
+            "ac_g_standard",
+            "ac_u_standard"
         ]
     },
 
@@ -232,7 +232,7 @@
                 4000, 5000, 5500, 6000, 6500, 6750, 7000, 7250, 7500
             ],
             "simulation_iterations": [
-                8000
+                9000
             ],
             "wells_dim": [
                 6, 8, 8, 9, 11, 11, 12
@@ -250,8 +250,8 @@
         "targets": [
             "g_standard_loop",
             "u_standard_loop",
-            "g_ac_standard_loop",
-            "u_ac_standard_loop"
+            "ac_g_standard_loop",
+            "ac_u_standard_loop"
         ]
     },
     "ac_ca_size_loop": {
@@ -284,8 +284,8 @@
         "targets": [
             "g_standard_loop",
             "u_standard_loop",
-            "g_ac_standard_loop",
-            "u_ac_standard_loop"
+            "ac_g_standard_loop",
+            "ac_u_standard_loop"
         ]
     },
 
