@@ -16,11 +16,10 @@
 #define AREA CELL_SIZE_X*CELL_SIZE_Y
 
 #define THICKNESS 50
-#define Syinitial 0.1
-#define Kinitial  0.0000125
+#define INITIAL_SY 0.1
+#define INITIAL_K  0.0000125
 
-#define headFixed 50
-#define headCalculated 50
+#define INITIAL_HEAD 50
 
 #define DELTA_T 40
 #define KERNEL_LOOP_SIZE 20
