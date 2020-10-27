@@ -1,14 +1,14 @@
 {
     "output_test": {
-        "test_specs": {
+        "params": {
             "block_size": [
                 32
             ],
             "ca_size": [
-                4000
+                100
             ],
             "simulation_iterations": [
-                10000
+                100
             ],
             "wells_dim": [
                 6
@@ -17,21 +17,17 @@
                 0.001
             ]
         },
-        "test_src": [
-            "global_memory.cu",
-            "shared_memory.cu",
-            "unified_memory.cu",
-            "hybrid_memory.cu",
-            "global_memory_loop.cu",
-            "shared_memory_loop.cu",
-            "unified_memory_loop.cu",
-            "hybrid_memory_loop.cu",
-            "active_cells.cu",
-            "active_cells_loop.cu"
+        "targets": [
+            "u_hybrid",
+            "g_hybrid",
+            "u_shared",
+            "g_shared",
+            "u_standard",
+            "g_standard"
         ]
     },
     "coverage_standard_test": {
-        "test_specs": {
+        "params": {
             "block_size": [
                 32
             ],
@@ -51,13 +47,13 @@
                 1
             ]
         },
-        "test_src": [
+        "targets": [
             "unified_memory.cu",
             "active_cells.cu"
         ]
     },
     "coverage_multiple_wells": {
-        "test_specs": {
+        "params": {
             "block_size": [
                 32
             ],
@@ -77,13 +73,13 @@
                 0
             ]
         },
-        "test_src": [
+        "targets": [
             "unified_memory.cu",
             "active_cells.cu"
         ]
     },
     "coverage_multiple_wells_stress": {
-        "test_specs": {
+        "params": {
             "block_size": [
                 32
             ],
@@ -100,13 +96,13 @@
                 0.001
             ]
         },
-        "test_src": [
+        "targets": [
             "unified_active_cells_loop.cu",
             "unified_memory_loop.cu"
         ]
     },
     "standard_16": {
-        "test_specs": {
+        "params": {
             "block_size": [
                 16
             ],
@@ -126,15 +122,15 @@
             "x_axis": "ca_size",
             "x_axis_label": "CA automata dimensions"
         },
-        "test_src": [
-            "global_memory.cu",
-            "shared_memory.cu",
-            "unified_memory.cu",
-            "hybrid_memory.cu"
+        "targets": [
+            "global_memory.c",
+            "shared_memory.c",
+            "unified_memory.c",
+            "hybrid_memory.c"
         ]
     },
     "standard_32": {
-        "test_specs": {
+        "params": {
             "block_size": [
                 32
             ],
@@ -154,7 +150,7 @@
             "x_axis": "ca_size",
             "x_axis_label": "CA automata dimensions"
         },
-        "test_src": [
+        "targets": [
             "global_memory.cu",
             "shared_memory.cu",
             "unified_memory.cu",
@@ -162,7 +158,7 @@
         ]
     },
     "standard_16_loop": {
-        "test_specs": {
+        "params": {
             "block_size": [
                 16
             ],
@@ -181,7 +177,7 @@
             "x_axis": "ca_size",
             "x_axis_label": "CA automata dimensions"
         },
-        "test_src": [
+        "targets": [
             "global_memory_loop.cu",
             "shared_memory_loop.cu",
             "unified_memory_loop.cu",
@@ -189,7 +185,7 @@
         ]
     },
     "standard_32_loop": {
-        "test_specs": {
+        "params": {
             "block_size": [
                 32
             ],
@@ -208,7 +204,7 @@
             "x_axis": "ca_size",
             "x_axis_label": "CA automata dimensions"
         },
-        "test_src": [
+        "targets": [
             "global_memory_loop.cu",
             "shared_memory_loop.cu",
             "unified_memory_loop.cu",
@@ -216,7 +212,7 @@
         ]
     },
     "active_cells_16": {
-        "test_specs": {
+        "params": {
             "block_size": [
                 16
             ],
@@ -236,14 +232,14 @@
             "x_axis": "ca_size",
             "x_axis_label": "CA automata dimensions"
         },
-        "test_src": [
+        "targets": [
             "unified_memory.cu",
             "active_cells_gpu.cu",
             "active_cells_gpu_const_block_number.cu"
         ]
     },
     "active_cells_32": {
-        "test_specs": {
+        "params": {
             "block_size": [
                 32
             ],
@@ -263,14 +259,14 @@
             "x_axis": "ca_size",
             "x_axis_label": "CA automata dimensions"
         },
-        "test_src": [
+        "targets": [
             "unified_memory.cu",
             "active_cells_gpu.cu",
             "active_cells_gpu_const_block_number.cu"
         ]
     },
     "active_cells_16_loop": {
-        "test_specs": {
+        "params": {
             "block_size": [
                 16
             ],
@@ -289,14 +285,14 @@
             "x_axis": "ca_size",
             "x_axis_label": "CA automata dimensions"
         },
-        "test_src": [
+        "targets": [
             "unified_memory_loop.cu",
             "active_cells_gpu_loop.cu",
             "active_cells_gpu_const_block_number_loop.cu"
         ]
     },
     "active_cells_32_loop": {
-        "test_specs": {
+        "params": {
             "block_size": [
                 32
             ],
@@ -315,14 +311,14 @@
             "x_axis": "ca_size",
             "x_axis_label": "CA automata dimensions"
         },
-        "test_src": [
+        "targets": [
             "unified_memory_loop.cu",
             "active_cells_gpu_loop.cu",
             "active_cells_gpu_const_block_number_loop.cu"
         ]
     },
     "seq_vs_para": {
-        "test_specs": {
+        "params": {
             "block_size": [
                 32
             ],
@@ -340,7 +336,7 @@
             "x_axis": "ca_size",
             "x_axis_label": "CA automata dimensions"
         },
-        "test_src": [
+        "targets": [
             "sequential_c_imp.c",
             "unified_memory.cu",
             "global_memory.cu"
@@ -348,7 +344,7 @@
     },
 
     "active_cells_cpu_16": {
-        "test_specs": {
+        "params": {
             "block_size": [
                 16
             ],
@@ -367,14 +363,14 @@
             "x_axis": "ca_size",
             "x_axis_label": "Cellular automata dimension"
         },
-        "test_src": [
+        "targets": [
             "active_cells_cpu.cu",
             "active_cells_gpu.cu",
             "active_cells_gpu_const_block_number.cu"
         ]
     },
     "active_cells_cpu_32": {
-        "test_specs": {
+        "params": {
             "block_size": [
                 32
             ],
@@ -393,14 +389,14 @@
             "x_axis": "ca_size",
             "x_axis_label": "Cellular automata dimension"
         },
-        "test_src": [
+        "targets": [
             "active_cells_cpu.cu",
             "active_cells_gpu.cu",
             "active_cells_gpu_const_block_number.cu"
         ]
     },
     "block_size_test": {
-        "test_specs": {
+        "params": {
             "block_size": [
                 2, 3, 4, 5, 6, 7, 8, 9,
                 10, 11, 12, 13, 14, 15, 16, 17,
@@ -419,7 +415,7 @@
             "x_axis": "block_size",
             "x_axis_label": "CA automata dimensions"
         },
-        "test_src": [
+        "targets": [
             "global_memory.cu",
             "shared_memory.cu",
             "unified_memory.cu",
@@ -427,7 +423,7 @@
         ]
     },
     "block_size_test_loop": {
-        "test_specs": {
+        "params": {
             "block_size": [
                 2, 3, 4, 5, 6, 7, 8, 9,
                 10, 11, 12, 13, 14, 15, 16, 17,
@@ -446,7 +442,7 @@
             "x_axis": "block_size",
             "x_axis_label": "CA automata dimensions"
         },
-        "test_src": [
+        "targets": [
             "global_memory_loop.cu",
             "shared_memory_loop.cu",
             "unified_memory_loop.cu",
@@ -454,7 +450,7 @@
         ]
     },
     "sequential": {
-        "test_specs": {
+        "params": {
             "block_size": [
                 0
             ],
@@ -473,13 +469,13 @@
             "x_axis": "ca_size",
             "x_axis_label": "CA automata dimensions"
         },
-        "test_src": [
+        "targets": [
             "cal_saturatedFlow_oneWell.c",
             "sequential_c_imp.c"
         ]
     },
     "unified_acc_cpu": {
-        "test_specs": {
+        "params": {
             "block_size": [
                 16
             ],
@@ -498,12 +494,12 @@
             "x_axis": "ca_size",
             "x_axis_label": "CA automata dimensions"
         },
-        "test_src": [
+        "targets": [
             "unified_memory.cu"
         ]
     },
     "compilation_test": {
-        "test_specs": {
+        "params": {
             "block_size": [
                 16
             ],
@@ -522,7 +518,7 @@
             "x_axis": "ca_size",
             "x_axis_label": "CA automata dimensions"
         },
-        "test_src": [
+        "targets": [
             "global_memory.cu",
             "shared_memory.cu",
             "unified_memory.cu",
@@ -542,7 +538,7 @@
         ]
     },
     "active_cells_output_test_16": {
-        "test_specs": {
+        "params": {
             "block_size": [
                 16
             ],
@@ -562,14 +558,14 @@
             "x_axis": "ca_size",
             "x_axis_label": "CA automata dimensions"
         },
-        "test_src": [
+        "targets": [
             "unified_memory.cu",
             "active_cells_gpu.cu",
             "active_cells_gpu_const_block_number.cu"
         ]
     },
     "river": {
-        "test_specs": {
+        "params": {
             "river_position": [
                 20
             ],
@@ -603,7 +599,7 @@
             "x_axis": "ca_size",
             "x_axis_label": "CA automata dimensions"
         },
-        "test_src": [
+        "targets": [
             "river_unified.cu"
         ]
     }
