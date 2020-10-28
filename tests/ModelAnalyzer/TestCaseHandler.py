@@ -1,5 +1,7 @@
 import os
+import subprocess
 import time
+from shutil import rmtree
 
 from ModelAnalyzer.DefaultParamsKeeper import DefaultParamsKeeper
 from ModelAnalyzer.settings import (
@@ -7,13 +9,13 @@ from ModelAnalyzer.settings import (
     PROFILING_DUMP,
     SUMMARIES_DUMP,
     CMAKE_BUILD_DIR,
+    CMAKE_LISTS_PATH
 )
 from ModelAnalyzer.test_steps.ParamsGenerator import ParamsGenerator
 from ModelAnalyzer.test_steps.ProgramCompilerAndRunner import (
     ProgramCompilerAndRunner,
 )
 from ModelAnalyzer.test_steps.ResultsHandler import ResultsHandler
-from ModelAnalyzer.test_steps.TestCaseBuilder import TestCaseBuilder
 
 
 class TestCaseHandler:
@@ -28,10 +30,25 @@ class TestCaseHandler:
             if not os.path.exists(dir_path):
                 os.makedirs(dir_path)
 
+    @staticmethod
+    def _build_test():
+        subprocess.run(
+            [
+                "cmake",
+                f"-B{CMAKE_BUILD_DIR}",
+                f"-H{CMAKE_LISTS_PATH}"
+            ]
+        )
+
+    @staticmethod
+    def _clean_build():
+        rmtree(CMAKE_BUILD_DIR, ignore_errors=True)
+
+
     def perform_test_case(self, test_name, test_params):
         dpk = DefaultParamsKeeper()
         pg = ParamsGenerator(test_name)
-        TestCaseBuilder.build_test()
+        self._build_test()
         pcar = ProgramCompilerAndRunner(test_params["targets"])
         rg = ResultsHandler(
             test_name,
@@ -47,7 +64,7 @@ class TestCaseHandler:
             result_paths.extend(intermediate_results_path)
         test_case_elapsed_time = time.time() - test_case_start_time
         dpk.restore_params()
-        TestCaseBuilder.clean_build()
+        self._clean_build()
         return rg.save_results(result_paths, round(test_case_elapsed_time))
 
     @staticmethod

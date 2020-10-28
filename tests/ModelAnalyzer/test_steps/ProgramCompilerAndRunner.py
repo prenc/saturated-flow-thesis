@@ -3,6 +3,7 @@ import logging
 import os
 import subprocess
 import time
+from os.path import basename
 from shutil import move
 
 from ModelAnalyzer.settings import (
@@ -52,7 +53,7 @@ class ProgramCompilerAndRunner:
         self._log.info(f"Compiling using 'make': '{target}'.")
         exit_code = subprocess.run(["make", "-C", f"{CMAKE_BUILD_DIR}", target]).returncode
         if exit_code == 0:
-            move(os.path.join(CMAKE_BUILD_DIR, target.split(".")[0]), output_path)
+            move(os.path.join(CMAKE_BUILD_DIR, basename(target)), output_path)
         return exit_code
 
     def _run_programs(self, test_spec, executables_data):
