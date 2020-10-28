@@ -49,19 +49,28 @@ LOG_FILE = "out.log"
 Path to log file which is used during running tests
 """
 
-TEST_CONFIG_FILE = "conf.json"
-"""
-Path to JSON file where tests are defined,
-if "chart_params" is specified, a chart will be made based on the summary file
-"""
-
 PARAMS_PATH = "../src/params.h"
 """
 Mandatory file, common for all CUDA C and C implementations, allows
 for changing iterations number, CA dimensions, block size during running tests
 """
 
-SRC_FILES = "../src"
+CMAKE_LISTS_PATH = "../src"
 """
-Path where all source files are
+Path where main project CMakeLists.txt is stored.
+"""
+
+CMAKE_BUILD_DIR = "../src/build"
+"""
+Path to cmake build directory. It is removed after test.  
+"""
+
+TEST_CONFIG_FILE = "conf.json"
+"""
+Path to JSON file where tests are defined.
+Each test is a separate object and has two keys params and targets.
+Targets value is a list of targets names from {CMAKE_PATH}/CmakeLists.txt.    
+Params value is an object which keys names correspond to test params from {PARAMS_PATH} file.    
+Each param value is a list. Targets are executed with all params lists permutations.   
+If "chart_params" is specified, a chart will be made based on the summary file
 """

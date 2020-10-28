@@ -1,6 +1,6 @@
 {
   "river": {
-    "test_specs": {
+    "params": {
      "river_position": [
         20
       ],

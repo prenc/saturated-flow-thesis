@@ -3,30 +3,22 @@ import logging
 import os
 import subprocess
 import time
+from os.path import basename
 from shutil import move
 
 from ModelAnalyzer.settings import (
     COMPILED_DUMP,
     PROFILING_DUMP,
     TIMES_EACH_PROGRAM_IS_RUN,
-    SRC_FILES,
+    CMAKE_BUILD_DIR,
     ALWAYS_COMPILE,
 )
 
 
 class ProgramCompilerAndRunner:
-    def __init__(self, file_names):
+    def __init__(self, target_names):
         self._log = logging.getLogger(self.__class__.__name__)
-        self._program_paths = self._find_programs_paths(file_names)
-
-    @staticmethod
-    def _find_programs_paths(file_names):
-        found_paths = []
-        for root, dirs, files in os.walk(SRC_FILES):
-            for file in files:
-                if file in file_names:
-                    found_paths.append((root, file))
-        return found_paths
+        self._target_names = target_names
 
     def perform_test(self, test_spec):
         executables_data = self._find_executables(test_spec)
@@ -34,8 +26,8 @@ class ProgramCompilerAndRunner:
 
     def _find_executables(self, test_spec):
         executables_data = []
-        for root, name in self._program_paths:
-            new_file_name = f"{name.split('.')[0]}_" + "_".join(
+        for target in self._target_names:
+            new_file_name = f"{target.split('.')[0]}_" + "_".join(
                 [
                     str(value)
                     for value in test_spec.values()
@@ -47,48 +39,22 @@ class ProgramCompilerAndRunner:
             if os.path.isfile(output_path) and not ALWAYS_COMPILE:
                 self._log.info(f"Found '{new_file_name}'. No need to compile.")
             else:
-                exit_code = self._compile_file(root, name, output_path)
+                exit_code = self._compile_target(target, output_path)
             executables_data.append(
                 {
-                    "src_name": name,
+                    "src_name": target,
                     "executable_name": new_file_name,
                     "compiling_exit_code": exit_code,
                 }
             )
         return executables_data
 
-    def _compile_file(self, root, name, output_path):
-        if name.endswith(".c"):
-            return self._compile_c_file(root, name, output_path)
-        elif name.endswith(".cu"):
-            return self._compile_cu_file(root, name, output_path)
-        else:
-            self._log.warning(f"Could not compile. Unknown extension: {name}")
-            return -1
-
-    def _compile_c_file(self, root, name, output_path):
-        self._log.info(f"Compiling using 'make': '{name}'.")
-        subprocess.run(
-            [
-                "cmake",
-                f"-B{root}",
-                f"-H{root}",
-                "-DCMAKE_BUILD_TYPE=Release",
-                "-DCMAKE_MODULE_PATH=/nfshome/aderango/git/opencal/cmake",
-                "-DOpenCL_LIBRARY=/opt/cuda/targets/x86_64-linux/lib/libOpenCL.so",
-                "-DOpenCL_INCLUDE_DIR=/opt/cuda/targets/x86_64-linux/include",
-            ]
-        )
-        exit_code = subprocess.run(["make", "-C", root]).returncode
+    def _compile_target(self, target, output_path):
+        self._log.info(f"Compiling using 'make': '{target}'.")
+        exit_code = subprocess.run(["make", "-C", f"{CMAKE_BUILD_DIR}", target]).returncode
         if exit_code == 0:
-            move(os.path.join(root, name.split(".")[0]), output_path)
+            move(os.path.join(CMAKE_BUILD_DIR, basename(target)), output_path)
         return exit_code
-
-    def _compile_cu_file(self, root, name, output_path):
-        self._log.info(f"Compiling using 'nvcc': '{name}'.")
-        return subprocess.run(
-            ["nvcc", os.path.join(root, name), "-o", output_path]
-        ).returncode
 
     def _run_programs(self, test_spec, executables_data):
         results_paths = []

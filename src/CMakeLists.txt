@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.17)
+cmake_minimum_required(VERSION 3.16)
 
 project(saturated-flow CXX)
 
@@ -44,5 +44,3 @@ add_executable(ac_g_standard parallel/active_cells/global/g_ac_standard.cu ${COM
 add_executable(ac_g_standard_loop parallel/active_cells/global/g_ac_standard_loop.cu ${COMMON})
 add_executable(ac_u_standard parallel/active_cells/unified/u_ac_standard.cu ${COMMON})
 add_executable(ac_u_standard_loop parallel/active_cells/unified/u_ac_standard_loop.cu ${COMMON})
-
-add_executable(river river/river_unified.cu ${COMMON})

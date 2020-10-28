@@ -44,12 +44,12 @@ class TestConfigReader:
     def _make_params_list_equal_length(self, tests):
         corrected_tests = tests.copy()
         for test_name, test_details in tests.items():
-            test_specs = test_details["test_specs"]
+            test_specs = test_details["params"]
             max_length = max(*[len(l) for l in test_specs.values()])
             for name, value in test_specs.items():
                 if len(value) != max_length:
                     old_length = len(value)
-                    corrected_tests[test_name]["test_specs"][name] = [
+                    corrected_tests[test_name]["params"][name] = [
                         *value,
                         *[value[-1] for _ in range(len(value), max_length)],
                     ]
