@@ -2,13 +2,13 @@
     "ac_coverage": {
         "params": {
             "ca_size": [
-                4000, 5000, 5500, 6000, 6500, 6750, 7000, 7250, 7500
+                4000
             ],
             "simulation_iterations": [
                 9000
             ],
             "wells_dim": [
-                6, 8, 8, 9, 11, 11, 12
+                6
             ],
                "wells_QW": [
                 0.001
@@ -24,7 +24,7 @@
             "g_standard",
             "u_standard",
             "ac_g_standard",
-            "ac_g_standard"
+            "ac_u_standard"
         ]
     },
     "ac_ca_size": {
@@ -229,13 +229,13 @@
     "ac_coverage_loop": {
         "params": {
             "ca_size": [
-                4000, 5000, 5500, 6000, 6500, 6750, 7000, 7250, 7500
+                4000
             ],
             "simulation_iterations": [
                 9000
             ],
             "wells_dim": [
-                6, 8, 8, 9, 11, 11, 12
+                6
             ],
                "wells_QW": [
                 0.001
