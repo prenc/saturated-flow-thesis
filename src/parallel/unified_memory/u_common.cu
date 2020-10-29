@@ -1,5 +1,4 @@
-#include "../common/memory_management.cuh"
-#include "../kernels/iteration_step.cuh"
+#include "../kernels/iteration_step.cu"
 #include "../common/statistics.h"
 
 int main(int argc, char *argv[])
