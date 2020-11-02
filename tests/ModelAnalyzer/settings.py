@@ -38,7 +38,7 @@ LATEX_DUMP = CHARTS_DUMP + "/latex"
 Place to store latex code which is latex table made based on the summary file
 """
 
-TIMES_EACH_PROGRAM_IS_RUN = 4
+TIMES_EACH_PROGRAM_IS_RUN = 5
 """
 Defines how many times each program is run before an execution time is saved
 (takes the smallest one from all results)

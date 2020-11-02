@@ -39,77 +39,14 @@
             "u_standard_loop"
         ]
     },
-    "ac_coverage": {
-        "params": {
-            "ca_size": [
-                4000
-            ],
-            "simulation_iterations": [
-                9000
-            ],
-            "wells_dim": [
-                6
-            ],
-               "wells_QW": [
-                0.001
-            ],
-            "WRITE_OUTPUT_TO_FILE": [
-                0
-            ],
-            "WRITE_STATISTICS_TO_FILE": [
-                1
-            ]
-        },
-        "targets": [
-            "g_standard",
-            "u_standard",
-            "ac_g_standard",
-            "ac_u_standard"
-        ]
-    },
-    "ac_ca_size": {
-        "params": {
-            "ca_size": [
-                1000, 2000, 4000, 6000,
-                6500, 7000, 7500, 8000,
-                8500, 9000, 9500, 10000,
-                10500, 11000, 11500, 12000,
-                12250, 12500, 12750, 13000
-            ],
-            "simulation_iterations": [
-                6480
-            ],
-            "wells_dim": [
-                3, 3, 6, 8, 8, 9, 11, 11, 12
-            ],
-            "wells_QW": [
-                0.001
-            ],
-            "WRITE_OUTPUT_TO_FILE": [
-                0
-            ]
-        },
-        "chart_params": {
-            "title": "Global implementations test",
-            "x_axis": "ca_size",
-            "x_axis_label": "CA dimensions"
-        },
-        "targets": [
-            "g_standard",
-            "u_standard",
-            "ac_g_standard",
-            "ac_u_standard"
-        ]
-    },
 
-    "g_ca_size": {
+    "g_u_comp": {
         "params": {
             "ca_size": [
                 1000, 2000, 4000, 6000,
                 6500, 7000, 7500, 8000,
                 8500, 9000, 9500, 10000,
-                10500, 11000, 11500, 12000,
-                12250, 12500, 12750, 13000
+                10500, 11000, 11500, 12000
             ],
             "simulation_iterations": [
                 6480
@@ -125,58 +62,26 @@
             ]
         },
         "chart_params": {
-            "title": "Global implementations test",
+            "title": "Non active cells global and unified",
             "x_axis": "ca_size",
             "x_axis_label": "CA dimensions"
         },
         "targets": [
             "g_hybrid",
             "g_shared",
-            "g_standard"
-        ]
-    },
-    "u_ca_size": {
-        "params": {
-            "ca_size": [
-                1000, 2000, 4000, 6000,
-                6500, 7000, 7500, 8000,
-                8500, 9000, 9500, 10000,
-                10500, 11000, 11500, 12000,
-                12250, 12500, 12750, 13000
-            ],
-            "simulation_iterations": [
-                6480
-            ],
-            "wells_dim": [
-                3, 3, 6, 8, 8, 9, 11, 11, 12
-            ],
-            "wells_QW": [
-                0.001
-            ],
-            "WRITE_OUTPUT_TO_FILE": [
-                0
-            ]
-        },
-        "chart_params": {
-            "title": "Unified implementations test",
-            "x_axis": "ca_size",
-            "x_axis_label": "CA dimensions"
-        },
-        "targets": [
+            "g_standard",
             "u_hybrid",
             "u_shared",
             "u_standard"
         ]
     },
-
     "shared_ca_size": {
         "params": {
             "ca_size": [
                 1000, 2000, 4000, 6000,
                 6500, 7000, 7500, 8000,
                 8500, 9000, 9500, 10000,
-                10500, 11000, 11500, 12000,
-                12250, 12500, 12750, 13000
+                10500, 11000, 11500, 12000
             ],
             "simulation_iterations": [
                 6480
@@ -207,8 +112,7 @@
                 1000, 2000, 4000, 6000,
                 6500, 7000, 7500, 8000,
                 8500, 9000, 9500, 10000,
-                10500, 11000, 11500, 12000,
-                12250, 12500, 12750, 13000
+                10500, 11000, 11500, 12000
             ],
             "simulation_iterations": [
                 6480
@@ -239,8 +143,7 @@
                 1000, 2000, 4000, 6000,
                 6500, 7000, 7500, 8000,
                 8500, 9000, 9500, 10000,
-                10500, 11000, 11500, 12000,
-                12250, 12500, 12750, 13000
+                10500, 11000, 11500, 12000
             ],
             "simulation_iterations": [
                 6480
@@ -266,35 +169,7 @@
         ]
     },
 
-    "ac_coverage_loop": {
-        "params": {
-            "ca_size": [
-                4000
-            ],
-            "simulation_iterations": [
-                9000
-            ],
-            "wells_dim": [
-                6
-            ],
-               "wells_QW": [
-                0.001
-            ],
-            "WRITE_OUTPUT_TO_FILE": [
-                0
-            ],
-            "WRITE_STATISTICS_TO_FILE": [
-                1
-            ]
-        },
-        "targets": [
-            "g_standard_loop",
-            "u_standard_loop",
-            "ac_g_standard_loop",
-            "ac_u_standard_loop"
-        ]
-    },
-    "ac_ca_size_loop": {
+    "g_u_comp_loop": {
         "params": {
             "ca_size": [
                 250, 500, 750, 1000,
@@ -316,83 +191,19 @@
             ]
         },
         "chart_params": {
-            "title": "Active cells stress test",
-            "x_axis": "ca_size",
-            "x_axis_label": "CA dimensions"
-        },
-        "targets": [
-            "g_standard_loop",
-            "u_standard_loop",
-            "ac_g_standard_loop",
-            "ac_u_standard_loop"
-        ]
-    },
-
-    "g_ca_size_loop": {
-        "params": {
-            "ca_size": [
-                250, 500, 750, 1000,
-                1250, 1500, 1750, 2000,
-                2250, 2500, 2750, 3000,
-                3250, 3500, 3750, 4000
-            ],
-            "simulation_iterations": [
-                6480
-            ],
-            "wells_dim": [
-                1, 1, 1, 1,
-                2, 2, 2, 2,
-                4, 4, 4, 4,
-                6, 6, 6, 6
-            ],
-            "wells_QW": [
-                0.001
-            ]
-        },
-        "chart_params": {
-            "title": "Global implementations stress test",
+            "title": "Non active cells global and unified stress",
             "x_axis": "ca_size",
             "x_axis_label": "CA dimensions"
         },
         "targets": [
             "g_hybrid_loop",
             "g_shared_loop",
-            "g_standard_loop"
-        ]
-    },
-    "u_ca_size_loop": {
-        "params": {
-            "ca_size": [
-                250, 500, 750, 1000,
-                1250, 1500, 1750, 2000,
-                2250, 2500, 2750, 3000,
-                3250, 3500, 3750, 4000
-            ],
-            "simulation_iterations": [
-                6480
-            ],
-            "wells_dim": [
-                1, 1, 1, 1,
-                2, 2, 2, 2,
-                4, 4, 4, 4,
-                6, 6, 6, 6
-            ],
-            "wells_QW": [
-                0.001
-            ]
-        },
-        "chart_params": {
-            "title": "Unified implementations stress test",
-            "x_axis": "ca_size",
-            "x_axis_label": "CA dimensions"
-        },
-        "targets":[
+            "g_standard_loop",
             "u_hybrid_loop",
             "u_shared_loop",
             "u_standard_loop"
         ]
     },
-
     "shared_ca_size_loop": {
         "params": {
             "ca_size": [
@@ -485,6 +296,259 @@
             "g_standard_loop",
             "u_standard_loop"
         ]
-    }
+    },
 
+    "ac_coverage": {
+        "params": {
+            "ca_size": [
+                1000, 4000, 6000
+            ],
+            "simulation_iterations": [
+                9000
+            ],
+            "wells_dim": [
+                3,6,7
+            ],
+            "wells_QW": [
+                0.001
+            ],
+            "WRITE_OUTPUT_TO_FILE": [
+                0
+            ],
+            "WRITE_STATISTICS_TO_FILE": [
+                1
+            ]
+        },
+        "targets": [
+            "g_standard",
+            "u_standard",
+            "ac_g_standard",
+            "ac_u_standard"
+        ]
+    },
+    "ac_ca_size": {
+        "params": {
+            "ca_size": [
+                1000, 2000, 4000, 6000,
+                6500, 7000, 7500, 8000,
+                8500, 9000, 9500, 10000,
+                10500, 11000, 11500, 12000
+            ],
+            "simulation_iterations": [
+                6480
+            ],
+            "wells_dim": [
+                3, 3, 6, 8, 8, 9, 11, 11, 12
+            ],
+            "wells_QW": [
+                0.001
+            ],
+            "WRITE_OUTPUT_TO_FILE": [
+                0
+            ]
+        },
+        "chart_params": {
+            "title": "Active cells test",
+            "x_axis": "ca_size",
+            "x_axis_label": "CA dimensions"
+        },
+        "targets": [
+            "g_standard",
+            "u_standard",
+            "ac_g_standard",
+            "ac_u_standard"
+        ]
+    },
+
+    "ac_coverage_loop": {
+        "params": {
+            "ca_size": [
+                1000, 4000, 6000
+            ],
+            "simulation_iterations": [
+                9000
+            ],
+            "wells_dim": [
+                3,6,7
+            ],
+            "wells_QW": [
+                0.001
+            ],
+            "WRITE_OUTPUT_TO_FILE": [
+                0
+            ],
+            "WRITE_STATISTICS_TO_FILE": [
+                1
+            ]
+        },
+        "targets": [
+            "g_standard_loop",
+            "u_standard_loop",
+            "ac_g_standard_loop",
+            "ac_u_standard_loop"
+        ]
+    },
+    "ac_ca_size_loop": {
+        "params": {
+            "ca_size": [
+                250, 500, 750, 1000,
+                1250, 1500, 1750, 2000,
+                2250, 2500, 2750, 3000,
+                3250, 3500, 3750, 4000
+            ],
+            "simulation_iterations": [
+                6480
+            ],
+            "wells_dim": [
+                1, 1, 1, 1,
+                2, 2, 2, 2,
+                4, 4, 4, 4,
+                6, 6, 6, 6
+            ],
+            "wells_QW": [
+                0.001
+            ]
+        },
+        "chart_params": {
+            "title": "Active cells stress test",
+            "x_axis": "ca_size",
+            "x_axis_label": "CA dimensions"
+        },
+        "targets": [
+            "g_standard_loop",
+            "u_standard_loop",
+            "ac_g_standard_loop",
+            "ac_u_standard_loop"
+        ]
+    },
+
+    "g_ca_size": {
+        "params": {
+            "ca_size": [
+                1000, 2000, 4000, 6000,
+                6500, 7000, 7500, 8000,
+                8500, 9000, 9500, 10000,
+                10500, 11000, 11500, 12000
+            ],
+            "simulation_iterations": [
+                6480
+            ],
+            "wells_dim": [
+                3, 3, 6, 8, 8, 9, 11, 11, 12
+            ],
+            "wells_QW": [
+                0.001
+            ],
+            "WRITE_OUTPUT_TO_FILE": [
+                0
+            ]
+        },
+        "chart_params": {
+            "title": "Global implementations test",
+            "x_axis": "ca_size",
+            "x_axis_label": "CA dimensions"
+        },
+        "targets": [
+            "g_hybrid",
+            "g_shared",
+            "g_standard"
+        ]
+    },
+    "u_ca_size": {
+        "params": {
+            "ca_size": [
+                1000, 2000, 4000, 6000,
+                6500, 7000, 7500, 8000,
+                8500, 9000, 9500, 10000,
+                10500, 11000, 11500, 12000
+            ],
+            "simulation_iterations": [
+                6480
+            ],
+            "wells_dim": [
+                3, 3, 6, 8, 8, 9, 11, 11, 12
+            ],
+            "wells_QW": [
+                0.001
+            ],
+            "WRITE_OUTPUT_TO_FILE": [
+                0
+            ]
+        },
+        "chart_params": {
+            "title": "Unified implementations test",
+            "x_axis": "ca_size",
+            "x_axis_label": "CA dimensions"
+        },
+        "targets": [
+            "u_hybrid",
+            "u_shared",
+            "u_standard"
+        ]
+    },
+
+    "g_ca_size_loop": {
+        "params": {
+            "ca_size": [
+                250, 500, 750, 1000,
+                1250, 1500, 1750, 2000,
+                2250, 2500, 2750, 3000,
+                3250, 3500, 3750, 4000
+            ],
+            "simulation_iterations": [
+                6480
+            ],
+            "wells_dim": [
+                1, 1, 1, 1,
+                2, 2, 2, 2,
+                4, 4, 4, 4,
+                6, 6, 6, 6
+            ],
+            "wells_QW": [
+                0.001
+            ]
+        },
+        "chart_params": {
+            "title": "Global implementations stress test",
+            "x_axis": "ca_size",
+            "x_axis_label": "CA dimensions"
+        },
+        "targets": [
+            "g_hybrid_loop",
+            "g_shared_loop",
+            "g_standard_loop"
+        ]
+    },
+    "u_ca_size_loop": {
+        "params": {
+            "ca_size": [
+                250, 500, 750, 1000,
+                1250, 1500, 1750, 2000,
+                2250, 2500, 2750, 3000,
+                3250, 3500, 3750, 4000
+            ],
+            "simulation_iterations": [
+                6480
+            ],
+            "wells_dim": [
+                1, 1, 1, 1,
+                2, 2, 2, 2,
+                4, 4, 4, 4,
+                6, 6, 6, 6
+            ],
+            "wells_QW": [
+                0.001
+            ]
+        },
+        "chart_params": {
+            "title": "Unified implementations stress test",
+            "x_axis": "ca_size",
+            "x_axis_label": "CA dimensions"
+        },
+        "targets":[
+            "u_hybrid_loop",
+            "u_shared_loop",
+            "u_standard_loop"
+        ]
+    }
 }
