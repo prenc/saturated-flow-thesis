@@ -12,10 +12,11 @@ from ModelAnalyzer.settings import (
     CMAKE_LISTS_PATH
 )
 from ModelAnalyzer.test_steps.ParamsGenerator import ParamsGenerator
-from ModelAnalyzer.test_steps.ProgramCompilerAndRunner import (
-    ProgramCompilerAndRunner,
+from ModelAnalyzer.test_steps.ProgramCompiler import (
+    ProgramCompiler,
 )
 from ModelAnalyzer.test_steps.ResultsHandler import ResultsHandler
+from ModelAnalyzer.test_steps.ProgramRunner import ProgramRunner
 
 
 class TestCaseHandler:
@@ -49,7 +50,8 @@ class TestCaseHandler:
         dpk = DefaultParamsKeeper()
         pg = ParamsGenerator(test_name)
         self._build_test()
-        pcar = ProgramCompilerAndRunner(test_params["targets"])
+        pcomp = ProgramCompiler(test_params["targets"])
+        prun = ProgramRunner(test_params["targets"])
         rg = ResultsHandler(
             test_name,
             self.script_start_time,
@@ -60,7 +62,8 @@ class TestCaseHandler:
         test_case_start_time = time.time()
         for test_spec in self._prepare_test_specs(test_params["params"]):
             pg.generate(test_spec)
-            intermediate_results_path = pcar.perform_test(test_spec)
+            executables = pcomp.compile_test(test_spec)
+            intermediate_results_path = prun.perform_test(test_spec, executables_data=executables)
             result_paths.extend(intermediate_results_path)
         test_case_elapsed_time = time.time() - test_case_start_time
         dpk.restore_params()
