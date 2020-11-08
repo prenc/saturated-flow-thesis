@@ -16,7 +16,7 @@ def init_program():
     if args.compilation:
         mode = TestCaseHandler.Mode.COMPILATION
     else:
-        mode = TestCaseHandler.Mode.RUNNER
+        mode = TestCaseHandler.Mode.CUSTOM_PROFILING
 
     script_start_time = time.time()
     return (
