@@ -150,11 +150,11 @@ int main(int argc, char *argv[])
             activeCellsEvalTimer.start();
             findActiveCells <<< gridDims, blockSize >>>(*h_ca, thrust::raw_pointer_cast(&dv[0]));
             ERROR_CHECK(cudaDeviceSynchronize());
+            activeCellsEvalTimer.stop();
 
             thrust::copy_if(thrust::device, dv.begin(), dv.end(), dv_p.begin(), is_non_zero<int>());
 
             devActiveCellsCount = thrust::count_if(dv_p.begin(), dv_p.end(), is_non_zero<int>());
-            activeCellsEvalTimer.stop();
 
             isWholeGridActive = devActiveCellsCount >= ROWS * COLS;
 
@@ -171,8 +171,8 @@ int main(int argc, char *argv[])
 
         transitionTimer.start();
         simulation_step_kernel <<< *simulationGridDims, blockSize >>>(
-                *h_ca, headsWrite, thrust::raw_pointer_cast(&dv_p[0]), devActiveCellsCount);
-        ERROR_CHECK(cudaDeviceSynchronize());
+                *h_ca, headsWrite, thrust::raw_pointer_cast(&dv_p[0]), dv_p.size());
+        cudaDeviceSynchronize();
         transitionTimer.stop();
 
         double *tmpHeads = h_ca->heads;
