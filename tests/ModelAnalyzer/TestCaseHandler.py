@@ -42,13 +42,13 @@ class TestCaseHandler:
         self._build_test()
         dpk = DefaultParamsKeeper()
         pg = ParamsGenerator(test_name)
-        pcomp = ProgramCompiler(test_params["targets"])
+        pc = ProgramCompiler(test_params["targets"])
         dpk.create_params_copy()
 
         if self.mode == self.Mode.COMPILATION:
-            self._perform_test_compilation(pg, pcomp, test_params)
+            self._perform_test_compilation(pg, pc, test_params)
         else:
-            self._perform_custom_profiling(pg, pcomp, test_name, test_params)
+            self._perform_custom_profiling(pg, pc, test_name, test_params)
 
         dpk.restore_params()
         self._clean_build()
@@ -67,13 +67,13 @@ class TestCaseHandler:
     def _clean_build():
         rmtree(CMAKE_BUILD_DIR, ignore_errors=True)
 
-    def _perform_test_compilation(self, pg, pcomp, test_params):
+    def _perform_test_compilation(self, pg, pc, test_params):
         for test_spec in self._prepare_test_specs(test_params["params"]):
             pg.generate(test_spec)
-            pcomp.compile_test(test_spec)
+            pc.compile_test(test_spec)
 
-    def _perform_custom_profiling(self, pg, pcomp, test_name, test_params):
-        prun = ProgramRunner(test_params["targets"])
+    def _perform_custom_profiling(self, pg, pc, test_name, test_params):
+        pr = ProgramRunner(test_params["targets"])
         rg = ResultsHandler(
             test_name,
             self.script_start_time,
@@ -84,8 +84,8 @@ class TestCaseHandler:
         test_case_start_time = time.time()
         for test_spec in self._prepare_test_specs(test_params["params"]):
             pg.generate(test_spec)
-            executables = pcomp.compile_test(test_spec)
-            intermediate_results_path = prun.perform_test(test_spec, executables_data=executables)
+            executables = pc.compile_test(test_spec)
+            intermediate_results_path = pr.perform_test(test_spec, executables_data=executables)
             result_paths.extend(intermediate_results_path)
         test_case_elapsed_time = time.time() - test_case_start_time
 
