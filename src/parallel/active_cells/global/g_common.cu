@@ -160,11 +160,11 @@ int main(int argc, char *argv[])
             activeCellsEvalTimer.start();
             findActiveCells <<< gridDims, blockSize >>>(*d_ca, thrust::raw_pointer_cast(&dv[0]));
             ERROR_CHECK(cudaDeviceSynchronize());
-            activeCellsEvalTimer.stop();
 
             thrust::copy_if(thrust::device, dv.begin(), dv.end(), dv_p.begin(), is_non_zero<int>());
 
             devActiveCellsCount = thrust::count_if(dv_p.begin(), dv_p.end(), is_non_zero<int>());
+            activeCellsEvalTimer.stop();
 
             isWholeGridActive = devActiveCellsCount >= ROWS * COLS;
 
