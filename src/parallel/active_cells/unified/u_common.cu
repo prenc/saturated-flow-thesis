@@ -172,7 +172,7 @@ int main(int argc, char *argv[])
         transitionTimer.start();
         simulation_step_kernel <<< *simulationGridDims, blockSize >>>(
                 *h_ca, headsWrite, thrust::raw_pointer_cast(&dv_p[0]), devActiveCellsCount);
-        cudaDeviceSynchronize();
+        ERROR_CHECK(cudaDeviceSynchronize());
         transitionTimer.stop();
 
         double *tmpHeads = h_ca->heads;
