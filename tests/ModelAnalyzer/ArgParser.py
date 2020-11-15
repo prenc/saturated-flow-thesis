@@ -41,6 +41,12 @@ class ArgumentParser:
             action="store_true",
             help="Runs script in debug mode, not well developed",
         )
+        self._parser.add_argument(
+            "-c",
+            "--compilation",
+            action="store_true",
+            help="Performs only targets compilation",
+        )
 
     def parse(self):
         return self._parser.parse_args()
