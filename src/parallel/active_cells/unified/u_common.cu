@@ -1,23 +1,15 @@
 #include "../../common/memory_management.cuh"
 #include "../../common/statistics.h"
+#include <thrust/device_vector.h>
 
-__managed__ int devActiveCellsCount = 0;
-
-__device__ unsigned activeCellsIdx[ROWS * COLS];
-
-__device__ void my_push_back(unsigned cellIdx)
-{
-    int insert_ptr = atomicAdd(&devActiveCellsCount, 1);
-    activeCellsIdx[insert_ptr] = cellIdx;
-}
-
-__global__ void simulation_step_kernel(struct CA ca, double *headsWrite)
+__global__ void simulation_step_kernel(CA ca, double *headsWrite, const int *activeCellsIdx, int
+acNumber)
 {
     unsigned ac_idx_x = blockIdx.x * blockDim.x + threadIdx.x;
     unsigned ac_idx_y = blockIdx.y * blockDim.y + threadIdx.y;
     unsigned ac_idx_g = ac_idx_y * blockDim.x * gridDim.x + ac_idx_x;
 
-    if (ac_idx_g < devActiveCellsCount)
+    if (ac_idx_g < acNumber)
     {
         double Q{}, diff_head, tmp_t, ht1, ht2;
         unsigned idx_g = activeCellsIdx[ac_idx_g];
@@ -68,7 +60,7 @@ __global__ void simulation_step_kernel(struct CA ca, double *headsWrite)
     }
 }
 
-__global__ void findActiveCells(struct CA d_ca)
+__global__ void findActiveCells(struct CA d_ca, int *dv)
 {
     unsigned idx_x = blockIdx.x * blockDim.x + threadIdx.x;
     unsigned idx_y = blockIdx.y * blockDim.y + threadIdx.y;
@@ -78,14 +70,14 @@ __global__ void findActiveCells(struct CA d_ca)
     {
         if (d_ca.heads[idx_g] < INITIAL_HEAD || d_ca.sources[idx_g] != 0)
         {
-            my_push_back(idx_g);
+            dv[idx_g] = idx_g;
             return;
         }
         if (idx_x > 0)
         {
             if (d_ca.heads[idx_g - 1] < INITIAL_HEAD)
             {
-                my_push_back(idx_g);
+                dv[idx_g] = idx_g;
                 return;
             }
         }
@@ -93,7 +85,7 @@ __global__ void findActiveCells(struct CA d_ca)
         {
             if (d_ca.heads[idx_g - COLS] < INITIAL_HEAD)
             {
-                my_push_back(idx_g);
+                dv[idx_g] = idx_g;
                 return;
             }
         }
@@ -101,7 +93,7 @@ __global__ void findActiveCells(struct CA d_ca)
         {
             if (d_ca.heads[idx_g + 1] < INITIAL_HEAD)
             {
-                my_push_back(idx_g);
+                dv[idx_g] = idx_g;
                 return;
             }
         }
@@ -109,18 +101,32 @@ __global__ void findActiveCells(struct CA d_ca)
         {
             if (d_ca.heads[idx_g + COLS] < INITIAL_HEAD)
             {
-                my_push_back(idx_g);
+                dv[idx_g] = idx_g;
                 return;
             }
         }
+        dv[idx_g] = 0;
     }
 }
+
+template<typename T>
+struct is_non_zero
+{
+    __host__ __device__
+    auto operator()(T x) const -> bool
+    {
+        return x != 0;
+    }
+};
 
 int main(int argc, char *argv[])
 {
     auto h_ca = new CA();
     double *headsWrite;
     allocateManagedMemory(h_ca, headsWrite);
+
+    thrust::device_vector<int> dv(COLS * ROWS);
+    thrust::device_vector<int> dv_p(COLS * ROWS);
 
     initializeCA(h_ca);
     memcpy(headsWrite, h_ca->heads, sizeof(double) * ROWS * COLS);
@@ -136,31 +142,37 @@ int main(int argc, char *argv[])
 
     bool isWholeGridActive = false;
     dim3 *simulationGridDims;
+    int devActiveCellsCount;
     for (int i{}; i < SIMULATION_ITERATIONS; ++i)
     {
         if (!isWholeGridActive)
         {
-            devActiveCellsCount = 0;
             activeCellsEvalTimer.start();
-            findActiveCells <<< gridDims, blockSize >>>(*h_ca);
-            cudaDeviceSynchronize();
+            findActiveCells <<< gridDims, blockSize >>>(*h_ca, thrust::raw_pointer_cast(&dv[0]));
+            ERROR_CHECK(cudaDeviceSynchronize());
+
+            thrust::copy_if(thrust::device, dv.begin(), dv.end(), dv_p.begin(), is_non_zero<int>());
+
+            devActiveCellsCount = thrust::count_if(dv_p.begin(), dv_p.end(), is_non_zero<int>());
             activeCellsEvalTimer.stop();
 
-            isWholeGridActive = devActiveCellsCount == ROWS * COLS;
+            isWholeGridActive = devActiveCellsCount >= ROWS * COLS;
 
             int activeBlockCount = ceil((double) devActiveCellsCount / (BLOCK_SIZE * BLOCK_SIZE));
             int activeGridSize = ceil(sqrt(activeBlockCount));
             dim3 activeGridDim(activeGridSize, activeGridSize);
 
             simulationGridDims = &activeGridDim;
-        } else
+        }
+        else
         {
             simulationGridDims = &gridDims;
         }
 
         transitionTimer.start();
-        simulation_step_kernel <<< *simulationGridDims, blockSize >>>(*h_ca, headsWrite);
-        cudaDeviceSynchronize();
+        simulation_step_kernel <<< *simulationGridDims, blockSize >>>(
+                *h_ca, headsWrite, thrust::raw_pointer_cast(&dv_p[0]), devActiveCellsCount);
+        ERROR_CHECK(cudaDeviceSynchronize());
         transitionTimer.stop();
 
         double *tmpHeads = h_ca->heads;
