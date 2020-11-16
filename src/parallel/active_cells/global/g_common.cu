@@ -106,17 +106,17 @@ __global__ void findActiveCells(struct CA d_ca, int *dv)
                 return;
             }
         }
-        dv[idx_g] = 0;
+        dv[idx_g] = -1;
     }
 }
 
 template<typename T>
-struct is_non_zero
+struct is_not_minus_one
 {
     __host__ __device__
     auto operator()(T x) const -> bool
     {
-        return x != 0;
+        return x != -1;
     }
 };
 
@@ -127,7 +127,7 @@ int main(int argc, char *argv[])
     double *headsWrite;
 
     thrust::device_vector<int> dv(COLS * ROWS);
-    thrust::device_vector<int> dv_p(COLS * ROWS);
+    thrust::device_vector<int> dv_p(COLS * ROWS, -1);
 
     h_ca->heads = new double[ROWS * COLS]();
     h_ca->Sy = new double[ROWS * COLS]();
@@ -161,9 +161,10 @@ int main(int argc, char *argv[])
             findActiveCells <<< gridDims, blockSize >>>(*d_ca, thrust::raw_pointer_cast(&dv[0]));
             ERROR_CHECK(cudaDeviceSynchronize());
 
-            thrust::copy_if(thrust::device, dv.begin(), dv.end(), dv_p.begin(), is_non_zero<int>());
+            thrust::copy_if(thrust::device, dv.begin(), dv.end(), dv_p.begin(), is_not_minus_one<int>());
 
-            devActiveCellsCount = thrust::count_if(dv_p.begin(), dv_p.end(), is_non_zero<int>());
+            devActiveCellsCount = thrust::count_if(dv_p.begin(), dv_p.end(), is_not_minus_one<int>
+                    ());
             activeCellsEvalTimer.stop();
 
             isWholeGridActive = devActiveCellsCount >= ROWS * COLS;
