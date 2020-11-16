@@ -45,13 +45,15 @@ class TestCaseHandler:
         pc = ProgramCompiler(test_params["targets"])
         dpk.create_params_copy()
 
+        result = ""
         if self.mode == self.Mode.COMPILATION:
             self._perform_test_compilation(pg, pc, test_params)
         else:
-            self._perform_custom_profiling(pg, pc, test_name, test_params)
+            result = self._perform_custom_profiling(pg, pc, test_name, test_params)
 
         dpk.restore_params()
         self._clean_build()
+        return result
 
     @staticmethod
     def _build_test():
