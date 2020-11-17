@@ -66,4 +66,7 @@ add_executable(ac_u_standard_naive parallel/active_cells/unified_naive/u_ac_stan
 target_link_libraries(ac_u_standard_naive common)
 add_executable(ac_u_standard_naive_loop parallel/active_cells/unified_naive/u_ac_standard_loop.cu)
 target_link_libraries(ac_u_standard_naive_loop common)
-
+add_executable(ac_u_standard_one_kernel parallel/active_cells/unified_one_kernel/u_ac_standard.cu)
+target_link_libraries(ac_u_standard_one_kernel common)
+add_executable(ac_u_standard_one_kernel_loop parallel/active_cells/unified_one_kernel/u_ac_standard_loop.cu)
+target_link_libraries(ac_u_standard_one_kernel_loop common)
