@@ -58,14 +58,22 @@ add_executable(ac_g_standard parallel/active_cells/global/g_ac_standard.cu)
 target_link_libraries(ac_g_standard common)
 add_executable(ac_g_standard_loop parallel/active_cells/global/g_ac_standard_loop.cu)
 target_link_libraries(ac_g_standard_loop common)
+
 add_executable(ac_u_standard parallel/active_cells/unified/u_ac_standard.cu)
 target_link_libraries(ac_u_standard common)
 add_executable(ac_u_standard_loop parallel/active_cells/unified/u_ac_standard_loop.cu)
 target_link_libraries(ac_u_standard_loop common)
+
+add_executable(ac_u_standard_atomic parallel/active_cells/unified_atomic/u_ac_standard.cu)
+target_link_libraries(ac_u_standard_atomic common)
+add_executable(ac_u_standard_atomic_loop parallel/active_cells/unified_atomic/u_ac_standard_loop.cu)
+target_link_libraries(ac_u_standard_atomic_loop common)
+
 add_executable(ac_u_standard_naive parallel/active_cells/unified_naive/u_ac_standard.cu)
 target_link_libraries(ac_u_standard_naive common)
 add_executable(ac_u_standard_naive_loop parallel/active_cells/unified_naive/u_ac_standard_loop.cu)
 target_link_libraries(ac_u_standard_naive_loop common)
+
 add_executable(ac_u_standard_one_kernel parallel/active_cells/unified_one_kernel/u_ac_standard.cu)
 target_link_libraries(ac_u_standard_one_kernel common)
 add_executable(ac_u_standard_one_kernel_loop parallel/active_cells/unified_one_kernel/u_ac_standard_loop.cu)
