@@ -180,10 +180,9 @@ int main(int argc, char *argv[])
     standard_step_kernel<<< gridDims, blockSize >>>(*h_ca, headsWrite);
     ERROR_CHECK(cudaDeviceSynchronize());
     stepTimer.stop();
-    auto standardIterationTime = stepTimer.elapsedMilliseconds();
+    auto standardIterationTime = stepTimer.elapsedNanoseconds();
 
     bool isWholeGridActive = false;
-    dim3 *simulationGridDims;
     int devActiveCellsCount;
     int acIterCounter{};
     stepTimer.start();
@@ -191,6 +190,12 @@ int main(int argc, char *argv[])
     {
         if (!isWholeGridActive)
         {
+            if (acIterCounter > 20)
+            {
+                // activate whole CA
+                thrust::sequence(activeCellsMask.begin(), activeCellsMask.end());
+            }
+
             activeCellsEvalTimer.start();
             thrust::copy_if(thrust::device, activeCellsMask.begin(), activeCellsMask.end(),
                             activeCellsIds.begin(), is_not_minus_one<int>());
@@ -204,10 +209,8 @@ int main(int argc, char *argv[])
             int activeGridSize = ceil(sqrt(activeBlockCount));
             dim3 activeGridDim(activeGridSize, activeGridSize);
 
-            simulationGridDims = &activeGridDim;
-
             transitionTimer.start();
-            simulation_step_kernel <<< *simulationGridDims, blockSize >>>(
+            simulation_step_kernel <<< activeGridDim, blockSize >>>(
                     *h_ca, headsWrite, thrust::raw_pointer_cast(&activeCellsIds[0]),
                     thrust::raw_pointer_cast(&activeCellsMask[0]),
                     devActiveCellsCount);
@@ -233,7 +236,7 @@ int main(int argc, char *argv[])
                     stepTimer.elapsedNanoseconds(),
                     transitionTimer.elapsedNanoseconds(),
                     activeCellsEvalTimer.elapsedNanoseconds());
-            if (stepTimer.elapsedMilliseconds() / STATISTICS_WRITE_FREQ >= standardIterationTime)
+            if (stepTimer.elapsedNanoseconds() / STATISTICS_WRITE_FREQ >= standardIterationTime)
             {
                 acIterCounter++;
             }
@@ -243,12 +246,6 @@ int main(int argc, char *argv[])
             }
             stats.push_back(*stat);
             stepTimer.start();
-        }
-
-        if (acIterCounter > 20)
-        {
-            // activate whole CA
-            thrust::sequence(activeCellsMask.begin(), activeCellsMask.end());
         }
     }
 
