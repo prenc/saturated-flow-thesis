@@ -173,11 +173,14 @@ int main(int argc, char *argv[])
     std::vector<StatPoint> stats;
     Timer stepTimer, activeCellsEvalTimer, transitionTimer;
 
+    standard_step_kernel<<< gridDims, blockSize >>>(*h_ca, headsWrite);
+    ERROR_CHECK(cudaDeviceSynchronize());
+
     stepTimer.start();
     standard_step_kernel<<< gridDims, blockSize >>>(*h_ca, headsWrite);
     ERROR_CHECK(cudaDeviceSynchronize());
     stepTimer.stop();
-    auto standardIterationTime = stepTimer.elapsedNanoseconds();
+    auto standardIterationTime = stepTimer.elapsedMilliseconds();
 
     bool isWholeGridActive = false;
     dim3 *simulationGridDims;
@@ -227,7 +230,7 @@ int main(int argc, char *argv[])
                     stepTimer.elapsedNanoseconds(),
                     transitionTimer.elapsedNanoseconds(),
                     activeCellsEvalTimer.elapsedNanoseconds());
-            if (stepTimer.elapsedNanoseconds() / STATISTICS_WRITE_FREQ >= standardIterationTime)
+            if (stepTimer.elapsedMilliseconds() / STATISTICS_WRITE_FREQ >= standardIterationTime)
             {
                 // activate whole CA
                 thrust::sequence(activeCellsMask.begin(), activeCellsMask.end());
