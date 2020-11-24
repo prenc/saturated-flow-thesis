@@ -185,6 +185,7 @@ int main(int argc, char *argv[])
     bool isWholeGridActive = false;
     dim3 *simulationGridDims;
     int devActiveCellsCount;
+    int acIterCounter{};
     stepTimer.start();
     for (int i{}; i < SIMULATION_ITERATIONS; ++i)
     {
@@ -204,17 +205,19 @@ int main(int argc, char *argv[])
             dim3 activeGridDim(activeGridSize, activeGridSize);
 
             simulationGridDims = &activeGridDim;
+
+            transitionTimer.start();
+            simulation_step_kernel <<< *simulationGridDims, blockSize >>>(
+                    *h_ca, headsWrite, thrust::raw_pointer_cast(&activeCellsIds[0]),
+                    thrust::raw_pointer_cast(&activeCellsMask[0]),
+                    devActiveCellsCount);
         }
         else
         {
-            simulationGridDims = &gridDims;
+            transitionTimer.start();
+            standard_step_kernel<<< gridDims, blockSize >>>(*h_ca, headsWrite);
         }
 
-        transitionTimer.start();
-        simulation_step_kernel <<< *simulationGridDims, blockSize >>>(
-                *h_ca, headsWrite, thrust::raw_pointer_cast(&activeCellsIds[0]),
-                thrust::raw_pointer_cast(&activeCellsMask[0]),
-                devActiveCellsCount);
         ERROR_CHECK(cudaDeviceSynchronize());
         transitionTimer.stop();
 
@@ -232,11 +235,20 @@ int main(int argc, char *argv[])
                     activeCellsEvalTimer.elapsedNanoseconds());
             if (stepTimer.elapsedMilliseconds() / STATISTICS_WRITE_FREQ >= standardIterationTime)
             {
-                // activate whole CA
-                thrust::sequence(activeCellsMask.begin(), activeCellsMask.end());
+                acIterCounter++;
+            }
+            else
+            {
+                acIterCounter = 0;
             }
             stats.push_back(*stat);
             stepTimer.start();
+        }
+
+        if (acIterCounter > 20)
+        {
+            // activate whole CA
+            thrust::sequence(activeCellsMask.begin(), activeCellsMask.end());
         }
     }
 
