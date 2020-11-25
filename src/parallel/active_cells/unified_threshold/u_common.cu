@@ -1,4 +1,5 @@
 #include <thrust/device_vector.h>
+#include <c++/9/algorithm>
 #include "../../common/memory_management.cuh"
 #include "../../common/statistics.h"
 
@@ -173,14 +174,23 @@ int main(int argc, char *argv[])
     std::vector<StatPoint> stats;
     Timer stepTimer, activeCellsEvalTimer, transitionTimer;
 
-    standard_step_kernel<<< gridDims, blockSize >>>(*h_ca, headsWrite);
-    ERROR_CHECK(cudaDeviceSynchronize());
+    std::vector<size_t> times{};
+    for (size_t i{}; i < 5; ++i)
+    {
+        stepTimer.start();
+        standard_step_kernel<<< gridDims, blockSize >>>(*h_ca, headsWrite);
+        ERROR_CHECK(cudaDeviceSynchronize());
+        stepTimer.stop();
+        times.push_back(stepTimer.elapsedNanoseconds());
+    }
+    std::sort(times.begin(), times.end());
+    auto standardIterationTime = times[0];
 
-    stepTimer.start();
-    standard_step_kernel<<< gridDims, blockSize >>>(*h_ca, headsWrite);
-    ERROR_CHECK(cudaDeviceSynchronize());
-    stepTimer.stop();
-    auto standardIterationTime = stepTimer.elapsedNanoseconds();
+    for (auto x: times)
+    {
+        std::cout << x << " ";
+    }
+    std::cout << std::endl;
 
     bool isWholeGridActive = false;
     int devActiveCellsCount;
@@ -208,7 +218,7 @@ int main(int argc, char *argv[])
                     *h_ca, headsWrite, thrust::raw_pointer_cast(&activeCellsIds[0]),
                     thrust::raw_pointer_cast(&activeCellsMask[0]),
                     devActiveCellsCount);
-            if (acIterCounter > 20)
+            if (acIterCounter > 5)
             {
                 isWholeGridActive = true;
                 devActiveCellsCount = ROWS * COLS;
