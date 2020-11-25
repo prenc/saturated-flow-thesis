@@ -190,12 +190,6 @@ int main(int argc, char *argv[])
     {
         if (!isWholeGridActive)
         {
-            if (acIterCounter > 20)
-            {
-                // activate whole CA
-                thrust::sequence(activeCellsMask.begin(), activeCellsMask.end());
-            }
-
             activeCellsEvalTimer.start();
             thrust::copy_if(thrust::device, activeCellsMask.begin(), activeCellsMask.end(),
                             activeCellsIds.begin(), is_not_minus_one<int>());
@@ -214,6 +208,11 @@ int main(int argc, char *argv[])
                     *h_ca, headsWrite, thrust::raw_pointer_cast(&activeCellsIds[0]),
                     thrust::raw_pointer_cast(&activeCellsMask[0]),
                     devActiveCellsCount);
+            if (acIterCounter > 20)
+            {
+                isWholeGridActive = true;
+                devActiveCellsCount = ROWS * COLS;
+            }
         }
         else
         {
