@@ -153,7 +153,8 @@ int main(int argc, char *argv[])
             dim3 activeGridDim(activeGridSize, activeGridSize);
 
             simulationGridDims = &activeGridDim;
-        } else
+        }
+        else
         {
             simulationGridDims = &gridDims;
         }
@@ -167,7 +168,7 @@ int main(int argc, char *argv[])
         h_ca->heads = headsWrite;
         headsWrite = tmpHeads;
 
-        if (i % STATISTICS_WRITE_FREQ == 0)
+        if (i % STATISTICS_WRITE_FREQ == STATISTICS_WRITE_FREQ - 1)
         {
             stepTimer.stop();
             auto stat = new StatPoint(

@@ -3,19 +3,10 @@
 void allocateManagedMemory(CA *&ca, double *&heads_write)
 {
     ERROR_CHECK(cudaMallocManaged((void **) &heads_write, sizeof(double) * ROWS * COLS));
-    ERROR_CHECK(cudaMemPrefetchAsync(heads_write, sizeof(double) * ROWS * COLS, 0));
-
     ERROR_CHECK(cudaMallocManaged((void **) &ca->heads, sizeof(double) * ROWS * COLS));
-    ERROR_CHECK(cudaMemPrefetchAsync(ca->heads, sizeof(double) * ROWS * COLS, 0));
-
     ERROR_CHECK(cudaMallocManaged((void **) &ca->K, sizeof(double) * ROWS * COLS));
-    ERROR_CHECK(cudaMemPrefetchAsync(ca->K, sizeof(double) * ROWS * COLS, 0));
-
     ERROR_CHECK(cudaMallocManaged((void **) &ca->Sy, sizeof(double) * ROWS * COLS));
-    ERROR_CHECK(cudaMemPrefetchAsync(ca->Sy, sizeof(double) * ROWS * COLS, 0));
-
     ERROR_CHECK(cudaMallocManaged((void **) &ca->sources, sizeof(double) * ROWS * COLS));
-    ERROR_CHECK(cudaMemPrefetchAsync(ca->sources, sizeof(double) * ROWS * COLS, 0));
 }
 
 void allocateMemory(CA *&ca, double *&headsWrite)

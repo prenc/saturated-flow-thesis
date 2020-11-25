@@ -186,12 +186,6 @@ int main(int argc, char *argv[])
     std::sort(times.begin(), times.end());
     auto standardIterationTime = times[0];
 
-    for (auto x: times)
-    {
-        std::cout << x << " ";
-    }
-    std::cout << std::endl;
-
     bool isWholeGridActive = false;
     int devActiveCellsCount;
     int acIterCounter{};
@@ -237,7 +231,7 @@ int main(int argc, char *argv[])
         h_ca->heads = headsWrite;
         headsWrite = tmpHeads;
 
-        if (i % STATISTICS_WRITE_FREQ == 0)
+        if (i % STATISTICS_WRITE_FREQ == STATISTICS_WRITE_FREQ - 1)
         {
             stepTimer.stop();
             auto stat = new StatPoint(
