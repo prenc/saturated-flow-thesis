@@ -1,5 +1,5 @@
 #include <thrust/device_vector.h>
-#include <c++/9/algorithm>
+#include <algorithm>
 #include "../../common/memory_management.cuh"
 #include "../../common/statistics.h"
 
