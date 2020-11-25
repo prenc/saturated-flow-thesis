@@ -163,6 +163,8 @@ int main(int argc, char *argv[])
             {
                 isWholeGridActive = true;
                 devActiveCellsCount = ROWS * COLS;
+                activeCellsEvalTimer.start();
+                activeCellsEvalTimer.stop();
             }
         }
         else
