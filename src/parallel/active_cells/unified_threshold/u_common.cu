@@ -2,60 +2,7 @@
 #include <algorithm>
 #include "../../common/memory_management.cuh"
 #include "../../common/statistics.h"
-
-__global__ void standard_step_kernel(struct CA ca, double *headsWrite)
-{
-    unsigned idx_x = blockIdx.x * blockDim.x + threadIdx.x;
-    unsigned idx_y = blockIdx.y * blockDim.y + threadIdx.y;
-    unsigned idx_g = idx_y * COLS + idx_x;
-
-    if (idx_x < COLS && idx_y < ROWS)
-    {
-        double Q{}, diff_head, tmp_t, ht1, ht2;
-#ifdef LOOP
-        for (int i = 0; i < KERNEL_LOOP_SIZE; i++)
-            {
-                if (i == KERNEL_LOOP_SIZE - 1)
-                {
-                    if (Q) { Q = 0; }
-                }
-#endif
-        if (idx_x >= 1)
-        {
-            diff_head = ca.heads[idx_g - 1] - ca.heads[idx_g];
-            tmp_t = ca.K[idx_g] * THICKNESS;
-            Q += diff_head * tmp_t;
-        }
-        if (idx_y >= 1)
-        {
-            diff_head = ca.heads[(idx_y - 1) * COLS + idx_x] - ca.heads[idx_g];
-            tmp_t = ca.K[idx_g] * THICKNESS;
-            Q += diff_head * tmp_t;
-        }
-        if (idx_x + 1 < COLS)
-        {
-            diff_head = ca.heads[idx_g + 1] - ca.heads[idx_g];
-            tmp_t = ca.K[idx_g] * THICKNESS;
-            Q += diff_head * tmp_t;
-        }
-        if (idx_y + 1 < ROWS)
-        {
-            diff_head = ca.heads[(idx_y + 1) * COLS + idx_x] - ca.heads[idx_g];
-            tmp_t = ca.K[idx_g] * THICKNESS;
-            Q += diff_head * tmp_t;
-        }
-#ifdef LOOP
-        }
-#endif
-        Q -= ca.sources[idx_g];
-        ht1 = Q * DELTA_T;
-        ht2 = AREA * ca.Sy[idx_g];
-
-        headsWrite[idx_g] = ca.heads[idx_g] + ht1 / ht2;
-        if (headsWrite[idx_g] < 0)
-        { headsWrite[idx_g] = 0; }
-    }
-}
+#include "../../kernels/iteration_step.cu"
 
 __global__ void simulation_step_kernel(CA ca, double *headsWrite,
                                        const int *activeCellsIds,
@@ -178,7 +125,7 @@ int main(int argc, char *argv[])
     for (size_t i{}; i < 5; ++i)
     {
         stepTimer.start();
-        standard_step_kernel<<< gridDims, blockSize >>>(*h_ca, headsWrite);
+        kernels::standard_step <<< gridDims, blockSize >>>(*h_ca, headsWrite);
         ERROR_CHECK(cudaDeviceSynchronize());
         stepTimer.stop();
         times.push_back(stepTimer.elapsedNanoseconds());
@@ -221,7 +168,7 @@ int main(int argc, char *argv[])
         else
         {
             transitionTimer.start();
-            standard_step_kernel<<< gridDims, blockSize >>>(*h_ca, headsWrite);
+            kernels::standard_step <<< gridDims, blockSize >>>(*h_ca, headsWrite);
         }
 
         ERROR_CHECK(cudaDeviceSynchronize());
