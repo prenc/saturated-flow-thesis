@@ -46,14 +46,14 @@ def main():
     set_logging(args)
 
     if args.summaries_dir:
-        cm.make_charts_in_dir(args.summaries_dir)
+        cm.make_charts_in_dir(args.summaries_dir, args.latex)
     else:
         test_data = tcr.get_test_data(args.test_names)
         for test_name, test_params in test_data.items():
             summary_file = tch.perform_test_case(test_name, test_params)
             if not args.compilation:
                 cm.make_chart_basing_on_summary_file(
-                    os.path.join(SUMMARIES_DUMP, summary_file)
+                    os.path.join(SUMMARIES_DUMP, summary_file), args.latex
                 )
 
 

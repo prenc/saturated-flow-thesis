@@ -329,16 +329,15 @@
     "ac_ca_size": {
         "params": {
             "ca_size": [
-                1000, 2000, 4000, 6000,
-                6500, 7000, 7500, 8000,
-                8500, 9000, 9500, 10000,
-                10500, 11000, 11500, 12000
+                1000, 2000, 3000, 4000,
+                5000, 6000, 7000, 8000
             ],
             "simulation_iterations": [
-                6480
+                4500
             ],
             "wells_dim": [
-                3, 3, 6, 8, 8, 9, 11, 11, 12
+                1, 2, 3, 4,
+                5, 6, 7, 8
             ],
             "wells_QW": [
                 0.001
@@ -353,10 +352,11 @@
             "x_axis_label": "CA dimensions"
         },
         "targets": [
-            "g_standard",
-            "u_standard",
-            "ac_g_standard",
-            "ac_u_standard"
+            "ac_u_sc",
+            "ac_u_sc_one_kernel",
+            "ac_u_sc_one_kernel_adaptive",
+            "ac_u_atomic",
+            "ac_u_naive"
         ]
     },
 
@@ -391,19 +391,15 @@
     "ac_ca_size_loop": {
         "params": {
             "ca_size": [
-                250, 500, 750, 1000,
-                1250, 1500, 1750, 2000,
-                2250, 2500, 2750, 3000,
-                3250, 3500, 3750, 4000
+                1000, 2000, 3000, 4000,
+                5000, 6000, 7000, 8000
             ],
             "simulation_iterations": [
-                6480
+                4500
             ],
             "wells_dim": [
-                1, 1, 1, 1,
-                2, 2, 2, 2,
-                4, 4, 4, 4,
-                6, 6, 6, 6
+                1, 2, 3, 4,
+                5, 6, 7, 8
             ],
             "wells_QW": [
                 0.001
@@ -415,10 +411,11 @@
             "x_axis_label": "CA dimensions"
         },
         "targets": [
-            "g_standard_loop",
-            "u_standard_loop",
-            "ac_g_standard_loop",
-            "ac_u_standard_loop"
+            "ac_u_sc_stress",
+            "ac_u_sc_one_kernel_stress",
+            "ac_u_sc_one_kernel_adaptive_stress",
+            "ac_u_atomic_stress",
+            "ac_u_naive_stress"
         ]
     },
 

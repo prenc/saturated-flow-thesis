@@ -47,6 +47,12 @@ class ArgumentParser:
             action="store_true",
             help="Performs only targets compilation",
         )
+        self._parser.add_argument(
+            "-l",
+            "--latex",
+            action="store_true",
+            help="Generate latex table source code files.",
+        )
 
     def parse(self):
         return self._parser.parse_args()

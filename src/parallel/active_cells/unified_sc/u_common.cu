@@ -105,17 +105,17 @@ __global__ void findActiveCells(struct CA d_ca, int *dv)
                 return;
             }
         }
-        dv[idx_g] = 0;
+        dv[idx_g] = -1;
     }
 }
 
 template<typename T>
-struct is_non_zero
+struct is_not_minus_one
 {
     __host__ __device__
     auto operator()(T x) const -> bool
     {
-        return x != 0;
+        return x != -1;
     }
 };
 
@@ -125,8 +125,8 @@ int main(int argc, char *argv[])
     double *headsWrite;
     allocateManagedMemory(h_ca, headsWrite);
 
-    thrust::device_vector<int> dv(COLS * ROWS);
-    thrust::device_vector<int> dv_p(COLS * ROWS);
+    thrust::device_vector<int> activeCellsMask(ROWS * COLS, -1);
+    thrust::device_vector<int> activeCellsIds(ROWS * COLS, -1);
 
     initializeCA(h_ca);
     memcpy(headsWrite, h_ca->heads, sizeof(double) * ROWS * COLS);
@@ -148,12 +148,15 @@ int main(int argc, char *argv[])
         if (!isWholeGridActive)
         {
             activeCellsEvalTimer.start();
-            findActiveCells <<< gridDims, blockSize >>>(*h_ca, thrust::raw_pointer_cast(&dv[0]));
+            findActiveCells <<< gridDims, blockSize >>>(*h_ca, thrust::raw_pointer_cast(
+                    &activeCellsMask[0]));
             ERROR_CHECK(cudaDeviceSynchronize());
 
-            thrust::copy_if(thrust::device, dv.begin(), dv.end(), dv_p.begin(), is_non_zero<int>());
+            thrust::copy_if(thrust::device, activeCellsMask.begin(), activeCellsMask.end(),
+                            activeCellsIds.begin(), is_not_minus_one<int>());
 
-            devActiveCellsCount = thrust::count_if(dv_p.begin(), dv_p.end(), is_non_zero<int>());
+            devActiveCellsCount = thrust::count_if(activeCellsIds.begin(), activeCellsIds.end(),
+                                                   is_not_minus_one<int>());
             activeCellsEvalTimer.stop();
 
             isWholeGridActive = devActiveCellsCount >= ROWS * COLS;
@@ -171,7 +174,8 @@ int main(int argc, char *argv[])
 
         transitionTimer.start();
         simulation_step_kernel <<< *simulationGridDims, blockSize >>>(
-                *h_ca, headsWrite, thrust::raw_pointer_cast(&dv_p[0]), devActiveCellsCount);
+                *h_ca, headsWrite, thrust::raw_pointer_cast(&activeCellsIds[0]),
+                devActiveCellsCount);
         ERROR_CHECK(cudaDeviceSynchronize());
         transitionTimer.stop();
 
