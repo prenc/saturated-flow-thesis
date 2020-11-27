@@ -1,5 +1,5 @@
 # Author: Paweł Renc & Tomasz Pęcak
-# Date of the first implemenatation: 11.2019
+# Date of the first implementation: 11.2019
 # for more information run script with -h option
 import os
 
@@ -33,7 +33,7 @@ Place to store charts presenting results gather in the summary file, can be
 set as an environment variable for convenience
 """
 
-LATEX_DUMP = CHARTS_DUMP + "/latex"
+LATEX_DUMP = os.getenv("MY_DUMP", "latex")
 """
 Place to store latex code which is latex table made based on the summary file
 """

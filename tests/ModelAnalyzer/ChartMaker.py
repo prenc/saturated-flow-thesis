@@ -2,13 +2,18 @@ import json
 import logging
 import os
 from collections import defaultdict
+from itertools import cycle
 from json import JSONDecodeError
+from datetime import datetime
 
+import matplotlib.backends.backend_pdf
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.interpolate import make_interp_spline
 
 from ModelAnalyzer.settings import CHARTS_DUMP, LATEX_DUMP
+
+plt.style.use("grayscale")
 
 
 class ChartMaker:
@@ -16,12 +21,17 @@ class ChartMaker:
         self._log = logging.getLogger(self.__class__.__name__)
         self._create_dirs([CHARTS_DUMP])
         self.script_start_time = script_time
+        current_date = datetime.strftime(datetime.now(), "%y%m%d_%H%M")
+        self._chart_file = os.path.join(CHARTS_DUMP, f"{current_date}.pdf")
+        self._pdf = matplotlib.backends.backend_pdf.PdfPages(self._chart_file)
+
+    def __del__(self):
+        self._pdf.close()
 
     @staticmethod
     def _create_dirs(dirs):
         for dir_path in dirs:
-            if not os.path.exists(dir_path):
-                os.makedirs(dir_path)
+            os.makedirs(dir_path, exist_ok=True)
 
     def make_chart_basing_on_summary_file(self, summary_path, latex=False):
         try:
@@ -55,65 +65,55 @@ class ChartMaker:
         return new_data
 
     def _create_and_save_chart(self, data, latex=False):
-        plt.style.use("grayscale")
         params = data["chart_params"]
 
         x_axis = params.get("x_axis", "ca_size")
         y_axis = params.get("y_axis", "elapsed_time")
 
-        line_styles = iter([":", "--", "-.", "-"] * 3)
-        for plot_line_name, plot_line_values in data["run_tests"].items():
-            self._create_plot_line(
-                {
-                    "plot_line_name": plot_line_name[0].upper()
-                    + plot_line_name[1:].replace("_", " "),
-                    "x_values": plot_line_values[x_axis],
-                    "y_values": plot_line_values[y_axis],
-                    "smooth_power": params.get("smooth_power", None),
-                    "line_style": next(line_styles),
-                    "line_width": 2,
-                }
+        fig = plt.figure()
+        ax = fig.add_subplot(1, 1, 1)
+
+        line_styles = cycle([":", "--", "-.", "-"])
+        marker_styles = cycle(("o", "x", "*", "+", "D", "X", ".", "s"))
+        for plot_line_name, plot_values in data["run_tests"].items():
+            x, y = plot_values[x_axis], plot_values[y_axis]
+
+            if smooth_power := params.get("smooth_power", None):
+                x, y = self._smoothen_plot_line(x, y, smooth_power)
+
+            ax.plot(
+                x,
+                y,
+                linestyle=next(line_styles),
+                marker=next(marker_styles),
+                lw=1,
+                label=plot_line_name.replace("_", " ").title(),
             )
-        plt.legend()
 
-        plt.xlabel(params.get("x_axis_label", "CA dimensions"))
-        plt.ylabel(params.get("y_axis_label", "Elapsed time [s]"))
+        ax.set_xlabel(params.get("x_axis_label", "CA dimensions"))
+        ax.set_ylabel(params.get("y_axis_label", "Elapsed time [s]"))
 
-        plt.title(params.get("title", data["test_name"]))
+        ax.set_title(params.get("title", data["test_name"]))
 
-        plt.grid(True)
+        ax.grid(False)
+        ax.legend()
 
-        plt.tight_layout()
-        plt.savefig(os.path.join(CHARTS_DUMP, f"{data['test_name']}.pdf"))
-        self._log.info(f"Chart has been created: {data['test_name']}.pdf")
-        plt.figure()
+        self._pdf.savefig(fig)
+        self._log.info(
+            f"Chart '{params.get('title', data['test_name'])}' has been added"
+            f" in '{self._chart_file}'"
+        )
+        plt.close(fig)
 
         if latex:
             self._create_dirs([LATEX_DUMP])
             self._create_latex_tabular_file(data, x_axis, y_axis)
 
     @staticmethod
-    def _create_plot_line(plot_params):
-        if plot_params["smooth_power"]:
-            new_xs = np.array(plot_params["x_values"])
-            x_values = np.linspace(
-                new_xs.min(), new_xs.max(), plot_params["smooth_power"]
-            )
-            spl = make_interp_spline(
-                new_xs, np.array(plot_params["y_values"]), k=3
-            )
-            y_values = spl(x_values)
-        else:
-            x_values = plot_params["x_values"]
-            y_values = plot_params["y_values"]
-
-        plt.plot(
-            x_values,
-            y_values,
-            linestyle=plot_params["line_style"],
-            lw=plot_params["line_width"],
-            label=plot_params["plot_line_name"],
-        )
+    def _smoothen_plot_line(x, y, smooth_power):
+        new_x = np.linspace(min(x), max(x), smooth_power)
+        spl = make_interp_spline(np.array(new_x), np.array(y))
+        return spl(new_x), y
 
     def _create_latex_tabular_file(self, data, x_axis, y_axis):
         first_col_values = self._get_longest_first_column(data, x_axis)
@@ -152,13 +152,14 @@ class ChartMaker:
             if len(col) == max_l:
                 return col
 
-    def make_charts_in_dir(self, charts_dir):
-        self._log.info(f"Saving all charts to {CHARTS_DUMP}")
-        self._log.info(f"Saving all latex tabulars to {LATEX_DUMP}")
-        for summary_file in os.listdir(charts_dir[0]):
+    def make_charts_in_dir(self, charts_dir, latex=False):
+        self._log.info(f"Saving all charts in '{CHARTS_DUMP}'")
+        if latex:
+            self._log.info(f"Saving all latex tables in '{LATEX_DUMP}'")
+        for summary_file in sorted(os.listdir(charts_dir[0])):
             summary_file_path = os.path.join(charts_dir[0], summary_file)
             self.make_chart_basing_on_summary_file(
-                summary_file_path, latex=True
+                summary_file_path, latex=latex
             )
 
     @staticmethod
