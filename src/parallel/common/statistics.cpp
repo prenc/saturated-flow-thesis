@@ -17,12 +17,13 @@ void writeStatisticsToFile(std::vector<StatPoint> &stats, const std::string &fil
     auto it = stats.begin();
     for (int i{STATISTICS_WRITE_FREQ - 1}; i < SIMULATION_ITERATIONS; i += STATISTICS_WRITE_FREQ)
     {
-        fprintf(fp, "%d, %lf, %.0lf, %.0lf, %.0lf\n",
+        fprintf(fp, "%d, %lf, %.0lf, %.0lf, %.0lf, %.0lf\n",
                 i,
                 (*it).coverage,
                 (*it).stepTime,
                 (*it).transitionTime,
-                (*it).findACTime);
+                (*it).findACTime,
+                (*it).adaptiveTime);
         ++it;
     }
     fclose(fp);

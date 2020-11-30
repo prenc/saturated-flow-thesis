@@ -188,6 +188,7 @@ int main(int argc, char *argv[])
                     stepTimer.elapsedNanoseconds(),
                     transitionTimer.elapsedNanoseconds(),
                     activeCellsEvalTimer.elapsedNanoseconds());
+            stat->adaptiveTime = standardIterationTime;
             if (stepTimer.elapsedNanoseconds() / STATISTICS_WRITE_FREQ >= standardIterationTime)
             {
                 acIterCounter++;
