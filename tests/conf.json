@@ -208,6 +208,7 @@
             "x_axis_label": "CA dimensions"
         },
         "targets": [
+	    "u_standard",	
             "ac_u_sc",
             "ac_u_sc_one_kernel",
             "ac_u_sc_one_kernel_adaptive",
@@ -243,7 +244,8 @@
             "x_axis_label": "CA dimensions"
         },
         "targets": [
-            "ac_u_sc_stress",
+            "u_standard_stress",
+	    "ac_u_sc_stress",
             "ac_u_sc_one_kernel_stress",
             "ac_u_sc_one_kernel_adaptive_stress",
             "ac_u_naive_stress"
