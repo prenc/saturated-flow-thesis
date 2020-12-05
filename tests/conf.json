@@ -209,10 +209,11 @@
         },
         "targets": [
 	    "u_standard",	
+            "ac_u_sc_fk",
+            "ac_u_fk",
+            "ac_u_fk_1d",
             "ac_u_sc",
-            "ac_u_sc_one_kernel",
-            "ac_u_sc_one_kernel_adaptive",
-            "ac_u_naive"
+            "ac_u_sc_adaptive"
         ]
     },
     "ac_ca_size_stress": {
@@ -244,11 +245,12 @@
             "x_axis_label": "CA dimensions"
         },
         "targets": [
-            "u_standard_stress",
-	    "ac_u_sc_stress",
-            "ac_u_sc_one_kernel_stress",
-            "ac_u_sc_one_kernel_adaptive_stress",
-            "ac_u_naive_stress"
+            "u_standard_stress",	
+            "ac_u_sc_fk_stress",
+            "ac_u_fk_stress",
+            "ac_u_fk_1d_stress",
+            "ac_u_sc_stress",
+            "ac_u_sc_adaptive_stress"
         ]
     },
 
