@@ -1,8 +1,6 @@
+#include "../../../common/memory_management.cuh"
+#include "../../../common/statistics.h"
 #include <thrust/device_vector.h>
-#include <algorithm>
-#include "../../common/memory_management.cuh"
-#include "../../common/statistics.h"
-#include "../../kernels/iteration_step.cu"
 
 __global__ void simulation_step_kernel(CA ca, double *headsWrite,
                                        const int *activeCellsIds,
@@ -16,9 +14,9 @@ __global__ void simulation_step_kernel(CA ca, double *headsWrite,
     if (ac_idx_g < acNumber)
     {
         double Q{}, diff_head, tmp_t, ht1, ht2;
-        unsigned idx_g = activeCellsIds[ac_idx_g];
-        unsigned idx_x = idx_g % COLS;
-        unsigned idx_y = idx_g / COLS;
+        int idx_g = activeCellsIds[ac_idx_g];
+        int idx_x = idx_g % COLS;
+        int idx_y = idx_g / COLS;
 #ifdef LOOP
         for (int i = 0; i < KERNEL_LOOP_SIZE; i++)
         {
@@ -96,15 +94,23 @@ struct is_not_minus_one
 
 int main(int argc, char *argv[])
 {
-    auto h_ca = new CA();
+    CA *d_ca = new CA();
+    CA *h_ca = new CA();
     double *headsWrite;
-    allocateManagedMemory(h_ca, headsWrite);
+
+    h_ca->heads = new double[ROWS * COLS]();
+    h_ca->Sy = new double[ROWS * COLS]();
+    h_ca->K = new double[ROWS * COLS]();
+    h_ca->sources = new double[ROWS * COLS]();
+
+    initializeCA(h_ca);
+
+    allocateMemory(d_ca, headsWrite);
+    copyDataFromCpuToGpu(h_ca, d_ca);
 
     thrust::device_vector<int> activeCellsMask(ROWS * COLS, -1);
     thrust::device_vector<int> activeCellsIds(ROWS * COLS, -1);
 
-    initializeCA(h_ca);
-    memcpy(headsWrite, h_ca->heads, sizeof(double) * ROWS * COLS);
     for (size_t i{0}; i < ROWS * COLS; ++i)
     {
         if (h_ca->sources[i] != 0)
@@ -120,23 +126,11 @@ int main(int argc, char *argv[])
 
     std::vector<StatPoint> stats;
     Timer stepTimer, activeCellsEvalTimer, transitionTimer;
-
-    std::vector<size_t> times{};
-    for (size_t i{}; i < 5; ++i)
-    {
-        stepTimer.start();
-        kernels::standard_step <<< gridDims, blockSize >>>(*h_ca, headsWrite);
-        ERROR_CHECK(cudaDeviceSynchronize());
-        stepTimer.stop();
-        times.push_back(stepTimer.elapsedNanoseconds());
-    }
-    std::sort(times.begin(), times.end());
-    auto standardIterationTime = times[0];
+    stepTimer.start();
 
     bool isWholeGridActive = false;
+    dim3 *simulationGridDims;
     int devActiveCellsCount;
-    int acIterCounter{};
-    stepTimer.start();
     for (int i{}; i < SIMULATION_ITERATIONS; ++i)
     {
         if (!isWholeGridActive)
@@ -154,30 +148,23 @@ int main(int argc, char *argv[])
             int activeGridSize = ceil(sqrt(activeBlockCount));
             dim3 activeGridDim(activeGridSize, activeGridSize);
 
-            transitionTimer.start();
-            simulation_step_kernel <<< activeGridDim, blockSize >>>(
-                    *h_ca, headsWrite, thrust::raw_pointer_cast(&activeCellsIds[0]),
-                    thrust::raw_pointer_cast(&activeCellsMask[0]),
-                    devActiveCellsCount);
-            if (acIterCounter > 5)
-            {
-                isWholeGridActive = true;
-                devActiveCellsCount = ROWS * COLS;
-                activeCellsEvalTimer.start();
-                activeCellsEvalTimer.stop();
-            }
+            simulationGridDims = &activeGridDim;
         }
         else
         {
-            transitionTimer.start();
-            kernels::standard_step <<< gridDims, blockSize >>>(*h_ca, headsWrite);
+            simulationGridDims = &gridDims;
         }
 
+        transitionTimer.start();
+        simulation_step_kernel <<< *simulationGridDims, blockSize >>>(
+                *d_ca, headsWrite, thrust::raw_pointer_cast(&activeCellsIds[0]),
+                thrust::raw_pointer_cast(&activeCellsMask[0]),
+                devActiveCellsCount);
         ERROR_CHECK(cudaDeviceSynchronize());
         transitionTimer.stop();
 
-        double *tmpHeads = h_ca->heads;
-        h_ca->heads = headsWrite;
+        double *tmpHeads = d_ca->heads;
+        d_ca->heads = headsWrite;
         headsWrite = tmpHeads;
 
         if (i % STATISTICS_WRITE_FREQ == STATISTICS_WRITE_FREQ - 1)
@@ -188,15 +175,6 @@ int main(int argc, char *argv[])
                     stepTimer.elapsedNanoseconds(),
                     transitionTimer.elapsedNanoseconds(),
                     activeCellsEvalTimer.elapsedNanoseconds());
-            stat->adaptiveTime = standardIterationTime;
-            if (stepTimer.elapsedNanoseconds() / STATISTICS_WRITE_FREQ >= standardIterationTime)
-            {
-                acIterCounter++;
-            }
-            else
-            {
-                acIterCounter = 0;
-            }
             stats.push_back(*stat);
             stepTimer.start();
         }
@@ -204,6 +182,7 @@ int main(int argc, char *argv[])
 
     if (WRITE_OUTPUT_TO_FILE)
     {
+        copyDataFromGpuToCpu(h_ca, d_ca);
         saveHeadsInFile(h_ca->heads, argv[0]);
     }
 

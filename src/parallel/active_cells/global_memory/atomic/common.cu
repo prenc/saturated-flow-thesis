@@ -1,5 +1,5 @@
-#include "../../common/memory_management.cuh"
-#include "../../common/statistics.h"
+#include "../../../common/memory_management.cuh"
+#include "../../../common/statistics.h"
 
 __managed__ int devActiveCellsCount = 0;
 
@@ -23,6 +23,7 @@ __global__ void simulation_step_kernel(struct CA ca, double *headsWrite)
         unsigned idx_g = activeCellsIdx[ac_idx_g];
         unsigned idx_x = idx_g % COLS;
         unsigned idx_y = idx_g / COLS;
+        printf("%f ", ca.heads[idx_g]);
 #ifdef LOOP
         for (int i = 0; i < KERNEL_LOOP_SIZE; i++)
         {
@@ -118,12 +119,19 @@ __global__ void findActiveCells(struct CA d_ca)
 
 int main(int argc, char *argv[])
 {
-    auto h_ca = new CA();
+    CA *d_ca = new CA();
+    CA *h_ca = new CA();
     double *headsWrite;
-    allocateManagedMemory(h_ca, headsWrite);
+
+    h_ca->heads = new double[ROWS * COLS]();
+    h_ca->Sy = new double[ROWS * COLS]();
+    h_ca->K = new double[ROWS * COLS]();
+    h_ca->sources = new double[ROWS * COLS]();
 
     initializeCA(h_ca);
-    memcpy(headsWrite, h_ca->heads, sizeof(double) * ROWS * COLS);
+
+    allocateMemory(d_ca, headsWrite);
+    copyDataFromCpuToGpu(h_ca, d_ca);
 
     dim3 blockSize(BLOCK_SIZE, BLOCK_SIZE);
     const int blockCount = ceil((double) (ROWS * COLS) / (BLOCK_SIZE * BLOCK_SIZE));
@@ -136,15 +144,16 @@ int main(int argc, char *argv[])
 
     bool isWholeGridActive = false;
     dim3 *simulationGridDims;
-    for (int i{}; i < SIMULATION_ITERATIONS; ++i)
+    for (size_t i{}; i < SIMULATION_ITERATIONS; ++i)
     {
         if (!isWholeGridActive)
         {
             devActiveCellsCount = 0;
             activeCellsEvalTimer.start();
-            findActiveCells <<< gridDims, blockSize >>>(*h_ca);
-            cudaDeviceSynchronize();
+            findActiveCells <<< gridDims, blockSize >>>(*d_ca);
+            ERROR_CHECK(cudaDeviceSynchronize());
             activeCellsEvalTimer.stop();
+            printf("%d\n", devActiveCellsCount);
 
             isWholeGridActive = devActiveCellsCount == ROWS * COLS;
 
@@ -160,12 +169,12 @@ int main(int argc, char *argv[])
         }
 
         transitionTimer.start();
-        simulation_step_kernel <<< *simulationGridDims, blockSize >>>(*h_ca, headsWrite);
-        cudaDeviceSynchronize();
+        simulation_step_kernel <<< *simulationGridDims, blockSize >>>(*d_ca, headsWrite);
+        ERROR_CHECK(cudaDeviceSynchronize());
         transitionTimer.stop();
 
-        double *tmpHeads = h_ca->heads;
-        h_ca->heads = headsWrite;
+        double *tmpHeads = d_ca->heads;
+        d_ca->heads = headsWrite;
         headsWrite = tmpHeads;
 
         if (i % STATISTICS_WRITE_FREQ == STATISTICS_WRITE_FREQ - 1)
@@ -183,6 +192,7 @@ int main(int argc, char *argv[])
 
     if (WRITE_OUTPUT_TO_FILE)
     {
+        copyDataFromGpuToCpu(h_ca, d_ca);
         saveHeadsInFile(h_ca->heads, argv[0]);
     }
 
@@ -191,5 +201,5 @@ int main(int argc, char *argv[])
         writeStatisticsToFile(stats, argv[0]);
     }
 
-    freeAllocatedMemory(h_ca, headsWrite);
+    freeAllocatedMemory(d_ca, headsWrite);
 }

@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
     Timer stepTimer;
     stepTimer.start();
 
-    for (unsigned i{}; i < SIMULATION_ITERATIONS; ++i)
+    for (size_t i{}; i < SIMULATION_ITERATIONS; ++i)
     {
 #ifdef STANDARD
         kernels::standard_step <<< gridDims, blockSize >>>(*d_ca, headsWrite);

@@ -1,5 +1,5 @@
-#include "../../common/memory_management.cuh"
-#include "../../common/statistics.h"
+#include "../../../common/memory_management.cuh"
+#include "../../../common/statistics.h"
 
 __device__ unsigned activeCellsIdx[ROWS * COLS];
 
