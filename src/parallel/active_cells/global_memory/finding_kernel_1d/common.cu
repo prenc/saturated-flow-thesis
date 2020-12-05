@@ -126,7 +126,7 @@ int main(int argc, char *argv[])
     initializeCA(h_ca);
 
     allocateMemory(d_ca, headsWrite);
-    copyDataFromCpuToGpu(h_ca, d_ca);
+    copyDataFromCpuToGpu(h_ca, d_ca, headsWrite);
 
     dim3 blockSize(BLOCK_SIZE, BLOCK_SIZE);
     const int blockCount = ceil((double) (ROWS * COLS) / (BLOCK_SIZE * BLOCK_SIZE));

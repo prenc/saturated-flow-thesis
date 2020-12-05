@@ -18,7 +18,7 @@ void allocateManagedMemory(CA *&ca, double *&heads_write);
 
 void allocateMemory(CA *&ca, double *&heads_write);
 
-void copyDataFromCpuToGpu(CA *&h_ca, CA *&d_ca);
+void copyDataFromCpuToGpu(CA *&h_ca, CA *&d_ca, double *headWrite);
 
 void copyDataFromGpuToCpu(CA *&h_ca, CA *&d_ca);
 

@@ -18,12 +18,17 @@ void allocateMemory(CA *&ca, double *&headsWrite)
     ERROR_CHECK(cudaMalloc((void **) &ca->sources, sizeof(double) * ROWS * COLS));
 }
 
-void copyDataFromCpuToGpu(CA *&h_ca, CA *&d_ca)
+void copyDataFromCpuToGpu(CA *&h_ca, CA *&d_ca, double *headsWrite)
 {
-    ERROR_CHECK(cudaMemcpy(d_ca->heads, h_ca->heads, sizeof(double) * ROWS * COLS, cudaMemcpyHostToDevice));
+    ERROR_CHECK(cudaMemcpy(headsWrite, h_ca->heads, sizeof(double) * ROWS * COLS,
+                           cudaMemcpyHostToDevice));
+    ERROR_CHECK(cudaMemcpy(d_ca->heads, h_ca->heads, sizeof(double) * ROWS * COLS,
+                           cudaMemcpyHostToDevice));
     ERROR_CHECK(cudaMemcpy(d_ca->K, h_ca->K, sizeof(double) * ROWS * COLS, cudaMemcpyHostToDevice));
-    ERROR_CHECK(cudaMemcpy(d_ca->Sy, h_ca->Sy, sizeof(double) * ROWS * COLS, cudaMemcpyHostToDevice));
-    ERROR_CHECK(cudaMemcpy(d_ca->sources, h_ca->sources, sizeof(double) * ROWS * COLS, cudaMemcpyHostToDevice));
+    ERROR_CHECK(
+            cudaMemcpy(d_ca->Sy, h_ca->Sy, sizeof(double) * ROWS * COLS, cudaMemcpyHostToDevice));
+    ERROR_CHECK(cudaMemcpy(d_ca->sources, h_ca->sources, sizeof(double) * ROWS * COLS,
+                           cudaMemcpyHostToDevice));
 }
 
 void initializeCA(CA *&ca)
@@ -53,7 +58,8 @@ void initializeCA(CA *&ca)
 
 void copyDataFromGpuToCpu(CA *&h_ca, CA *&d_ca)
 {
-    ERROR_CHECK(cudaMemcpy(h_ca->heads, d_ca->heads, sizeof(double) * ROWS * COLS, cudaMemcpyDeviceToHost));
+    ERROR_CHECK(cudaMemcpy(h_ca->heads, d_ca->heads, sizeof(double) * ROWS * COLS,
+                           cudaMemcpyDeviceToHost));
 }
 
 void freeAllocatedMemory(CA *&d_ca, double *&headsWrite)
