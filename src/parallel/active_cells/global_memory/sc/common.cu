@@ -106,7 +106,7 @@ int main(int argc, char *argv[])
     initializeCA(h_ca);
 
     allocateMemory(d_ca, headsWrite);
-    copyDataFromCpuToGpu(h_ca, d_ca);
+    copyDataFromCpuToGpu(h_ca, d_ca, headsWrite);
 
     thrust::device_vector<int> activeCellsMask(ROWS * COLS, -1);
     thrust::device_vector<int> activeCellsIds(ROWS * COLS, -1);

@@ -23,7 +23,6 @@ __global__ void simulation_step_kernel(struct CA ca, double *headsWrite)
         unsigned idx_g = activeCellsIdx[ac_idx_g];
         unsigned idx_x = idx_g % COLS;
         unsigned idx_y = idx_g / COLS;
-        printf("%f ", ca.heads[idx_g]);
 #ifdef LOOP
         for (int i = 0; i < KERNEL_LOOP_SIZE; i++)
         {
@@ -131,7 +130,7 @@ int main(int argc, char *argv[])
     initializeCA(h_ca);
 
     allocateMemory(d_ca, headsWrite);
-    copyDataFromCpuToGpu(h_ca, d_ca);
+    copyDataFromCpuToGpu(h_ca, d_ca, headsWrite);
 
     dim3 blockSize(BLOCK_SIZE, BLOCK_SIZE);
     const int blockCount = ceil((double) (ROWS * COLS) / (BLOCK_SIZE * BLOCK_SIZE));
@@ -153,7 +152,6 @@ int main(int argc, char *argv[])
             findActiveCells <<< gridDims, blockSize >>>(*d_ca);
             ERROR_CHECK(cudaDeviceSynchronize());
             activeCellsEvalTimer.stop();
-            printf("%d\n", devActiveCellsCount);
 
             isWholeGridActive = devActiveCellsCount == ROWS * COLS;
 
