@@ -1,5 +1,6 @@
 #include "../../../common/memory_management.cuh"
 #include "../../../common/statistics.h"
+#include "../../../kernels/iteration_step.cu"
 #include <thrust/device_vector.h>
 
 __global__ void simulation_step_kernel(CA ca, double *headsWrite,
@@ -141,17 +142,17 @@ int main(int argc, char *argv[])
             dim3 activeGridDim(activeGridSize, activeGridSize);
 
             simulationGridDims = &activeGridDim;
+	        transitionTimer.start();
+	        simulation_step_kernel <<< *simulationGridDims, blockSize >>>(
+			        *h_ca, headsWrite, thrust::raw_pointer_cast(&activeCellsIds[0]),
+			        thrust::raw_pointer_cast(&activeCellsMask[0]),
+			        devActiveCellsCount);
         }
         else
         {
-            simulationGridDims = &gridDims;
+	        transitionTimer.start();
+	        kernels::standard_step <<< gridDims, blockSize >>>(*h_ca, headsWrite);
         }
-
-        transitionTimer.start();
-        simulation_step_kernel <<< *simulationGridDims, blockSize >>>(
-                *h_ca, headsWrite, thrust::raw_pointer_cast(&activeCellsIds[0]),
-                thrust::raw_pointer_cast(&activeCellsMask[0]),
-                devActiveCellsCount);
         ERROR_CHECK(cudaDeviceSynchronize());
         transitionTimer.stop();
 
