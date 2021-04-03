@@ -135,9 +135,9 @@
             ]
         },
         "chart_params": {
-            "title": "Unified implementations test",
+            "title": "",
             "x_axis": "ca_size",
-            "x_axis_label": "CA dimensions"
+            "x_axis_label": "CA dimension"
         },
         "targets": [
             "u_hybrid",
@@ -171,7 +171,7 @@
         "chart_params": {
             "title": "",
             "x_axis": "ca_size",
-            "x_axis_label": "CA dimensions"
+            "x_axis_label": "CA dimension"
         },
         "targets":[
             "u_hybrid_stress",
@@ -205,13 +205,11 @@
         "chart_params": {
             "title": "",
             "x_axis": "ca_size",
-            "x_axis_label": "CA dimensions"
+            "x_axis_label": "CA dimension"
         },
         "targets": [
-	    "u_standard",	
-            "ac_u_sc_fk",
+	        "u_standard",
             "ac_u_fk",
-            "ac_u_fk_1d",
             "ac_u_sc",
             "ac_u_sc_adaptive"
         ]
@@ -242,13 +240,11 @@
         "chart_params": {
             "title": "Active cells stress test",
             "x_axis": "ca_size",
-            "x_axis_label": "CA dimensions"
+            "x_axis_label": "CA dimension"
         },
         "targets": [
             "u_standard_stress",	
-            "ac_u_sc_fk_stress",
             "ac_u_fk_stress",
-            "ac_u_fk_1d_stress",
             "ac_u_sc_stress",
             "ac_u_sc_adaptive_stress"
         ]
