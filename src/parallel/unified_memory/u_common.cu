@@ -16,11 +16,12 @@ int main(int argc, char *argv[])
     dim3 gridDims(gridSize, gridSize);
 
     std::vector<StatPoint> stats;
-    Timer stepTimer{};
+    Timer stepTimer, transitionTimer;
     stepTimer.start();
 
     for (unsigned i{}; i < SIMULATION_ITERATIONS; ++i)
     {
+        transitionTimer.start();
 #ifdef STANDARD
         kernels::standard_step <<< gridDims, blockSize >>>(*h_ca, headsWrite);
 #endif
@@ -30,17 +31,19 @@ int main(int argc, char *argv[])
 #ifdef SHARED
         kernels::shared_step <<< gridDims, blockSize >>>(*h_ca, headsWrite);
 #endif
-        cudaDeviceSynchronize();
+        ERROR_CHECK(cudaDeviceSynchronize());
+        transitionTimer.stop();
 
         auto tmpHeads = h_ca->heads;
         h_ca->heads = headsWrite;
         headsWrite = tmpHeads;
 
-        if (i % STATISTICS_WRITE_FREQ == 1)
+        if (i % STATISTICS_WRITE_FREQ == STATISTICS_WRITE_FREQ - 1)
         {
             stepTimer.stop();
             auto stat = new StatPoint();
             stat->stepTime = stepTimer.elapsedNanoseconds();
+            stat->transitionTime = transitionTimer.elapsedNanoseconds();
             stats.push_back(*stat);
             stepTimer.start();
         }

@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
     initializeCA(h_ca);
 
     allocateMemory(d_ca, headsWrite);
-    copyDataFromCpuToGpu(h_ca, d_ca);
+    copyDataFromCpuToGpu(h_ca, d_ca, headsWrite);
 
     dim3 blockSize(BLOCK_SIZE, BLOCK_SIZE);
     const int blockCount = ceil((double) (ROWS * COLS) / (BLOCK_SIZE * BLOCK_SIZE));
@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
     Timer stepTimer;
     stepTimer.start();
 
-    for (unsigned i{}; i < SIMULATION_ITERATIONS; ++i)
+    for (size_t i{}; i < SIMULATION_ITERATIONS; ++i)
     {
 #ifdef STANDARD
         kernels::standard_step <<< gridDims, blockSize >>>(*d_ca, headsWrite);
@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
         d_ca->heads = headsWrite;
         headsWrite = tmpHeads;
 
-        if (i % STATISTICS_WRITE_FREQ == 0)
+        if (i % STATISTICS_WRITE_FREQ == STATISTICS_WRITE_FREQ - 1)
         {
             stepTimer.stop();
             auto stat = new StatPoint();

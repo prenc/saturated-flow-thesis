@@ -14,6 +14,7 @@ struct StatPoint
     double stepTime;
     double transitionTime;
     double findACTime;
+    double adaptiveTime = 0;
 
     StatPoint() = default;
     StatPoint(double coverage, double stepTime, double transitionTime, double findACTime);

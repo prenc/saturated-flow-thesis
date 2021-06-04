@@ -15,19 +15,21 @@ void writeStatisticsToFile(std::vector<StatPoint> &stats, const std::string &fil
     fprintf(fp, "Step, Coverage [%%], Step time [ns], Transition time [ns], Find ac time [ns]\n");
 
     auto it = stats.begin();
-    for (int i{1}; i < SIMULATION_ITERATIONS; i += STATISTICS_WRITE_FREQ)
+    for (int i{STATISTICS_WRITE_FREQ - 1}; i < SIMULATION_ITERATIONS; i += STATISTICS_WRITE_FREQ)
     {
-        fprintf(fp, "%d, %lf, %.0lf, %.0lf, %.0lf\n",
+        fprintf(fp, "%d, %lf, %.0lf, %.0lf, %.0lf, %.0lf\n",
                 i,
                 (*it).coverage,
                 (*it).stepTime,
                 (*it).transitionTime,
-                (*it).findACTime);
+                (*it).findACTime,
+                (*it).adaptiveTime);
         ++it;
     }
     fclose(fp);
 }
 
 StatPoint::StatPoint(double coverage, double stepTime, double transitionTime, double findACTime) :
-        coverage(coverage), stepTime(stepTime), transitionTime(transitionTime), findACTime(findACTime)
+        coverage(coverage), stepTime(stepTime), transitionTime(transitionTime),
+        findACTime(findACTime)
 {}

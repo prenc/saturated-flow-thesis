@@ -28,37 +28,108 @@ set_target_properties(common PROPERTIES LINKER_LANGUAGE CUDA)
 # global memory target
 add_executable(g_standard parallel/global_memory/g_standard.cu)
 target_link_libraries(g_standard common)
-add_executable(g_standard_loop parallel/global_memory/g_standard_loop.cu)
-target_link_libraries(g_standard_loop common)
+add_executable(g_standard_stress parallel/global_memory/g_standard_stress.cu)
+target_link_libraries(g_standard_stress common)
 add_executable(g_shared parallel/global_memory/g_shared.cu)
 target_link_libraries(g_shared common)
-add_executable(g_shared_loop parallel/global_memory/g_shared_loop.cu)
-target_link_libraries(g_shared_loop common)
+add_executable(g_shared_stress parallel/global_memory/g_shared_stress.cu)
+target_link_libraries(g_shared_stress common)
 add_executable(g_hybrid parallel/global_memory/g_hybrid.cu)
 target_link_libraries(g_hybrid common)
-add_executable(g_hybrid_loop parallel/global_memory/g_hybrid_loop.cu)
-target_link_libraries(g_hybrid_loop common)
+add_executable(g_hybrid_stress parallel/global_memory/g_hybrid_stress.cu)
+target_link_libraries(g_hybrid_stress common)
 
-# unified memory target
+# unified_sc memory target
 add_executable(u_standard parallel/unified_memory/u_standard.cu)
 target_link_libraries(u_standard common)
-add_executable(u_standard_loop parallel/unified_memory/u_standard_loop.cu)
-target_link_libraries(u_standard_loop common)
+add_executable(u_standard_stress parallel/unified_memory/u_standard_stress.cu)
+target_link_libraries(u_standard_stress common)
 add_executable(u_shared parallel/unified_memory/u_shared.cu)
 target_link_libraries(u_shared common)
-add_executable(u_shared_loop parallel/unified_memory/u_shared_loop.cu)
-target_link_libraries(u_shared_loop common)
+add_executable(u_shared_stress parallel/unified_memory/u_shared_stress.cu)
+target_link_libraries(u_shared_stress common)
 add_executable(u_hybrid parallel/unified_memory/u_hybrid.cu)
 target_link_libraries(u_hybrid common)
-add_executable(u_hybrid_loop parallel/unified_memory/u_hybrid_loop.cu)
-target_link_libraries(u_hybrid_loop common)
+add_executable(u_hybrid_stress parallel/unified_memory/u_hybrid_stress.cu)
+target_link_libraries(u_hybrid_stress common)
 
-# active cells target
-add_executable(ac_g_standard parallel/active_cells/global/g_ac_standard.cu)
-target_link_libraries(ac_g_standard common)
-add_executable(ac_g_standard_loop parallel/active_cells/global/g_ac_standard_loop.cu)
-target_link_libraries(ac_g_standard_loop common)
-add_executable(ac_u_standard parallel/active_cells/unified/u_ac_standard.cu)
-target_link_libraries(ac_u_standard common)
-add_executable(ac_u_standard_loop parallel/active_cells/unified/u_ac_standard_loop.cu)
-target_link_libraries(ac_u_standard_loop common)
+############################
+### ACTIVE CELLS TARGETS ###
+############################
+
+## UNIFIED MEMORY ##
+
+# stream compaction finding kernel
+add_executable(ac_u_sc_fk parallel/active_cells/unified_memory/sc_finding_kernel/ac_standard.cu)
+target_link_libraries(ac_u_sc_fk common)
+add_executable(ac_u_sc_fk_stress parallel/active_cells/unified_memory/sc_finding_kernel/ac_standard_stress.cu)
+target_link_libraries(ac_u_sc_fk_stress common)
+
+# atomic (deprecated)
+add_executable(ac_u_atomic parallel/active_cells/unified_memory/atomic/ac_standard.cu)
+target_link_libraries(ac_u_atomic common)
+add_executable(ac_u_atomic_stress parallel/active_cells/unified_memory/atomic/ac_standard_stress.cu)
+target_link_libraries(ac_u_atomic_stress common)
+
+# finding kernel (naive)
+add_executable(ac_u_fk parallel/active_cells/unified_memory/finding_kernel/ac_standard.cu)
+target_link_libraries(ac_u_fk common)
+add_executable(ac_u_fk_stress parallel/active_cells/unified_memory/finding_kernel/ac_standard_stress.cu)
+target_link_libraries(ac_u_fk_stress common)
+
+# finding kernel 1d (naive 1d)
+add_executable(ac_u_fk_1d parallel/active_cells/unified_memory/finding_kernel_1d/ac_standard.cu)
+target_link_libraries(ac_u_fk_1d common)
+add_executable(ac_u_fk_1d_stress parallel/active_cells/unified_memory/finding_kernel_1d/ac_standard_stress.cu)
+target_link_libraries(ac_u_fk_1d_stress common)
+
+# stream compaction
+add_executable(ac_u_sc parallel/active_cells/unified_memory/sc/ac_standard.cu)
+target_link_libraries(ac_u_sc common)
+add_executable(ac_u_sc_stress parallel/active_cells/unified_memory/sc/ac_standard_stress.cu)
+target_link_libraries(ac_u_sc_stress common)
+
+# stream compaction adaptive
+add_executable(ac_u_sc_adaptive parallel/active_cells/unified_memory/sc_adaptive/ac_standard.cu)
+target_link_libraries(ac_u_sc_adaptive common)
+add_executable(ac_u_sc_adaptive_stress parallel/active_cells/unified_memory/sc_adaptive/ac_standard_stress.cu)
+target_link_libraries(ac_u_sc_adaptive_stress common)
+
+
+## GLOBAL MEMORY ##
+
+# stream compaction finding kernel
+add_executable(ac_g_sc_fk parallel/active_cells/global_memory/sc_finding_kernel/ac_standard.cu)
+target_link_libraries(ac_g_sc_fk common)
+add_executable(ac_g_sc_fk_stress parallel/active_cells/global_memory/sc_finding_kernel/ac_standard_stress.cu)
+target_link_libraries(ac_g_sc_fk_stress common)
+
+# atomic (deprecated)
+add_executable(ac_g_atomic parallel/active_cells/global_memory/atomic/ac_standard.cu)
+target_link_libraries(ac_g_atomic common)
+add_executable(ac_g_atomic_stress parallel/active_cells/global_memory/atomic/ac_standard_stress.cu)
+target_link_libraries(ac_g_atomic_stress common)
+
+# finding kernel (naive)
+add_executable(ac_g_fk parallel/active_cells/global_memory/finding_kernel/ac_standard.cu)
+target_link_libraries(ac_g_fk common)
+add_executable(ac_g_fk_stress parallel/active_cells/global_memory/finding_kernel/ac_standard_stress.cu)
+target_link_libraries(ac_g_fk_stress common)
+
+# finding kernel 1d (naive 1d)
+add_executable(ac_g_fk_1d parallel/active_cells/global_memory/finding_kernel_1d/ac_standard.cu)
+target_link_libraries(ac_g_fk_1d common)
+add_executable(ac_g_fk_1d_stress parallel/active_cells/global_memory/finding_kernel_1d/ac_standard_stress.cu)
+target_link_libraries(ac_g_fk_1d_stress common)
+
+# stream compaction
+add_executable(ac_g_sc parallel/active_cells/global_memory/sc/ac_standard.cu)
+target_link_libraries(ac_g_sc common)
+add_executable(ac_g_sc_stress parallel/active_cells/global_memory/sc/ac_standard_stress.cu)
+target_link_libraries(ac_g_sc_stress common)
+
+# stream compaction adaptive
+add_executable(ac_g_sc_adaptive parallel/active_cells/global_memory/sc_adaptive/ac_standard.cu)
+target_link_libraries(ac_g_sc_adaptive common)
+add_executable(ac_g_sc_adaptive_stress parallel/active_cells/global_memory/sc_adaptive/ac_standard_stress.cu)
+target_link_libraries(ac_g_sc_adaptive_stress common)

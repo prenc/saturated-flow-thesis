@@ -2,15 +2,15 @@
     "output": {
         "params": {
             "ca_size": [
-                2000, 4000, 6000
+                2000, 4000
             ],
             "simulation_iterations": [
-                2000
+                1000
             ],
             "wells_dim": [
-                3, 6, 7
+                4, 8
             ],
-               "wells_QW": [
+            "wells_QW": [
                 0.001
             ],
             "WRITE_OUTPUT_TO_FILE": [
@@ -21,145 +21,54 @@
             ]
         },
         "targets": [
-            "ac_g_standard",
-            "ac_u_standard",
+            "ac_u_sc",
+            "ac_u_sc_one_kernel",
+            "ac_u_sc_one_kernel_adaptive",
+            "ac_u_naive",
+            "ac_u_sc_stress",
+            "ac_u_sc_one_kernel_stress",
+            "ac_u_sc_one_kernel_adaptive_stress",
+            "ac_u_naive_stress",
             "g_hybrid",
             "g_shared",
             "g_standard",
             "u_hybrid",
             "u_shared",
             "u_standard",
-            "ac_g_standard_loop",
-            "ac_u_standard_loop",
-            "g_hybrid_loop",
-            "g_shared_loop",
-            "g_standard_loop",
-            "u_hybrid_loop",
-            "u_shared_loop",
-            "u_standard_loop"
+            "g_hybrid_stress",
+            "g_shared_stress",
+            "g_standard_stress",
+            "u_hybrid_stress",
+            "u_shared_stress",
+            "u_standard_stress"
         ]
     },
 
-    "g_u_comp": {
-        "params": {
-            "ca_size": [
-                1000, 2000, 4000, 6000,
-                6500, 7000, 7500, 8000,
-                8500, 9000, 9500, 10000,
-                10500, 11000, 11500, 12000
-            ],
-            "simulation_iterations": [
-                6480
-            ],
-            "wells_dim": [
-                3, 3, 6, 8, 8, 9, 11, 11, 12
-            ],
-            "wells_QW": [
-                0.001
-            ],
-            "WRITE_OUTPUT_TO_FILE": [
-                0
-            ]
-        },
-        "chart_params": {
-            "title": "Non active cells global and unified",
-            "x_axis": "ca_size",
-            "x_axis_label": "CA dimensions"
-        },
-        "targets": [
-            "g_hybrid",
-            "g_shared",
-            "g_standard",
-            "u_hybrid",
-            "u_shared",
-            "u_standard"
-        ]
-    },
-    "shared_ca_size": {
-        "params": {
-            "ca_size": [
-                1000, 2000, 4000, 6000,
-                6500, 7000, 7500, 8000,
-                8500, 9000, 9500, 10000,
-                10500, 11000, 11500, 12000
-            ],
-            "simulation_iterations": [
-                6480
-            ],
-            "wells_dim": [
-                3, 3, 6, 8, 8, 9, 11, 11, 12
-            ],
-            "wells_QW": [
-                0.001
-            ],
-            "WRITE_OUTPUT_TO_FILE": [
-                0
-            ]
-        },
-        "chart_params": {
-            "title": "Shared variant test",
-            "x_axis": "ca_size",
-            "x_axis_label": "CA dimensions"
-        },
-        "targets": [
-            "g_shared",
-            "u_shared"
-        ]
-    },
-    "hybrid_ca_size": {
-        "params": {
-            "ca_size": [
-                1000, 2000, 4000, 6000,
-                6500, 7000, 7500, 8000,
-                8500, 9000, 9500, 10000,
-                10500, 11000, 11500, 12000
-            ],
-            "simulation_iterations": [
-                6480
-            ],
-            "wells_dim": [
-                3, 3, 6, 8, 8, 9, 11, 11, 12
-            ],
-            "wells_QW": [
-                0.001
-            ],
-            "WRITE_OUTPUT_TO_FILE": [
-                0
-            ]
-        },
-        "chart_params": {
-            "title": "Hybrid variant test",
-            "x_axis": "ca_size",
-            "x_axis_label": "CA dimensions"
-        },
-        "targets": [
-            "g_hybrid",
-            "u_hybrid"
-        ]
-    },
     "standard_ca_size": {
         "params": {
             "ca_size": [
-                1000, 2000, 4000, 6000,
-                6500, 7000, 7500, 8000,
-                8500, 9000, 9500, 10000,
-                10500, 11000, 11500, 12000
+                1000, 2000, 3000, 4000,
+                5000, 6000, 7000, 8000
             ],
             "simulation_iterations": [
-                6480
+                4500
             ],
             "wells_dim": [
-                3, 3, 6, 8, 8, 9, 11, 11, 12
+                2, 4, 6, 8,
+                10, 12, 14, 16
             ],
             "wells_QW": [
                 0.001
-            ],
+        ],
             "WRITE_OUTPUT_TO_FILE": [
                 0
+            ],
+            "WRITE_STATISTICS_TO_FILE": [
+                1
             ]
         },
         "chart_params": {
-            "title": "Standard variant test",
+            "title": "",
             "x_axis": "ca_size",
             "x_axis_label": "CA dimensions"
         },
@@ -168,146 +77,18 @@
             "u_standard"
         ]
     },
-
-    "g_u_comp_loop": {
+    "standard_ca_size_stress": {
         "params": {
             "ca_size": [
-                250, 500, 750, 1000,
-                1250, 1500, 1750, 2000,
-                2250, 2500, 2750, 3000,
-                3250, 3500, 3750, 4000
+                1000, 2000, 3000, 4000,
+                5000, 6000, 7000, 8000
             ],
             "simulation_iterations": [
-                6480
+                4500
             ],
             "wells_dim": [
-                1, 1, 1, 1,
-                2, 2, 2, 2,
-                4, 4, 4, 4,
-                6, 6, 6, 6
-            ],
-            "wells_QW": [
-                0.001
-            ]
-        },
-        "chart_params": {
-            "title": "Non active cells global and unified stress",
-            "x_axis": "ca_size",
-            "x_axis_label": "CA dimensions"
-        },
-        "targets": [
-            "g_hybrid_loop",
-            "g_shared_loop",
-            "g_standard_loop",
-            "u_hybrid_loop",
-            "u_shared_loop",
-            "u_standard_loop"
-        ]
-    },
-    "shared_ca_size_loop": {
-        "params": {
-            "ca_size": [
-                250, 500, 750, 1000,
-                1250, 1500, 1750, 2000,
-                2250, 2500, 2750, 3000,
-                3250, 3500, 3750, 4000
-            ],
-            "simulation_iterations": [
-                6480
-            ],
-            "wells_dim": [
-                1, 1, 1, 1,
-                2, 2, 2, 2,
-                4, 4, 4, 4,
-                6, 6, 6, 6
-            ],
-            "wells_QW": [
-                0.001
-            ]
-        },
-        "chart_params": {
-            "title": "Shared variant stress test",
-            "x_axis": "ca_size",
-            "x_axis_label": "CA dimensions"
-        },
-        "targets": [
-            "g_shared_loop",
-            "u_shared_loop"
-        ]
-    },
-    "hybrid_ca_size_loop": {
-        "params": {
-            "ca_size": [
-                250, 500, 750, 1000,
-                1250, 1500, 1750, 2000,
-                2250, 2500, 2750, 3000,
-                3250, 3500, 3750, 4000
-            ],
-            "simulation_iterations": [
-                6480
-            ],
-            "wells_dim": [
-                1, 1, 1, 1,
-                2, 2, 2, 2,
-                4, 4, 4, 4,
-                6, 6, 6, 6
-            ],
-            "wells_QW": [
-                0.001
-            ]
-        },
-        "chart_params": {
-            "title": "Hybrid variant stress test",
-            "x_axis": "ca_size",
-            "x_axis_label": "CA dimensions"
-        },
-        "targets": [
-            "g_hybrid_loop",
-            "u_hybrid_loop"
-        ]
-    },
-    "standard_ca_size_loop": {
-        "params": {
-            "ca_size": [
-                250, 500, 750, 1000,
-                1250, 1500, 1750, 2000,
-                2250, 2500, 2750, 3000,
-                3250, 3500, 3750, 4000
-            ],
-            "simulation_iterations": [
-                6480
-            ],
-            "wells_dim": [
-                1, 1, 1, 1,
-                2, 2, 2, 2,
-                4, 4, 4, 4,
-                6, 6, 6, 6
-            ],
-            "wells_QW": [
-                0.001
-            ]
-        },
-        "chart_params": {
-            "title": "Standard variant stress test",
-            "x_axis": "ca_size",
-            "x_axis_label": "CA dimensions"
-        },
-        "targets": [
-            "g_standard_loop",
-            "u_standard_loop"
-        ]
-    },
-
-    "ac_coverage": {
-        "params": {
-            "ca_size": [
-                1000, 4000, 6000
-            ],
-            "simulation_iterations": [
-                9000
-            ],
-            "wells_dim": [
-                3,6,7
+                2, 4, 6, 8,
+                10, 12, 14, 16
             ],
             "wells_QW": [
                 0.001
@@ -319,57 +100,166 @@
                 1
             ]
         },
+        "chart_params": {
+            "title": "",
+            "x_axis": "ca_size",
+            "x_axis_label": "CA dimensions"
+        },
         "targets": [
-            "g_standard",
-            "u_standard",
-            "ac_g_standard",
-            "ac_u_standard"
+            "g_standard_stress",
+            "u_standard_stress"
+        ]
+    },
+
+    "u_ca_size": {
+        "params": {
+            "ca_size": [
+                1000, 2000, 3000, 4000,
+                5000, 6000, 7000, 8000
+            ],
+            "simulation_iterations": [
+                4500
+            ],
+            "wells_dim": [
+                2, 4, 6, 8,
+                10, 12, 14, 16
+            ],
+            "wells_QW": [
+                0.001
+            ],
+            "WRITE_OUTPUT_TO_FILE": [
+                0
+            ],
+            "WRITE_STATISTICS_TO_FILE": [
+                1
+            ]
+        },
+        "chart_params": {
+            "title": "",
+            "x_axis": "ca_size",
+            "x_axis_label": "CA dimension"
+        },
+        "targets": [
+            "u_hybrid",
+            "u_shared",
+            "u_standard"
+        ]
+    },
+    "u_ca_size_stress": {
+        "params": {
+            "ca_size": [
+                1000, 2000, 3000, 4000,
+                5000, 6000, 7000, 8000
+            ],
+            "simulation_iterations": [
+                4500
+            ],
+            "wells_dim": [
+                2, 4, 6, 8,
+                10, 12, 14, 16
+        ],
+            "wells_QW": [
+                0.001
+            ],
+            "WRITE_OUTPUT_TO_FILE": [
+                0
+            ],
+            "WRITE_STATISTICS_TO_FILE": [
+                1
+            ]
+        },
+        "chart_params": {
+            "title": "",
+            "x_axis": "ca_size",
+            "x_axis_label": "CA dimension"
+        },
+        "targets":[
+            "u_hybrid_stress",
+            "u_shared_stress",
+            "u_standard_stress"
         ]
     },
     "ac_ca_size": {
         "params": {
             "ca_size": [
-                1000, 2000, 4000, 6000,
-                6500, 7000, 7500, 8000,
-                8500, 9000, 9500, 10000,
-                10500, 11000, 11500, 12000
+                1000, 2000, 3000, 4000,
+                5000, 6000, 7000, 8000
             ],
             "simulation_iterations": [
-                6480
+                4500
             ],
             "wells_dim": [
-                3, 3, 6, 8, 8, 9, 11, 11, 12
+                2, 4, 6, 8,
+                10, 12, 14, 16
             ],
             "wells_QW": [
                 0.001
             ],
             "WRITE_OUTPUT_TO_FILE": [
                 0
+            ],
+            "WRITE_STATISTICS_TO_FILE": [
+                1
             ]
         },
         "chart_params": {
-            "title": "Active cells test",
+            "title": "",
             "x_axis": "ca_size",
-            "x_axis_label": "CA dimensions"
+            "x_axis_label": "CA dimension"
         },
         "targets": [
-            "g_standard",
-            "u_standard",
-            "ac_g_standard",
-            "ac_u_standard"
+	        "u_standard",
+            "ac_u_fk",
+            "ac_u_sc",
+            "ac_u_sc_adaptive"
+        ]
+    },
+    "ac_ca_size_stress": {
+        "params": {
+            "ca_size": [
+                1000, 2000, 3000, 4000,
+                5000, 6000, 7000, 8000
+            ],
+            "simulation_iterations": [
+                4500
+            ],
+            "wells_dim": [
+                2, 4, 6, 8,
+                10, 12, 14, 16
+            ],
+            "wells_QW": [
+                0.001
+            ],
+            "WRITE_OUTPUT_TO_FILE": [
+                0
+            ],
+            "WRITE_STATISTICS_TO_FILE": [
+                1
+            ]
+        },
+        "chart_params": {
+            "title": "Active cells stress test",
+            "x_axis": "ca_size",
+            "x_axis_label": "CA dimension"
+        },
+        "targets": [
+            "u_standard_stress",	
+            "ac_u_fk_stress",
+            "ac_u_sc_stress",
+            "ac_u_sc_adaptive_stress"
         ]
     },
 
-    "ac_coverage_loop": {
+    "ac_coverage_stress": {
         "params": {
             "ca_size": [
-                1000, 4000, 6000
+                4000
             ],
             "simulation_iterations": [
-                9000
+                4500
             ],
             "wells_dim": [
-                3,6,7
+                8
             ],
             "wells_QW": [
                 0.001
@@ -382,173 +272,67 @@
             ]
         },
         "targets": [
-            "g_standard_loop",
-            "u_standard_loop",
-            "ac_g_standard_loop",
-            "ac_u_standard_loop"
+            "u_standard_stress",
+            "ac_u_sc_stress",
+            "ac_u_sc_one_kernel_stress",
+            "ac_u_sc_one_kernel_adaptive_stress",
+            "ac_u_naive_stress"
         ]
     },
-    "ac_ca_size_loop": {
+    "ac_coverage": {
         "params": {
             "ca_size": [
-                250, 500, 750, 1000,
-                1250, 1500, 1750, 2000,
-                2250, 2500, 2750, 3000,
-                3250, 3500, 3750, 4000
+                4000
             ],
             "simulation_iterations": [
-                6480
+                4500
             ],
             "wells_dim": [
-                1, 1, 1, 1,
-                2, 2, 2, 2,
-                4, 4, 4, 4,
-                6, 6, 6, 6
+                8
             ],
             "wells_QW": [
                 0.001
-            ]
-        },
-        "chart_params": {
-            "title": "Active cells stress test",
-            "x_axis": "ca_size",
-            "x_axis_label": "CA dimensions"
-        },
-        "targets": [
-            "g_standard_loop",
-            "u_standard_loop",
-            "ac_g_standard_loop",
-            "ac_u_standard_loop"
-        ]
-    },
-
-    "g_ca_size": {
-        "params": {
-            "ca_size": [
-                1000, 2000, 4000, 6000,
-                6500, 7000, 7500, 8000,
-                8500, 9000, 9500, 10000,
-                10500, 11000, 11500, 12000
-            ],
-            "simulation_iterations": [
-                6480
-            ],
-            "wells_dim": [
-                3, 3, 6, 8, 8, 9, 11, 11, 12
-            ],
-            "wells_QW": [
-                0.001
-            ],
+        ],
             "WRITE_OUTPUT_TO_FILE": [
                 0
+            ],
+            "WRITE_STATISTICS_TO_FILE": [
+                1
             ]
         },
-        "chart_params": {
-            "title": "Global implementations test",
-            "x_axis": "ca_size",
-            "x_axis_label": "CA dimensions"
-        },
         "targets": [
-            "g_hybrid",
-            "g_shared",
-            "g_standard"
+            "u_standard",
+            "ac_u_sc_stress",
+            "ac_u_sc_one_kernel_stress",
+            "ac_u_sc_one_kernel_adaptive_stress",
+            "ac_u_naive_stress"
         ]
     },
-    "u_ca_size": {
+    "adaptive_coverage": {
         "params": {
             "ca_size": [
-                1000, 2000, 4000, 6000,
-                6500, 7000, 7500, 8000,
-                8500, 9000, 9500, 10000,
-                10500, 11000, 11500, 12000
+                4000
             ],
             "simulation_iterations": [
-                6480
+                4500
             ],
             "wells_dim": [
-                3, 3, 6, 8, 8, 9, 11, 11, 12
+                8
             ],
             "wells_QW": [
                 0.001
-            ],
+        ],
             "WRITE_OUTPUT_TO_FILE": [
                 0
+            ],
+            "WRITE_STATISTICS_TO_FILE": [
+                1
             ]
-        },
-        "chart_params": {
-            "title": "Unified implementations test",
-            "x_axis": "ca_size",
-            "x_axis_label": "CA dimensions"
         },
         "targets": [
-            "u_hybrid",
-            "u_shared",
-            "u_standard"
-        ]
-    },
-
-    "g_ca_size_loop": {
-        "params": {
-            "ca_size": [
-                250, 500, 750, 1000,
-                1250, 1500, 1750, 2000,
-                2250, 2500, 2750, 3000,
-                3250, 3500, 3750, 4000
-            ],
-            "simulation_iterations": [
-                6480
-            ],
-            "wells_dim": [
-                1, 1, 1, 1,
-                2, 2, 2, 2,
-                4, 4, 4, 4,
-                6, 6, 6, 6
-            ],
-            "wells_QW": [
-                0.001
-            ]
-        },
-        "chart_params": {
-            "title": "Global implementations stress test",
-            "x_axis": "ca_size",
-            "x_axis_label": "CA dimensions"
-        },
-        "targets": [
-            "g_hybrid_loop",
-            "g_shared_loop",
-            "g_standard_loop"
-        ]
-    },
-    "u_ca_size_loop": {
-        "params": {
-            "ca_size": [
-                250, 500, 750, 1000,
-                1250, 1500, 1750, 2000,
-                2250, 2500, 2750, 3000,
-                3250, 3500, 3750, 4000
-            ],
-            "simulation_iterations": [
-                6480
-            ],
-            "wells_dim": [
-                1, 1, 1, 1,
-                2, 2, 2, 2,
-                4, 4, 4, 4,
-                6, 6, 6, 6
-            ],
-            "wells_QW": [
-                0.001
-            ]
-        },
-        "chart_params": {
-            "title": "Unified implementations stress test",
-            "x_axis": "ca_size",
-            "x_axis_label": "CA dimensions"
-        },
-        "targets":[
-            "u_hybrid_loop",
-            "u_shared_loop",
-            "u_standard_loop"
+            "u_standard",
+            "ac_u_sc_one_kernel_stress",
+            "ac_u_sc_one_kernel_adaptive_stress"
         ]
     }
 }

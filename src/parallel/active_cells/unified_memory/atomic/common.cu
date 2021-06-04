@@ -1,16 +1,23 @@
-#include "../../common/memory_management.cuh"
-#include "../../common/statistics.h"
-#include <thrust/device_vector.h>
+#include "../../../common/memory_management.cuh"
+#include "../../../common/statistics.h"
 
+__managed__ int devActiveCellsCount = 0;
 
-__global__ void simulation_step_kernel(CA ca, double *headsWrite, const int *activeCellsIdx, int
-acNumber)
+__device__ unsigned activeCellsIdx[ROWS * COLS];
+
+__device__ void my_push_back(unsigned cellIdx)
+{
+    int insert_ptr = atomicAdd(&devActiveCellsCount, 1);
+    activeCellsIdx[insert_ptr] = cellIdx;
+}
+
+__global__ void simulation_step_kernel(struct CA ca, double *headsWrite)
 {
     unsigned ac_idx_x = blockIdx.x * blockDim.x + threadIdx.x;
     unsigned ac_idx_y = blockIdx.y * blockDim.y + threadIdx.y;
     unsigned ac_idx_g = ac_idx_y * blockDim.x * gridDim.x + ac_idx_x;
 
-    if (ac_idx_g < acNumber)
+    if (ac_idx_g < devActiveCellsCount)
     {
         double Q{}, diff_head, tmp_t, ht1, ht2;
         unsigned idx_g = activeCellsIdx[ac_idx_g];
@@ -61,7 +68,7 @@ acNumber)
     }
 }
 
-__global__ void findActiveCells(struct CA d_ca, int *dv)
+__global__ void findActiveCells(struct CA d_ca)
 {
     unsigned idx_x = blockIdx.x * blockDim.x + threadIdx.x;
     unsigned idx_y = blockIdx.y * blockDim.y + threadIdx.y;
@@ -71,14 +78,14 @@ __global__ void findActiveCells(struct CA d_ca, int *dv)
     {
         if (d_ca.heads[idx_g] < INITIAL_HEAD || d_ca.sources[idx_g] != 0)
         {
-            dv[idx_g] = idx_g;
+            my_push_back(idx_g);
             return;
         }
         if (idx_x > 0)
         {
             if (d_ca.heads[idx_g - 1] < INITIAL_HEAD)
             {
-                dv[idx_g] = idx_g;
+                my_push_back(idx_g);
                 return;
             }
         }
@@ -86,7 +93,7 @@ __global__ void findActiveCells(struct CA d_ca, int *dv)
         {
             if (d_ca.heads[idx_g - COLS] < INITIAL_HEAD)
             {
-                dv[idx_g] = idx_g;
+                my_push_back(idx_g);
                 return;
             }
         }
@@ -94,7 +101,7 @@ __global__ void findActiveCells(struct CA d_ca, int *dv)
         {
             if (d_ca.heads[idx_g + 1] < INITIAL_HEAD)
             {
-                dv[idx_g] = idx_g;
+                my_push_back(idx_g);
                 return;
             }
         }
@@ -102,44 +109,21 @@ __global__ void findActiveCells(struct CA d_ca, int *dv)
         {
             if (d_ca.heads[idx_g + COLS] < INITIAL_HEAD)
             {
-                dv[idx_g] = idx_g;
+                my_push_back(idx_g);
                 return;
             }
         }
-        dv[idx_g] = -1;
     }
 }
 
-template<typename T>
-struct is_not_minus_one
-{
-    __host__ __device__
-    auto operator()(T x) const -> bool
-    {
-        return x != -1;
-    }
-};
-
 int main(int argc, char *argv[])
 {
-    CA *d_ca = new CA();
-    CA *h_ca = new CA();
+    auto h_ca = new CA();
     double *headsWrite;
-
-    thrust::device_vector<int> dv(COLS * ROWS);
-    thrust::device_vector<int> dv_p(COLS * ROWS, -1);
-
-    h_ca->heads = new double[ROWS * COLS]();
-    h_ca->Sy = new double[ROWS * COLS]();
-    h_ca->K = new double[ROWS * COLS]();
-    h_ca->sources = new double[ROWS * COLS]();
+    allocateManagedMemory(h_ca, headsWrite);
 
     initializeCA(h_ca);
-
-    allocateMemory(d_ca, headsWrite);
-    copyDataFromCpuToGpu(h_ca, d_ca);
-    ERROR_CHECK(cudaMemcpy(headsWrite,
-                           h_ca->heads, sizeof(double) * ROWS * COLS, cudaMemcpyHostToDevice));
+    memcpy(headsWrite, h_ca->heads, sizeof(double) * ROWS * COLS);
 
     dim3 blockSize(BLOCK_SIZE, BLOCK_SIZE);
     const int blockCount = ceil((double) (ROWS * COLS) / (BLOCK_SIZE * BLOCK_SIZE));
@@ -152,22 +136,17 @@ int main(int argc, char *argv[])
 
     bool isWholeGridActive = false;
     dim3 *simulationGridDims;
-    int devActiveCellsCount;
     for (int i{}; i < SIMULATION_ITERATIONS; ++i)
     {
         if (!isWholeGridActive)
         {
+            devActiveCellsCount = 0;
             activeCellsEvalTimer.start();
-            findActiveCells <<< gridDims, blockSize >>>(*d_ca, thrust::raw_pointer_cast(&dv[0]));
-            ERROR_CHECK(cudaDeviceSynchronize());
-
-            thrust::copy_if(thrust::device, dv.begin(), dv.end(), dv_p.begin(), is_not_minus_one<int>());
-
-            devActiveCellsCount = thrust::count_if(dv_p.begin(), dv_p.end(), is_not_minus_one<int>
-                    ());
+            findActiveCells <<< gridDims, blockSize >>>(*h_ca);
+            cudaDeviceSynchronize();
             activeCellsEvalTimer.stop();
 
-            isWholeGridActive = devActiveCellsCount >= ROWS * COLS;
+            isWholeGridActive = devActiveCellsCount == ROWS * COLS;
 
             int activeBlockCount = ceil((double) devActiveCellsCount / (BLOCK_SIZE * BLOCK_SIZE));
             int activeGridSize = ceil(sqrt(activeBlockCount));
@@ -181,16 +160,15 @@ int main(int argc, char *argv[])
         }
 
         transitionTimer.start();
-        simulation_step_kernel <<< *simulationGridDims, blockSize >>>(
-                *d_ca, headsWrite, thrust::raw_pointer_cast(&dv_p[0]), devActiveCellsCount);
-        ERROR_CHECK(cudaDeviceSynchronize());
+        simulation_step_kernel <<< *simulationGridDims, blockSize >>>(*h_ca, headsWrite);
+        cudaDeviceSynchronize();
         transitionTimer.stop();
 
-        double *tmpHeads = d_ca->heads;
-        d_ca->heads = headsWrite;
+        double *tmpHeads = h_ca->heads;
+        h_ca->heads = headsWrite;
         headsWrite = tmpHeads;
 
-        if (i % STATISTICS_WRITE_FREQ == 0)
+        if (i % STATISTICS_WRITE_FREQ == STATISTICS_WRITE_FREQ - 1)
         {
             stepTimer.stop();
             auto stat = new StatPoint(
@@ -205,7 +183,6 @@ int main(int argc, char *argv[])
 
     if (WRITE_OUTPUT_TO_FILE)
     {
-        copyDataFromGpuToCpu(h_ca, d_ca);
         saveHeadsInFile(h_ca->heads, argv[0]);
     }
 
@@ -214,5 +191,5 @@ int main(int argc, char *argv[])
         writeStatisticsToFile(stats, argv[0]);
     }
 
-    freeAllocatedMemory(d_ca, headsWrite);
+    freeAllocatedMemory(h_ca, headsWrite);
 }
