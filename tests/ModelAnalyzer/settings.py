@@ -23,7 +23,7 @@ manually restored from them (using e.g. sed :))
 
 SUMMARIES_DUMP = os.getenv("MY_DUMP", "results/summaries")
 """
-Place to store final results of each test, can be set as an environment
+Place to store paper results of each test, can be set as an environment
 variable for convenience
 """
 
