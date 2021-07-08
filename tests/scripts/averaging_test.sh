@@ -12,7 +12,7 @@ function displaytime {
 	printf '%ds\n' $S
 }
 
-TEST_REPETITIONS=3
+TEST_REPETITIONS=10
 elapsed_time=0
 diff_time=0
 
