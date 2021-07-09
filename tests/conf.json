@@ -273,10 +273,9 @@
         },
         "targets": [
             "u_standard_stress",
+            "ac_u_fk_stress",
             "ac_u_sc_stress",
-            "ac_u_sc_one_kernel_stress",
-            "ac_u_sc_one_kernel_adaptive_stress",
-            "ac_u_naive_stress"
+            "ac_u_sc_adaptive_stress"
         ]
     },
     "ac_coverage": {
@@ -302,37 +301,9 @@
         },
         "targets": [
             "u_standard",
-            "ac_u_sc_stress",
-            "ac_u_sc_one_kernel_stress",
-            "ac_u_sc_one_kernel_adaptive_stress",
-            "ac_u_naive_stress"
-        ]
-    },
-    "adaptive_coverage": {
-        "params": {
-            "ca_size": [
-                4000
-            ],
-            "simulation_iterations": [
-                4500
-            ],
-            "wells_dim": [
-                8
-            ],
-            "wells_QW": [
-                0.001
-        ],
-            "WRITE_OUTPUT_TO_FILE": [
-                0
-            ],
-            "WRITE_STATISTICS_TO_FILE": [
-                1
-            ]
-        },
-        "targets": [
-            "u_standard",
-            "ac_u_sc_one_kernel_stress",
-            "ac_u_sc_one_kernel_adaptive_stress"
+            "ac_u_fk",
+            "ac_u_sc",
+            "ac_u_sc_adaptive"
         ]
     }
 }
