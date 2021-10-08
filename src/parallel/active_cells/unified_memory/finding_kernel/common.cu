@@ -1,7 +1,6 @@
 #include "../../../common/memory_management.cuh"
 #include "../../../common/statistics.h"
 
-__device__ unsigned activeCellsIdx[ROWS * COLS];
 
 __global__ void simulation_step_kernel(struct CA ca, double *headsWrite)
 {
@@ -11,7 +10,7 @@ __global__ void simulation_step_kernel(struct CA ca, double *headsWrite)
 
     if (idx_x < ROWS && idx_y < COLS)
     {
-        if (activeCellsIdx[idx_g] == 1)
+        if (ca.heads[idx_g] < INITIAL_HEAD)
         {
             double Q{}, diff_head, tmp_t, ht1, ht2;
 #ifdef LOOP
@@ -60,55 +59,6 @@ __global__ void simulation_step_kernel(struct CA ca, double *headsWrite)
     }
 }
 
-__global__ void findActiveCells(struct CA d_ca)
-{
-    unsigned idx_x = blockIdx.x * blockDim.x + threadIdx.x;
-    unsigned idx_y = blockIdx.y * blockDim.y + threadIdx.y;
-    unsigned idx_g = idx_y * COLS + idx_x;
-
-    if (idx_x < ROWS && idx_y < COLS)
-    {
-        if (d_ca.heads[idx_g] < INITIAL_HEAD || d_ca.sources[idx_g] != 0)
-        {
-            activeCellsIdx[idx_g] = 1;
-            return;
-        }
-        if (idx_x > 0)
-        {
-            if (d_ca.heads[idx_g - 1] < INITIAL_HEAD)
-            {
-                activeCellsIdx[idx_g] = 1;
-                return;
-            }
-        }
-        if (idx_y > 0)
-        {
-            if (d_ca.heads[idx_g - COLS] < INITIAL_HEAD)
-            {
-                activeCellsIdx[idx_g] = 1;
-                return;
-            }
-        }
-        if (idx_x < COLS - 1)
-        {
-            if (d_ca.heads[idx_g + 1] < INITIAL_HEAD)
-            {
-                activeCellsIdx[idx_g] = 1;
-                return;
-            }
-        }
-        if (idx_y < ROWS - 1)
-        {
-            if (d_ca.heads[idx_g + COLS] < INITIAL_HEAD)
-            {
-                activeCellsIdx[idx_g] = 1;
-                return;
-            }
-        }
-        activeCellsIdx[idx_g] = 0;
-    }
-}
-
 int main(int argc, char *argv[])
 {
     auto h_ca = new CA();
@@ -129,9 +79,6 @@ int main(int argc, char *argv[])
 
     for (int i{}; i < SIMULATION_ITERATIONS; ++i)
     {
-        findActiveCells <<< gridDims, blockSize >>>(*h_ca);
-        ERROR_CHECK(cudaDeviceSynchronize());
-
         transitionTimer.start();
         simulation_step_kernel <<< gridDims, blockSize >>>(*h_ca, headsWrite);
         ERROR_CHECK(cudaDeviceSynchronize());
