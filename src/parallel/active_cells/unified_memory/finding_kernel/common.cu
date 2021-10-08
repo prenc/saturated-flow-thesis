@@ -55,6 +55,26 @@ __global__ void simulation_step_kernel(struct CA ca, double *headsWrite)
             headsWrite[idx_g] = ca.heads[idx_g] + ht1 / ht2;
             if (headsWrite[idx_g] < 0)
             { headsWrite[idx_g] = 0; }
+
+            if (headsWrite[idx_g] < INITIAL_HEAD)
+            {
+                if (idx_x >= 1)
+                {
+                    activeCellsMask[idx_g - 1] = idx_g - 1;
+                }
+                if (idx_y >= 1)
+                {
+                    activeCellsMask[(idx_y - 1) * COLS + idx_x] = (idx_y - 1) * COLS + idx_x;
+                }
+                if (idx_x + 1 < COLS)
+                {
+                    activeCellsMask[idx_g + 1] = idx_g + 1;
+                }
+                if (idx_y + 1 < ROWS)
+                {
+                    activeCellsMask[(idx_y + 1) * COLS + idx_x] = (idx_y + 1) * COLS + idx_x;
+                }
+            }
         }
     }
 }
