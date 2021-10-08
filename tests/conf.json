@@ -22,22 +22,40 @@
         },
         "targets": [
             "ac_u_sc",
-            "ac_u_sc_one_kernel",
             "ac_u_sc_one_kernel_adaptive",
-            "ac_u_naive",
-            "ac_u_sc_stress",
-            "ac_u_sc_one_kernel_stress",
-            "ac_u_sc_one_kernel_adaptive_stress",
-            "ac_u_naive_stress",
-            "g_hybrid",
-            "g_shared",
-            "g_standard",
+            "ac_u_fk",
+            "ac_u_atomic",
             "u_hybrid",
             "u_shared",
-            "u_standard",
-            "g_hybrid_stress",
-            "g_shared_stress",
-            "g_standard_stress",
+            "u_standard"
+        ]
+    },
+    "output_stress": {
+        "params": {
+            "ca_size": [
+                2000, 4000
+            ],
+            "simulation_iterations": [
+                1000
+            ],
+            "wells_dim": [
+                4, 8
+            ],
+            "wells_QW": [
+                0.001
+            ],
+            "WRITE_OUTPUT_TO_FILE": [
+                1
+            ],
+            "WRITE_STATISTICS_TO_FILE": [
+                0
+            ]
+        },
+        "targets": [
+            "ac_u_sc_stress",
+            "ac_u_sc_one_kernel_adaptive_stress",
+            "ac_u_fk_stress",
+            "ac_u_atomic_stress",
             "u_hybrid_stress",
             "u_shared_stress",
             "u_standard_stress"
@@ -47,15 +65,13 @@
     "standard_ca_size": {
         "params": {
             "ca_size": [
-                1000, 2000, 3000, 4000,
-                5000, 6000, 7000, 8000
+                4000, 5000, 6000, 7000, 8000
             ],
             "simulation_iterations": [
                 4500
             ],
             "wells_dim": [
-                2, 4, 6, 8,
-                10, 12, 14, 16
+                8, 10, 12, 14, 16
             ],
             "wells_QW": [
                 0.001
@@ -80,15 +96,13 @@
     "standard_ca_size_stress": {
         "params": {
             "ca_size": [
-                1000, 2000, 3000, 4000,
-                5000, 6000, 7000, 8000
+                4000, 5000, 6000, 7000, 8000
             ],
             "simulation_iterations": [
                 4500
             ],
             "wells_dim": [
-                2, 4, 6, 8,
-                10, 12, 14, 16
+                8, 10, 12, 14, 16
             ],
             "wells_QW": [
                 0.001
@@ -114,15 +128,13 @@
     "u_ca_size": {
         "params": {
             "ca_size": [
-                1000, 2000, 3000, 4000,
-                5000, 6000, 7000, 8000
+                4000, 5000, 6000, 7000, 8000
             ],
             "simulation_iterations": [
                 4500
             ],
             "wells_dim": [
-                2, 4, 6, 8,
-                10, 12, 14, 16
+                8, 10, 12, 14, 16
             ],
             "wells_QW": [
                 0.001
@@ -148,15 +160,13 @@
     "u_ca_size_stress": {
         "params": {
             "ca_size": [
-                1000, 2000, 3000, 4000,
-                5000, 6000, 7000, 8000
+                4000, 5000, 6000, 7000, 8000
             ],
             "simulation_iterations": [
                 4500
             ],
             "wells_dim": [
-                2, 4, 6, 8,
-                10, 12, 14, 16
+                8, 10, 12, 14, 16
             ],
             "wells_QW": [
                 0.001
@@ -182,16 +192,15 @@
     "ac_ca_size": {
         "params": {
             "ca_size": [
-                1000, 2000, 3000, 4000,
-                5000, 6000, 7000, 8000
+                4000, 5000, 6000, 7000, 8000
             ],
             "simulation_iterations": [
                 4500
             ],
             "wells_dim": [
-                2, 4, 6, 8,
-                10, 12, 14, 16
+                8, 10, 12, 14, 16
             ],
+
             "wells_QW": [
                 0.001
             ],
@@ -217,16 +226,15 @@
     "ac_ca_size_stress": {
         "params": {
             "ca_size": [
-                1000, 2000, 3000, 4000,
-                5000, 6000, 7000, 8000
+                4000, 5000, 6000, 7000, 8000
             ],
             "simulation_iterations": [
                 4500
             ],
             "wells_dim": [
-                2, 4, 6, 8,
-                10, 12, 14, 16
+                8, 10, 12, 14, 16
             ],
+
             "wells_QW": [
                 0.001
             ],
@@ -304,6 +312,38 @@
             "ac_u_fk",
             "ac_u_sc",
             "ac_u_sc_adaptive"
+        ]
+    },
+
+    "ac_ca_size_atomic": {
+        "params": {
+            "ca_size": [
+                4000, 5000, 6000, 7000, 8000
+            ],
+            "simulation_iterations": [
+                4500
+            ],
+            "wells_dim": [
+                8, 10, 12, 14, 16
+            ],
+            "wells_QW": [
+                0.001
+            ],
+            "WRITE_OUTPUT_TO_FILE": [
+                0
+            ],
+            "WRITE_STATISTICS_TO_FILE": [
+                1
+            ]
+        },
+        "chart_params": {
+            "title": "Active cells atomic",
+            "x_axis": "ca_size",
+            "x_axis_label": "CA dimension"
+        },
+        "targets": [
+            "ac_u_atomic",
+            "ac_u_atomic_stress"
         ]
     }
 }
