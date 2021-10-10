@@ -11,101 +11,61 @@ __global__ void simulation_step_kernel(struct CA ca, double *headsWrite)
 
     if (idx_x < ROWS && idx_y < COLS)
     {
-        if (activeCellsIdx[idx_g] == 1)
+        if (!(
+                ca.heads[idx_g] < INITIAL_HEAD // check if the cell's been already altered
+                || ca.sources[idx_g] != 0 // check if the cell's a source
+                // check if any of the neighbors have been altered, imitate lazy evaluation
+                || (idx_x > 0 ? ca.heads[idx_g - 1] < INITIAL_HEAD : false)
+                || (idx_y > 0 ? ca.heads[idx_g - COLS] < INITIAL_HEAD : false)
+                || (idx_x < COLS - 1 ? ca.heads[idx_g + 1] < INITIAL_HEAD : false)
+                || (idx_y < ROWS - 1 ? ca.heads[idx_g + COLS] < INITIAL_HEAD : false)
+        ))
         {
-            double Q{}, diff_head, tmp_t, ht1, ht2;
-#ifdef LOOP
-            for (int i = 0; i < KERNEL_LOOP_SIZE; i++)
-            {
-                if (i == KERNEL_LOOP_SIZE - 1)
-                {
-                    if (Q) { Q = 0; }
-                }
-#endif
-            if (idx_x >= 1)
-            {
-                diff_head = ca.heads[idx_g - 1] - ca.heads[idx_g];
-                tmp_t = ca.K[idx_g] * THICKNESS;
-                Q += diff_head * tmp_t;
-            }
-            if (idx_y >= 1)
-            {
-                diff_head = ca.heads[(idx_y - 1) * COLS + idx_x] - ca.heads[idx_g];
-                tmp_t = ca.K[idx_g] * THICKNESS;
-                Q += diff_head * tmp_t;
-            }
-            if (idx_x + 1 < COLS)
-            {
-                diff_head = ca.heads[idx_g + 1] - ca.heads[idx_g];
-                tmp_t = ca.K[idx_g] * THICKNESS;
-                Q += diff_head * tmp_t;
-            }
-            if (idx_y + 1 < ROWS)
-            {
-                diff_head = ca.heads[(idx_y + 1) * COLS + idx_x] - ca.heads[idx_g];
-                tmp_t = ca.K[idx_g] * THICKNESS;
-                Q += diff_head * tmp_t;
-            }
-#ifdef LOOP
-            }
-#endif
-            Q -= ca.sources[idx_g];
-            ht1 = Q * DELTA_T;
-            ht2 = AREA * ca.Sy[idx_g];
-
-            headsWrite[idx_g] = ca.heads[idx_g] + ht1 / ht2;
-            if (headsWrite[idx_g] < 0)
-            { headsWrite[idx_g] = 0; }
-        }
-    }
-}
-
-__global__ void findActiveCells(struct CA d_ca)
-{
-    unsigned idx_x = blockIdx.x * blockDim.x + threadIdx.x;
-    unsigned idx_y = blockIdx.y * blockDim.y + threadIdx.y;
-    unsigned idx_g = idx_y * COLS + idx_x;
-
-    if (idx_x < ROWS && idx_y < COLS)
-    {
-        if (d_ca.heads[idx_g] < INITIAL_HEAD || d_ca.sources[idx_g] != 0)
-        {
-            activeCellsIdx[idx_g] = 1;
             return;
         }
-        if (idx_x > 0)
+        double Q{}, diff_head, tmp_t, ht1, ht2;
+#ifdef LOOP
+        for (int i = 0; i < KERNEL_LOOP_SIZE; i++)
         {
-            if (d_ca.heads[idx_g - 1] < INITIAL_HEAD)
+            if (i == KERNEL_LOOP_SIZE - 1)
             {
-                activeCellsIdx[idx_g] = 1;
-                return;
+                if (Q) { Q = 0; }
             }
-        }
-        if (idx_y > 0)
+#endif
+        if (idx_x >= 1)
         {
-            if (d_ca.heads[idx_g - COLS] < INITIAL_HEAD)
-            {
-                activeCellsIdx[idx_g] = 1;
-                return;
-            }
+            diff_head = ca.heads[idx_g - 1] - ca.heads[idx_g];
+            tmp_t = ca.K[idx_g] * THICKNESS;
+            Q += diff_head * tmp_t;
         }
-        if (idx_x < COLS - 1)
+        if (idx_y >= 1)
         {
-            if (d_ca.heads[idx_g + 1] < INITIAL_HEAD)
-            {
-                activeCellsIdx[idx_g] = 1;
-                return;
-            }
+            diff_head = ca.heads[(idx_y - 1) * COLS + idx_x] - ca.heads[idx_g];
+            tmp_t = ca.K[idx_g] * THICKNESS;
+            Q += diff_head * tmp_t;
         }
-        if (idx_y < ROWS - 1)
+        if (idx_x + 1 < COLS)
         {
-            if (d_ca.heads[idx_g + COLS] < INITIAL_HEAD)
-            {
-                activeCellsIdx[idx_g] = 1;
-                return;
-            }
+            diff_head = ca.heads[idx_g + 1] - ca.heads[idx_g];
+            tmp_t = ca.K[idx_g] * THICKNESS;
+            Q += diff_head * tmp_t;
         }
-        activeCellsIdx[idx_g] = 0;
+        if (idx_y + 1 < ROWS)
+        {
+            diff_head = ca.heads[(idx_y + 1) * COLS + idx_x] - ca.heads[idx_g];
+            tmp_t = ca.K[idx_g] * THICKNESS;
+            Q += diff_head * tmp_t;
+        }
+#ifdef LOOP
+        }
+#endif
+        Q -= ca.sources[idx_g];
+        ht1 = Q * DELTA_T;
+        ht2 = AREA * ca.Sy[idx_g];
+
+        headsWrite[idx_g] = ca.heads[idx_g] + ht1 / ht2;
+        if (headsWrite[idx_g] < 0)
+        { headsWrite[idx_g] = 0; }
     }
 }
 
@@ -136,9 +96,6 @@ int main(int argc, char *argv[])
 
     for (int i{}; i < SIMULATION_ITERATIONS; ++i)
     {
-        findActiveCells <<< gridDims, blockSize >>>(*d_ca);
-        ERROR_CHECK(cudaDeviceSynchronize());
-
         transitionTimer.start();
         simulation_step_kernel <<< gridDims, blockSize >>>(*d_ca, headsWrite);
         ERROR_CHECK(cudaDeviceSynchronize());

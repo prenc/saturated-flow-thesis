@@ -1,7 +1,6 @@
 #include "../../../common/memory_management.cuh"
 #include "../../../common/statistics.h"
 
-
 __global__ void simulation_step_kernel(struct CA ca, double *headsWrite)
 {
     unsigned idx_x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -10,72 +9,62 @@ __global__ void simulation_step_kernel(struct CA ca, double *headsWrite)
 
     if (idx_x < ROWS && idx_y < COLS)
     {
-        if (ca.heads[idx_g] < INITIAL_HEAD)
+        if (!(
+                ca.heads[idx_g] < INITIAL_HEAD // check if the cell's been already altered
+                || ca.sources[idx_g] != 0 // check if the cell's a source
+                // check if any of the neighbors have been altered, imitate lazy evaluation
+                || (idx_x > 0 ? ca.heads[idx_g - 1] < INITIAL_HEAD : false)
+                || (idx_y > 0 ? ca.heads[idx_g - COLS] < INITIAL_HEAD : false)
+                || (idx_x < COLS - 1 ? ca.heads[idx_g + 1] < INITIAL_HEAD : false)
+                || (idx_y < ROWS - 1 ? ca.heads[idx_g + COLS] < INITIAL_HEAD : false)
+        ))
         {
-            double Q{}, diff_head, tmp_t, ht1, ht2;
-#ifdef LOOP
-            for (int i = 0; i < KERNEL_LOOP_SIZE; i++)
-            {
-                if (i == KERNEL_LOOP_SIZE - 1)
-                {
-                    if (Q) { Q = 0; }
-                }
-#endif
-            if (idx_x >= 1)
-            {
-                diff_head = ca.heads[idx_g - 1] - ca.heads[idx_g];
-                tmp_t = ca.K[idx_g] * THICKNESS;
-                Q += diff_head * tmp_t;
-            }
-            if (idx_y >= 1)
-            {
-                diff_head = ca.heads[(idx_y - 1) * COLS + idx_x] - ca.heads[idx_g];
-                tmp_t = ca.K[idx_g] * THICKNESS;
-                Q += diff_head * tmp_t;
-            }
-            if (idx_x + 1 < COLS)
-            {
-                diff_head = ca.heads[idx_g + 1] - ca.heads[idx_g];
-                tmp_t = ca.K[idx_g] * THICKNESS;
-                Q += diff_head * tmp_t;
-            }
-            if (idx_y + 1 < ROWS)
-            {
-                diff_head = ca.heads[(idx_y + 1) * COLS + idx_x] - ca.heads[idx_g];
-                tmp_t = ca.K[idx_g] * THICKNESS;
-                Q += diff_head * tmp_t;
-            }
-#ifdef LOOP
-            }
-#endif
-            Q -= ca.sources[idx_g];
-            ht1 = Q * DELTA_T;
-            ht2 = AREA * ca.Sy[idx_g];
-
-            headsWrite[idx_g] = ca.heads[idx_g] + ht1 / ht2;
-            if (headsWrite[idx_g] < 0)
-            { headsWrite[idx_g] = 0; }
-
-            if (headsWrite[idx_g] < INITIAL_HEAD)
-            {
-                if (idx_x >= 1)
-                {
-                    activeCellsMask[idx_g - 1] = idx_g - 1;
-                }
-                if (idx_y >= 1)
-                {
-                    activeCellsMask[(idx_y - 1) * COLS + idx_x] = (idx_y - 1) * COLS + idx_x;
-                }
-                if (idx_x + 1 < COLS)
-                {
-                    activeCellsMask[idx_g + 1] = idx_g + 1;
-                }
-                if (idx_y + 1 < ROWS)
-                {
-                    activeCellsMask[(idx_y + 1) * COLS + idx_x] = (idx_y + 1) * COLS + idx_x;
-                }
-            }
+            return;
         }
+
+        double Q{}, diff_head, tmp_t, ht1, ht2;
+#ifdef LOOP
+        for (int i = 0; i < KERNEL_LOOP_SIZE; i++)
+        {
+            if (i == KERNEL_LOOP_SIZE - 1)
+            {
+                if (Q) { Q = 0; }
+            }
+#endif
+        if (idx_x >= 1)
+        {
+            diff_head = ca.heads[idx_g - 1] - ca.heads[idx_g];
+            tmp_t = ca.K[idx_g] * THICKNESS;
+            Q += diff_head * tmp_t;
+        }
+        if (idx_y >= 1)
+        {
+            diff_head = ca.heads[(idx_y - 1) * COLS + idx_x] - ca.heads[idx_g];
+            tmp_t = ca.K[idx_g] * THICKNESS;
+            Q += diff_head * tmp_t;
+        }
+        if (idx_x + 1 < COLS)
+        {
+            diff_head = ca.heads[idx_g + 1] - ca.heads[idx_g];
+            tmp_t = ca.K[idx_g] * THICKNESS;
+            Q += diff_head * tmp_t;
+        }
+        if (idx_y + 1 < ROWS)
+        {
+            diff_head = ca.heads[(idx_y + 1) * COLS + idx_x] - ca.heads[idx_g];
+            tmp_t = ca.K[idx_g] * THICKNESS;
+            Q += diff_head * tmp_t;
+        }
+#ifdef LOOP
+        }
+#endif
+        Q -= ca.sources[idx_g];
+        ht1 = Q * DELTA_T;
+        ht2 = AREA * ca.Sy[idx_g];
+
+        headsWrite[idx_g] = ca.heads[idx_g] + ht1 / ht2;
+        if (headsWrite[idx_g] < 0)
+        { headsWrite[idx_g] = 0; }
     }
 }
 
@@ -93,7 +82,7 @@ int main(int argc, char *argv[])
     int gridSize = ceil(sqrt(blockCount));
     dim3 gridDims(gridSize, gridSize);
 
-    std::vector<StatPoint> stats;
+    std::vector <StatPoint> stats;
     Timer stepTimer, activeCellsEvalTimer, transitionTimer;
     stepTimer.start();
 
