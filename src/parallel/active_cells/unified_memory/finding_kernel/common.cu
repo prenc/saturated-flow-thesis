@@ -93,6 +93,12 @@ int main(int argc, char *argv[])
         ERROR_CHECK(cudaDeviceSynchronize());
         transitionTimer.stop();
 
+#ifdef EXTRA_KERNELS
+        for (int j = 0; j < EXTRA_KERNELS; j++)
+        {
+            simulation_step_kernel <<< gridDims, blockSize >>>(*h_ca, headsWrite);
+        }
+#endif
         double *tmpHeads = h_ca->heads;
         h_ca->heads = headsWrite;
         headsWrite = tmpHeads;

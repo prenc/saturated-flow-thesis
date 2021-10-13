@@ -189,6 +189,7 @@
             "u_standard_stress"
         ]
     },
+
     "ac_ca_size": {
         "params": {
             "ca_size": [
@@ -344,6 +345,83 @@
         "targets": [
             "ac_u_atomic",
             "ac_u_atomic_stress"
+        ]
+    },
+
+    "jocs_1": {
+        "params": {
+            "ca_size": [
+                4000
+            ],
+            "simulation_iterations": [
+                4500
+            ],
+            "wells_dim": [
+                8
+            ],
+            "KERNEL_LOOP_SIZE": [
+                5
+            ],
+            "EXTRA_KERNELS": [
+                1, 5, 10
+            ],
+            "wells_QW": [
+                0.001
+            ],
+            "WRITE_OUTPUT_TO_FILE": [
+                0
+            ],
+            "WRITE_STATISTICS_TO_FILE": [
+                1
+            ]
+        },
+        "chart_params": {
+            "title": "Active cells stress test",
+            "x_axis": "ca_size",
+            "x_axis_label": "CA dimension"
+        },
+        "targets": [
+            "ac_u_fk_stress",
+            "ac_u_sc_adaptive_stress"
+        ]
+    },
+
+
+    "jocs_2": {
+        "params": {
+            "ca_size": [
+                8000
+            ],
+            "simulation_iterations": [
+                4500
+            ],
+            "wells_dim": [
+                16
+            ],
+            "KERNEL_LOOP_SIZE": [
+                5
+            ],
+            "EXTRA_KERNELS": [
+                1, 5, 10
+            ],
+            "wells_QW": [
+                0.001
+            ],
+            "WRITE_OUTPUT_TO_FILE": [
+                0
+            ],
+            "WRITE_STATISTICS_TO_FILE": [
+                1
+            ]
+        },
+        "chart_params": {
+            "title": "Active cells stress test",
+            "x_axis": "ca_size",
+            "x_axis_label": "CA dimension"
+        },
+        "targets": [
+            "ac_u_fk_stress",
+            "ac_u_sc_adaptive_stress"
         ]
     }
 }

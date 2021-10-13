@@ -24,6 +24,8 @@
 #define DELTA_T 40
 #define KERNEL_LOOP_SIZE 50
 
+#define EXTRA_KERNELS 0
+
 #define WRITE_STATISTICS_TO_FILE 1
 #define STATISTICS_WRITE_FREQ 10
 #define OUTPUT_PATH "out/"
