@@ -151,7 +151,7 @@ int main(int argc, char *argv[])
 #ifdef EXTRA_KERNELS
             for (int j = 0; j < EXTRA_KERNELS; j++)
             {
-                simulation_step_kernel <<< *simulationGridDims, blockSize >>>(
+                kernels::dummy_active <<< *simulationGridDims, blockSize >>>(
                         *h_ca, headsWrite, thrust::raw_pointer_cast(&activeCellsIds[0]),
                         thrust::raw_pointer_cast(&activeCellsMask[0]),
                         devActiveCellsCount);
@@ -165,7 +165,7 @@ int main(int argc, char *argv[])
 #ifdef EXTRA_KERNELS
             for (int j = 0; j < EXTRA_KERNELS; j++)
             {
-                kernels::standard_step <<< gridDims, blockSize >>>(*h_ca, headsWrite);
+                kernels::dummy_all <<< gridDims, blockSize >>>(*h_ca, headsWrite);
             }
 #endif
         }

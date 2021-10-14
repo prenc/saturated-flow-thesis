@@ -66,58 +66,6 @@ __global__ void simulation_step_kernel(struct CA ca, double *headsWrite)
     }
 }
 
-__global__ void dummy_computations(struct CA ca)
-{
-    unsigned idx_x = blockIdx.x * blockDim.x + threadIdx.x;
-    unsigned idx_y = blockIdx.y * blockDim.y + threadIdx.y;
-    unsigned idx_g = idx_y * COLS + idx_x;
-    bool doit = false;
-    if (ca.sources[idx_g] != 0 || ca.heads[idx_g] < INITIAL_HEAD ) doit = true;
-    if (idx_x > 0)        if (ca.heads[idx_g - 1] < INITIAL_HEAD)   {  activeCellsIdx[idx_g] = 1; doit = true; }
-    if (idx_y > 0)        if (ca.heads[idx_g - COLS] < INITIAL_HEAD){  activeCellsIdx[idx_g] = 1; doit = true; }
-    if (idx_x < COLS - 1) if (ca.heads[idx_g + 1] < INITIAL_HEAD)   {  activeCellsIdx[idx_g] = 1; doit = true; }
-    if (idx_y < ROWS - 1) if (ca.heads[idx_g + COLS] < INITIAL_HEAD){  activeCellsIdx[idx_g] = 1; doit = true; }
-
-    if (idx_x < ROWS && idx_y < COLS)
-    {
-        if(doit)
-        {
-            double a, b, c = 734, k, d;
-            double n1 = 1.982, e;
-            double f, g, h, j;
-            double l, z, m, n,u ;
-            int n2;
-            double o, q;
-            double aa = 0.0334;
-            double bb = 0.368;
-            double cc = 0.102;
-            double dd = 0.009154;
-            
-            for (int qaz = 0; qaz < LOOP_DUMMY_COMPUTATION; qaz++)
-            {
-                g = pow(aa * (-c), (1 - n1));
-                h = pow(aa * (-c), n1);
-                j = pow((1 / (1 + h)), (1 / n1 - 2));
-                d = (g / (aa * (n1 - 1) * (bb - cc))) * j;
-
-                f = pow(aa * (-c), n);
-                a = cc + ((bb - cc) * pow((1 / (1 + f)), (1 - 1 / n1)));
-                q = pow(aa * (734), n1);
-                o = cc + ((bb - cc) * pow((1 / (1 + q)), (1 - 1 / n1)));
-                e = a / bb;
-                u = e - o / bb;
-
-                b = (a - cc) / (bb - cc);
-                l = n1 / (n1 - 1);
-                m = pow(b, l);
-                z = 1 - (1 / n1);
-                n2 = pow((1 - m), z);
-                k = dd * pow(b, 0.5) * pow((1 - n), 2);
-            }
-        }
-    }
-}
-
 int main(int argc, char *argv[])
 {
     CA *d_ca = new CA();
@@ -155,7 +103,7 @@ int main(int argc, char *argv[])
 
         for (int l{}; l < EXTRA_KERNELS; ++l)
         {
-            dummy_computations <<< gridDims, blockSize >>>(*d_ca);
+            kernels::dummy_all <<< gridDims, blockSize >>>(*d_ca);
             double *tmpHeads = d_ca->heads;
             d_ca->heads = headsWrite;
             headsWrite = tmpHeads;

@@ -378,9 +378,9 @@
             "x_axis_label": "CA dimension"
         },
         "targets": [
-            "ac_g_fk",
-            "ac_g_sc",
-            "ac_g_sc_adaptive"
+            "ac_u_fk",
+            "ac_u_sc",
+            "ac_u_sc_adaptive"
         ]
     },
 
@@ -415,9 +415,9 @@
             "x_axis_label": "CA dimension"
         },
         "targets": [
-            "ac_g_fk",
-            "ac_g_sc",
-            "ac_g_sc_adaptive"
+            "ac_u_fk",
+            "ac_u_sc",
+            "ac_u_sc_adaptive"
         ]
     }
 }

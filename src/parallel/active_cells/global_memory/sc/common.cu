@@ -196,24 +196,32 @@ int main(int argc, char *argv[])
             dim3 activeGridDim(activeGridSize, activeGridSize);
 
             simulationGridDims = &activeGridDim;
+            transitionTimer.start();
+
+            simulation_step_kernel <<< activeGridDim, blockSize >>>(
+                    *d_ca, headsWrite, thrust::raw_pointer_cast(&activeCellsIds[0]),
+                    thrust::raw_pointer_cast(&activeCellsMask[0]),
+                    devActiveCellsCount);
+
+
+            for (int l{}; l < EXTRA_KERNELS; ++l)
+            {
+                kernels::dummy_active <<< activeGridDim, blockSize >>>(
+                        *d_ca, headsWrite, thrust::raw_pointer_cast(&activeCellsIds[0]),
+                                thrust::raw_pointer_cast(&activeCellsMask[0]),
+                                devActiveCellsCount);
+            }
         }
         else
         {
-            simulationGridDims = &gridDims;
-        }
-
-        transitionTimer.start();
-        simulation_step_kernel <<< *simulationGridDims, blockSize >>>(
-                *d_ca, headsWrite, thrust::raw_pointer_cast(&activeCellsIds[0]),
-                thrust::raw_pointer_cast(&activeCellsMask[0]),
-                devActiveCellsCount);
-        
-        for (int l{}; l < EXTRA_KERNELS; ++l)
-        {
-            dummy_computations <<< *simulationGridDims, blockSize >>>(
-                *d_ca, headsWrite, thrust::raw_pointer_cast(&activeCellsIds[0]),
-                thrust::raw_pointer_cast(&activeCellsMask[0]),
-                devActiveCellsCount);
+            kernels::standard_step <<< gridDims, blockSize >>>(*d_ca, headsWrite);
+            for (int l{}; l < EXTRA_KERNELS; ++l)
+            {
+                kernels::dummy_all <<< *simulationGridDims, blockSize >>>(
+                        *d_ca, headsWrite, thrust::raw_pointer_cast(&activeCellsIds[0]),
+                                thrust::raw_pointer_cast(&activeCellsMask[0]),
+                                devActiveCellsCount);
+            }
         }
 
         ERROR_CHECK(cudaDeviceSynchronize());

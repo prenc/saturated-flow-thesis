@@ -94,7 +94,7 @@ int main(int argc, char *argv[])
 #ifdef EXTRA_KERNELS
         for (int j = 0; j < EXTRA_KERNELS; j++)
         {
-            simulation_step_kernel <<< gridDims, blockSize >>>(*h_ca, headsWrite);
+            kernels::dummy_all <<< gridDims, blockSize >>>(*h_ca, headsWrite);
         }
 #endif
         ERROR_CHECK(cudaDeviceSynchronize());
