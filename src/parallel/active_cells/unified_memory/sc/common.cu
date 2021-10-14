@@ -147,11 +147,27 @@ int main(int argc, char *argv[])
 			        *h_ca, headsWrite, thrust::raw_pointer_cast(&activeCellsIds[0]),
 			        thrust::raw_pointer_cast(&activeCellsMask[0]),
 			        devActiveCellsCount);
+
+#ifdef EXTRA_KERNELS
+            for (int j = 0; j < EXTRA_KERNELS; j++)
+            {
+                simulation_step_kernel <<< *simulationGridDims, blockSize >>>(
+                        *h_ca, headsWrite, thrust::raw_pointer_cast(&activeCellsIds[0]),
+                        thrust::raw_pointer_cast(&activeCellsMask[0]),
+                        devActiveCellsCount);
+            }
+#endif
         }
         else
         {
 	        transitionTimer.start();
 	        kernels::standard_step <<< gridDims, blockSize >>>(*h_ca, headsWrite);
+#ifdef EXTRA_KERNELS
+            for (int j = 0; j < EXTRA_KERNELS; j++)
+            {
+                kernels::standard_step <<< gridDims, blockSize >>>(*h_ca, headsWrite);
+            }
+#endif
         }
         ERROR_CHECK(cudaDeviceSynchronize());
         transitionTimer.stop();
