@@ -2,6 +2,54 @@
 #include "../../../common/statistics.h"
 #include <thrust/device_vector.h>
 
+
+__global__ void dummy_computations(CA ca, double *headsWrite,
+    const int *activeCellsIds,
+    int *activeCellsMask,
+    int acNumber,
+    int numberofloops)
+{
+    unsigned ac_idx_x = blockIdx.x * blockDim.x + threadIdx.x;
+    unsigned ac_idx_y = blockIdx.y * blockDim.y + threadIdx.y;
+    unsigned ac_idx_g = ac_idx_y * blockDim.x * gridDim.x + ac_idx_x;
+
+    if (ac_idx_g < acNumber)
+    {
+        double a, b, c = 734, k, d;
+        double n1 = 1.982, e;
+        double f, g, h, j;
+        double l, z, m, n,u ;
+        int n2;
+        double o, q;
+        double aa = 0.0334;
+        double bb = 0.368;
+        double cc = 0.102;
+        double dd = 0.009154;
+        
+        for (int qaz = 0; qaz < numberofloops; qaz++)
+        {
+            g = pow(aa * (-c), (1 - n1));
+            h = pow(aa * (-c), n1);
+            j = pow((1 / (1 + h)), (1 / n1 - 2));
+            d = (g / (aa * (n1 - 1) * (bb - cc))) * j;
+            f = pow(aa * (-c), n);
+            a = cc + ((bb - cc) * pow((1 / (1 + f)), (1 - 1 / n1)));
+            q = pow(aa * (734), n1);
+            o = cc + ((bb - cc) * pow((1 / (1 + q)), (1 - 1 / n1)));
+            e = a / bb;
+            u = e - o / bb;
+            b = (a - cc) / (bb - cc);
+            l = n1 / (n1 - 1);
+            m = pow(b, l);
+            z = 1 - (1 / n1);
+            n2 = pow((1 - m), z);
+            k = dd * pow(b, 0.5) * pow((1 - n), 2);
+        }
+        
+    }
+
+}
+
 __global__ void simulation_step_kernel(CA ca, double *headsWrite,
                                        const int *activeCellsIds,
                                        int *activeCellsMask,
@@ -160,6 +208,15 @@ int main(int argc, char *argv[])
                 *d_ca, headsWrite, thrust::raw_pointer_cast(&activeCellsIds[0]),
                 thrust::raw_pointer_cast(&activeCellsMask[0]),
                 devActiveCellsCount);
+        
+        for (int l{}; l < EXTRA_KERNELS; ++l)
+        {
+            dummy_computations <<< *simulationGridDims, blockSize >>>(
+                *d_ca, headsWrite, thrust::raw_pointer_cast(&activeCellsIds[0]),
+                thrust::raw_pointer_cast(&activeCellsMask[0]),
+                devActiveCellsCount, LOOP_DUMMY_COMPUTATION);
+        }
+
         ERROR_CHECK(cudaDeviceSynchronize());
         transitionTimer.stop();
 

@@ -359,11 +359,8 @@
             "wells_dim": [
                 8
             ],
-            "KERNEL_LOOP_SIZE": [
-                5
-            ],
             "EXTRA_KERNELS": [
-                1, 5, 10
+                1, 5, 10, 20
             ],
             "wells_QW": [
                 0.001
@@ -381,8 +378,9 @@
             "x_axis_label": "CA dimension"
         },
         "targets": [
-            "ac_u_fk_stress",
-            "ac_u_sc_adaptive_stress"
+            "ac_g_fk",
+            "ac_g_sc",
+            "ac_g_sc_adaptive"
         ]
     },
 
@@ -398,11 +396,8 @@
             "wells_dim": [
                 16
             ],
-            "KERNEL_LOOP_SIZE": [
-                5
-            ],
             "EXTRA_KERNELS": [
-                1, 5, 10
+                1, 5, 10, 20
             ],
             "wells_QW": [
                 0.001
@@ -420,8 +415,9 @@
             "x_axis_label": "CA dimension"
         },
         "targets": [
-            "ac_u_fk_stress",
-            "ac_u_sc_adaptive_stress"
+            "ac_g_fk",
+            "ac_g_sc",
+            "ac_g_sc_adaptive"
         ]
     }
 }
