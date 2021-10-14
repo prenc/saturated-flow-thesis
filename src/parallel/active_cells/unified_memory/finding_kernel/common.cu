@@ -1,5 +1,6 @@
 #include "../../../common/memory_management.cuh"
 #include "../../../common/statistics.h"
+#include "../../../kernels/iteration_step.cu"
 
 __global__ void simulation_step_kernel(struct CA ca, double *headsWrite)
 {
