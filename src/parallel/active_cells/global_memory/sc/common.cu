@@ -1,6 +1,7 @@
 #include "../../../common/memory_management.cuh"
 #include "../../../common/statistics.h"
 #include <thrust/device_vector.h>
+#include "../../../kernels/iteration_step.cu"
 
 
 __global__ void dummy_computations(CA ca, double *headsWrite,
@@ -195,9 +196,7 @@ int main(int argc, char *argv[])
             int activeGridSize = ceil(sqrt(activeBlockCount));
             dim3 activeGridDim(activeGridSize, activeGridSize);
 
-            simulationGridDims = &activeGridDim;
             transitionTimer.start();
-
             simulation_step_kernel <<< activeGridDim, blockSize >>>(
                     *d_ca, headsWrite, thrust::raw_pointer_cast(&activeCellsIds[0]),
                     thrust::raw_pointer_cast(&activeCellsMask[0]),
@@ -217,10 +216,7 @@ int main(int argc, char *argv[])
             kernels::standard_step <<< gridDims, blockSize >>>(*d_ca, headsWrite);
             for (int l{}; l < EXTRA_KERNELS; ++l)
             {
-                kernels::dummy_all <<< *simulationGridDims, blockSize >>>(
-                        *d_ca, headsWrite, thrust::raw_pointer_cast(&activeCellsIds[0]),
-                                thrust::raw_pointer_cast(&activeCellsMask[0]),
-                                devActiveCellsCount);
+                kernels::dummy_all <<< gridDims, blockSize >>>(*d_ca, headsWrite);
             }
         }
 

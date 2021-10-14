@@ -1,5 +1,6 @@
 #include "../../../common/memory_management.cuh"
 #include "../../../common/statistics.h"
+#include "../../../kernels/iteration_step.cu"
 
 __device__ unsigned activeCellsIdx[ROWS * COLS];
 
@@ -103,7 +104,7 @@ int main(int argc, char *argv[])
 
         for (int l{}; l < EXTRA_KERNELS; ++l)
         {
-            kernels::dummy_all <<< gridDims, blockSize >>>(*d_ca);
+            kernels::dummy_all <<< gridDims, blockSize >>>(*d_ca, headsWrite);
             double *tmpHeads = d_ca->heads;
             d_ca->heads = headsWrite;
             headsWrite = tmpHeads;
