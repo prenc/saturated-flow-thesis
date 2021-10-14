@@ -82,7 +82,7 @@ int main(int argc, char *argv[])
     int gridSize = ceil(sqrt(blockCount));
     dim3 gridDims(gridSize, gridSize);
 
-    std::vector <StatPoint> stats;
+    std::vector<StatPoint> stats;
     Timer stepTimer, activeCellsEvalTimer, transitionTimer;
     stepTimer.start();
 
@@ -90,8 +90,6 @@ int main(int argc, char *argv[])
     {
         transitionTimer.start();
         simulation_step_kernel <<< gridDims, blockSize >>>(*h_ca, headsWrite);
-        ERROR_CHECK(cudaDeviceSynchronize());
-        transitionTimer.stop();
 
 #ifdef EXTRA_KERNELS
         for (int j = 0; j < EXTRA_KERNELS; j++)
@@ -99,6 +97,9 @@ int main(int argc, char *argv[])
             simulation_step_kernel <<< gridDims, blockSize >>>(*h_ca, headsWrite);
         }
 #endif
+        ERROR_CHECK(cudaDeviceSynchronize());
+        transitionTimer.stop();
+
         double *tmpHeads = h_ca->heads;
         h_ca->heads = headsWrite;
         headsWrite = tmpHeads;
