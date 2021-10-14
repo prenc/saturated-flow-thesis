@@ -6,8 +6,7 @@
 __global__ void dummy_computations(CA ca, double *headsWrite,
     const int *activeCellsIds,
     int *activeCellsMask,
-    int acNumber,
-    int numberofloops)
+    int acNumber)
 {
     unsigned ac_idx_x = blockIdx.x * blockDim.x + threadIdx.x;
     unsigned ac_idx_y = blockIdx.y * blockDim.y + threadIdx.y;
@@ -26,7 +25,7 @@ __global__ void dummy_computations(CA ca, double *headsWrite,
         double cc = 0.102;
         double dd = 0.009154;
         
-        for (int qaz = 0; qaz < numberofloops; qaz++)
+        for (int qaz = 0; qaz < LOOP_DUMMY_COMPUTATION; qaz++)
         {
             g = pow(aa * (-c), (1 - n1));
             h = pow(aa * (-c), n1);
@@ -214,7 +213,7 @@ int main(int argc, char *argv[])
             dummy_computations <<< *simulationGridDims, blockSize >>>(
                 *d_ca, headsWrite, thrust::raw_pointer_cast(&activeCellsIds[0]),
                 thrust::raw_pointer_cast(&activeCellsMask[0]),
-                devActiveCellsCount, LOOP_DUMMY_COMPUTATION);
+                devActiveCellsCount);
         }
 
         ERROR_CHECK(cudaDeviceSynchronize());

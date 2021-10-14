@@ -66,7 +66,7 @@ __global__ void simulation_step_kernel(struct CA ca, double *headsWrite)
     }
 }
 
-__global__ void dummy_computations(struct CA ca, int numberofloops)
+__global__ void dummy_computations(struct CA ca)
 {
     unsigned idx_x = blockIdx.x * blockDim.x + threadIdx.x;
     unsigned idx_y = blockIdx.y * blockDim.y + threadIdx.y;
@@ -93,7 +93,7 @@ __global__ void dummy_computations(struct CA ca, int numberofloops)
             double cc = 0.102;
             double dd = 0.009154;
             
-            for (int qaz = 0; qaz < numberofloops; qaz++)
+            for (int qaz = 0; qaz < LOOP_DUMMY_COMPUTATION; qaz++)
             {
                 g = pow(aa * (-c), (1 - n1));
                 h = pow(aa * (-c), n1);
@@ -155,7 +155,7 @@ int main(int argc, char *argv[])
 
         for (int l{}; l < EXTRA_KERNELS; ++l)
         {
-            dummy_computations <<< gridDims, blockSize >>>(*d_ca, LOOP_DUMMY_COMPUTATION);
+            dummy_computations <<< gridDims, blockSize >>>(*d_ca);
             double *tmpHeads = d_ca->heads;
             d_ca->heads = headsWrite;
             headsWrite = tmpHeads;

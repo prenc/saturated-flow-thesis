@@ -8,8 +8,7 @@ __global__ void computationActive(CA ca,
                             double *headsWrite,
                             const int *activeCellsIds,
                             int *activeCellsMask,
-                            int acNumber,
-                            int numberofloops)
+                            int acNumber)
 {
     unsigned ac_idx_x = blockIdx.x * blockDim.x + threadIdx.x;
     unsigned ac_idx_y = blockIdx.y * blockDim.y + threadIdx.y;
@@ -28,7 +27,7 @@ __global__ void computationActive(CA ca,
             double cc = 0.102;
             double dd = 0.009154;
             
-            for (int qaz = 0; qaz < numberofloops; qaz++)
+            for (int qaz = 0; qaz < LOOP_DUMMY_COMPUTATION; qaz++)
             {
                 g = pow(aa * (-c), (1 - n1));
                 h = pow(aa * (-c), n1);
@@ -52,7 +51,7 @@ __global__ void computationActive(CA ca,
     }
 
 }
-__global__ void computationAll(struct CA ca, double *headsWrite, int numberofloops)
+__global__ void computationAll(struct CA ca, double *headsWrite)
 {
     unsigned idx_x = blockIdx.x * blockDim.x + threadIdx.x;
     unsigned idx_y = blockIdx.y * blockDim.y + threadIdx.y;
@@ -72,7 +71,7 @@ __global__ void computationAll(struct CA ca, double *headsWrite, int numberofloo
         double cc = 0.102;
         double dd = 0.009154;
 
-        for (int qaz = 0; qaz < numberofloops; qaz++)
+        for (int qaz = 0; qaz < LOOP_DUMMY_COMPUTATION; qaz++)
         {
         g = pow(aa * (-c), (1 - n1));
         h = pow(aa * (-c), n1);
@@ -263,12 +262,12 @@ int main(int argc, char *argv[])
                     devActiveCellsCount);
 
                 
-            for (int l{}; l < LOOP_DUMMY_TRANSICTION_FUNCTION; ++l)
+            for (int l{}; l < EXTRA_KERNELS; ++l)
             {
                 computationActive <<< activeGridDim, blockSize >>>(
                     *d_ca, headsWrite, thrust::raw_pointer_cast(&activeCellsIds[0]),
                     thrust::raw_pointer_cast(&activeCellsMask[0]),
-                    devActiveCellsCount, LOOP_DUMMY_COMPUTATION);
+                    devActiveCellsCount);
             }
 
             if (acIterCounter > 5)
@@ -285,7 +284,7 @@ int main(int argc, char *argv[])
             kernels::standard_step <<< gridDims, blockSize >>>(*d_ca, headsWrite);
             for (int l{}; l < EXTRA_KERNELS; ++l)
             {
-                computationAll <<< gridDims, blockSize >>>(*d_ca, headsWrite, LOOP_DUMMY_COMPUTATION);
+                computationAll <<< gridDims, blockSize >>>(*d_ca, headsWrite);
             }
         }
 
