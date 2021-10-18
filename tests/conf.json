@@ -609,5 +609,43 @@
             "ac_u_sc",
             "ac_u_sc_adaptive"
         ]
+    },
+    "jocs_ac_low_coverage_100": {
+        "params": {
+            "ca_size": [
+                4000, 5000, 6000, 7000, 8000
+            ],
+            "simulation_iterations": [
+                4500
+            ],
+            "wells_dim": [
+                4, 5, 6, 7, 8
+            ],
+            "EXTRA_KERNELS": [
+                100
+            ],
+            "wells_QW": [
+                0.001
+            ],
+            "WRITE_OUTPUT_TO_FILE": [
+                0
+            ],
+            "WRITE_STATISTICS_TO_FILE": [
+                1
+            ],
+            "LOOP_DUMMY_COMPUTATION": [
+                1
+            ]
+        },
+        "chart_params": {
+            "title": "Active cells stress test",
+            "x_axis": "ca_size",
+            "x_axis_label": "CA dimension"
+        },
+        "targets": [
+            "ac_u_fk",
+            "ac_u_sc",
+            "ac_u_sc_adaptive"
+        ]
     }
 }
