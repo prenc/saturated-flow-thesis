@@ -15,9 +15,7 @@ int main(int argc, char *argv[])
     memcpy(headsWrite, h_ca->heads, sizeof(double) * ROWS * COLS);
 
     dim3 blockSize(BLOCK_SIZE, BLOCK_SIZE);
-    const int blockCount = ceil((double) (ROWS * COLS) / (BLOCK_SIZE * BLOCK_SIZE));
-    int gridSize = ceil(sqrt(blockCount));
-    dim3 gridDims(gridSize, gridSize);
+    dim3 gridDims = calculate_grid_dim();
 
     std::vector<StatPoint> stats;
     Timer stepTimer, activeCellsEvalTimer, transitionTimer;
@@ -37,9 +35,7 @@ int main(int argc, char *argv[])
         ERROR_CHECK(cudaDeviceSynchronize());
         transitionTimer.stop();
 
-        double *tmpHeads = h_ca->heads;
-        h_ca->heads = headsWrite;
-        headsWrite = tmpHeads;
+        std::swap(h_ca->heads, headsWrite);
 
         if (i % STATISTICS_WRITE_FREQ == STATISTICS_WRITE_FREQ - 1)
         {

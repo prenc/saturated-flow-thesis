@@ -70,3 +70,16 @@ void freeAllocatedMemory(CA *&d_ca, double *&headsWrite)
     cudaFree(d_ca->K);
     cudaFree(d_ca->sources);
 }
+
+dim3 calculate_grid_dim()
+{
+    return calculate_grid_dim(ROWS * COLS);
+}
+
+dim3 calculate_grid_dim(int cell_count)
+{
+    const int blockCount = ceil((double) (cell_count) / (BLOCK_SIZE * BLOCK_SIZE));
+    int gridSize = ceil(sqrt(blockCount));
+    return dim3(gridSize, gridSize);
+}
+

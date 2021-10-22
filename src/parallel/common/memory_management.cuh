@@ -24,4 +24,8 @@ void copyDataFromGpuToCpu(CA *&h_ca, CA *&d_ca);
 
 void freeAllocatedMemory(CA *&d_ca, double *&headsWrite);
 
+dim3 calculate_grid_dim();
+
+dim3 calculate_grid_dim(int cell_count);
+
 #endif //SATURATED_FLOW_THESIS_MEMORY_MANAGEMENT

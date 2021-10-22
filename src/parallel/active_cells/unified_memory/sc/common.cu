@@ -26,9 +26,7 @@ int main(int argc, char *argv[])
     }
 
     dim3 blockSize(BLOCK_SIZE, BLOCK_SIZE);
-    const int blockCount = ceil((double) (ROWS * COLS) / (BLOCK_SIZE * BLOCK_SIZE));
-    int gridSize = ceil(sqrt(blockCount));
-    dim3 gridDims(gridSize, gridSize);
+    dim3 gridDims = calculate_grid_dim();
 
     std::vector<StatPoint> stats;
     Timer stepTimer, activeCellsEvalTimer, transitionTimer;
@@ -49,10 +47,7 @@ int main(int argc, char *argv[])
             activeCellsEvalTimer.stop();
 
             isWholeGridActive = devActiveCellsCount == ROWS * COLS;
-
-            int activeBlockCount = ceil((double) devActiveCellsCount / (BLOCK_SIZE * BLOCK_SIZE));
-            int activeGridSize = ceil(sqrt(activeBlockCount));
-            dim3 activeGridDim(activeGridSize, activeGridSize);
+            dim3 activeGridDim = calculate_grid_dim(devActiveCellsCount);
 
             simulationGridDims = &activeGridDim;
 	        transitionTimer.start();
@@ -87,9 +82,7 @@ int main(int argc, char *argv[])
         ERROR_CHECK(cudaDeviceSynchronize());
         transitionTimer.stop();
 
-        double *tmpHeads = h_ca->heads;
-        h_ca->heads = headsWrite;
-        headsWrite = tmpHeads;
+        std::swap(h_ca->heads, headsWrite);
 
         if (i % STATISTICS_WRITE_FREQ == STATISTICS_WRITE_FREQ - 1)
         {
