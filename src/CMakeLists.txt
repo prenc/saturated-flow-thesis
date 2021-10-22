@@ -65,11 +65,11 @@ target_link_libraries(ac_u_atomic common)
 add_executable(ac_u_atomic_stress parallel/active_cells/unified_memory/atomic/ac_standard_stress.cu)
 target_link_libraries(ac_u_atomic_stress common)
 
-# finding kernel (naive)
-add_executable(ac_u_fk parallel/active_cells/unified_memory/finding_kernel/ac_standard.cu)
-target_link_libraries(ac_u_fk common)
-add_executable(ac_u_fk_stress parallel/active_cells/unified_memory/finding_kernel/ac_standard_stress.cu)
-target_link_libraries(ac_u_fk_stress common)
+# naive
+add_executable(ac_u_naive parallel/active_cells/unified_memory/naive/ac_standard.cu)
+target_link_libraries(ac_u_naive common)
+add_executable(ac_u_naive_stress parallel/active_cells/unified_memory/naive/ac_standard_stress.cu)
+target_link_libraries(ac_u_naive_stress common)
 
 # stream compaction
 add_executable(ac_u_sc parallel/active_cells/unified_memory/sc/ac_standard.cu)
@@ -92,11 +92,11 @@ target_link_libraries(ac_g_atomic common)
 add_executable(ac_g_atomic_stress parallel/active_cells/global_memory/atomic/ac_standard_stress.cu)
 target_link_libraries(ac_g_atomic_stress common)
 
-# finding kernel (naive)
-add_executable(ac_g_fk parallel/active_cells/global_memory/finding_kernel/ac_standard.cu)
-target_link_libraries(ac_g_fk common)
-add_executable(ac_g_fk_stress parallel/active_cells/global_memory/finding_kernel/ac_standard_stress.cu)
-target_link_libraries(ac_g_fk_stress common)
+# naive
+add_executable(ac_g_naive parallel/active_cells/global_memory/naive/ac_standard.cu)
+target_link_libraries(ac_g_naive common)
+add_executable(ac_g_naive_stress parallel/active_cells/global_memory/naive/ac_standard_stress.cu)
+target_link_libraries(ac_g_naive_stress common)
 
 # stream compaction
 add_executable(ac_g_sc parallel/active_cells/global_memory/sc/ac_standard.cu)

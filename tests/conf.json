@@ -23,7 +23,7 @@
         "targets": [
             "ac_u_sc",
             "ac_u_sc_one_kernel_adaptive",
-            "ac_u_fk",
+            "ac_u_naive",
             "ac_u_atomic",
             "u_hybrid",
             "u_shared",
@@ -54,7 +54,7 @@
         "targets": [
             "ac_u_sc_stress",
             "ac_u_sc_one_kernel_adaptive_stress",
-            "ac_u_fk_stress",
+            "ac_u_naive_stress",
             "ac_u_atomic_stress",
             "u_hybrid_stress",
             "u_shared_stress",
@@ -219,7 +219,7 @@
         },
         "targets": [
 	        "u_standard",
-            "ac_u_fk",
+            "ac_u_naive",
             "ac_u_sc",
             "ac_u_sc_adaptive"
         ]
@@ -253,7 +253,7 @@
         },
         "targets": [
             "u_standard_stress",	
-            "ac_u_fk_stress",
+            "ac_u_naive_stress",
             "ac_u_sc_stress",
             "ac_u_sc_adaptive_stress"
         ]
@@ -282,7 +282,7 @@
         },
         "targets": [
             "u_standard_stress",
-            "ac_u_fk_stress",
+            "ac_u_naive_stress",
             "ac_u_sc_stress",
             "ac_u_sc_adaptive_stress"
         ]
@@ -310,7 +310,7 @@
         },
         "targets": [
             "u_standard",
-            "ac_u_fk",
+            "ac_u_naive",
             "ac_u_sc",
             "ac_u_sc_adaptive"
         ]
@@ -378,7 +378,7 @@
             "x_axis_label": "CA dimension"
         },
         "targets": [
-            "ac_u_fk",
+            "ac_u_naive",
             "ac_u_sc",
             "ac_u_sc_adaptive"
         ]
@@ -414,7 +414,7 @@
             "x_axis_label": "CA dimension"
         },
         "targets": [
-            "ac_u_fk",
+            "ac_u_naive",
             "ac_u_sc",
             "ac_u_sc_adaptive"
         ]
@@ -453,7 +453,7 @@
             "x_axis_label": "CA dimension"
         },
         "targets": [
-            "ac_u_fk",
+            "ac_u_naive",
             "ac_u_sc",
             "ac_u_sc_adaptive"
         ]
@@ -491,7 +491,7 @@
             "x_axis_label": "CA dimension"
         },
         "targets": [
-            "ac_u_fk",
+            "ac_u_naive",
             "ac_u_sc",
             "ac_u_sc_adaptive"
         ]
@@ -529,7 +529,7 @@
             "x_axis_label": "CA dimension"
         },
         "targets": [
-            "ac_u_fk",
+            "ac_u_naive",
             "ac_u_sc",
             "ac_u_sc_adaptive"
         ]
@@ -567,7 +567,7 @@
             "x_axis_label": "CA dimension"
         },
         "targets": [
-            "ac_u_fk",
+            "ac_u_naive",
             "ac_u_sc",
             "ac_u_sc_adaptive"
         ]
@@ -605,7 +605,7 @@
             "x_axis_label": "CA dimension"
         },
         "targets": [
-            "ac_u_fk",
+            "ac_u_naive",
             "ac_u_sc",
             "ac_u_sc_adaptive"
         ]
@@ -643,7 +643,7 @@
             "x_axis_label": "CA dimension"
         },
         "targets": [
-            "ac_u_fk",
+            "ac_u_naive",
             "ac_u_sc",
             "ac_u_sc_adaptive"
         ]
