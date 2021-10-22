@@ -1,4 +1,4 @@
-#include "../kernels/iteration_step.cu"
+#include "../kernels/transition_kernels.cu"
 #include "../common/statistics.h"
 
 int main(int argc, char *argv[])

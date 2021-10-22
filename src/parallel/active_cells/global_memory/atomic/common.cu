@@ -1,6 +1,6 @@
 #include "../../../common/memory_management.cuh"
 #include "../../../common/statistics.h"
-#include "../../../kernels/iteration_step.cu"
+#include "../../../kernels/transition_kernels.cu"
 
 __managed__ int devActiveCellsCount = 0;
 

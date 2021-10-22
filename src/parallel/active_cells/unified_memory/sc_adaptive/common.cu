@@ -2,7 +2,8 @@
 #include <algorithm>
 #include "../../../common/memory_management.cuh"
 #include "../../../common/statistics.h"
-#include "../../../kernels/iteration_step.cu"
+#include "../../../kernels/transition_kernels.cu"
+#include "../../../kernels/dummy_kernels.cu"
 
 __global__ void simulation_step_kernel(CA ca, double *headsWrite,
                                        const int *activeCellsIds,
@@ -163,7 +164,7 @@ int main(int argc, char *argv[])
 #ifdef EXTRA_KERNELS
             for (int j = 0; j < EXTRA_KERNELS; j++)
             {
-                kernels::dummy_active_sc <<< activeGridDim, blockSize >>>(
+                dummy_kernels::dummy_active_sc <<< activeGridDim, blockSize >>>(
                         *h_ca, headsWrite, thrust::raw_pointer_cast(&activeCellsIds[0]),
                         devActiveCellsCount);
             }
@@ -184,7 +185,7 @@ int main(int argc, char *argv[])
 #ifdef EXTRA_KERNELS
             for (int j = 0; j < EXTRA_KERNELS; j++)
             {
-                kernels::dummy_active_naive <<< gridDims, blockSize >>>(*h_ca, headsWrite);
+                dummy_kernels::dummy_active_naive <<< gridDims, blockSize >>>(*h_ca, headsWrite);
             }
 #endif
         }

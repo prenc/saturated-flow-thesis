@@ -21,7 +21,9 @@ add_library(common STATIC
         parallel/common/statistics.cpp
         parallel/common/memory_management.cuh
         parallel/common/memory_management.cu
-        parallel/kernels/iteration_step.cu
+        parallel/kernels/transition_kernels.cu
+        parallel/kernels/utils.cu
+        parallel/kernels/dummy_kernels.cu
         )
 set_target_properties(common PROPERTIES LINKER_LANGUAGE CUDA)
 

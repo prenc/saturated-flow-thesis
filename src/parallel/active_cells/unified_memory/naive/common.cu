@@ -1,6 +1,8 @@
 #include "../../../common/memory_management.cuh"
 #include "../../../common/statistics.h"
-#include "../../../kernels/iteration_step.cu"
+#include "../../../kernels/transition_kernels.cu"
+#include "../../../kernels/utils.cu"
+#include "../../../kernels/dummy_kernels.cu"
 
 __global__ void simulation_step_kernel(struct CA ca, double *headsWrite)
 {
@@ -10,7 +12,7 @@ __global__ void simulation_step_kernel(struct CA ca, double *headsWrite)
 
     if (idx_x < ROWS && idx_y < COLS)
     {
-        if (!isActiveCell(ca, idx_x, idx_y, idx_g))
+        if (!device_utils::isActiveCell(ca, idx_x, idx_y, idx_g))
         {
             return;
         }
@@ -87,7 +89,7 @@ int main(int argc, char *argv[])
 #ifdef EXTRA_KERNELS
         for (int j = 0; j < EXTRA_KERNELS; j++)
         {
-            kernels::dummy_active_naive <<< gridDims, blockSize >>>(*h_ca, headsWrite);
+            dummy_kernels::dummy_active_naive <<< gridDims, blockSize >>>(*h_ca, headsWrite);
         }
 #endif
         ERROR_CHECK(cudaDeviceSynchronize());
