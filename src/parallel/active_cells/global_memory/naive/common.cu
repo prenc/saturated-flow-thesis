@@ -89,12 +89,12 @@ int main(int argc, char *argv[])
     dim3 gridDims(gridSize, gridSize);
 
     std::vector<StatPoint> stats;
-    Timer stepTimer, activeCellsEvalTimer, transitionTimer;
+    Timer stepTimer;
     stepTimer.start();
 
     for (int i{}; i < SIMULATION_ITERATIONS; ++i)
     {
-        transitionTimer.start();
+
         simulation_step_kernel <<< gridDims, blockSize >>>(*d_ca, headsWrite);
         ERROR_CHECK(cudaDeviceSynchronize());
 
@@ -111,7 +111,7 @@ int main(int argc, char *argv[])
         }
 
         ERROR_CHECK(cudaDeviceSynchronize());
-        transitionTimer.stop();
+
 
         if (i % STATISTICS_WRITE_FREQ == STATISTICS_WRITE_FREQ - 1)
         {
@@ -119,8 +119,8 @@ int main(int argc, char *argv[])
             auto stat = new StatPoint(
                     -1,
                     stepTimer.elapsedNanoseconds(),
-                    transitionTimer.elapsedNanoseconds(),
-                    activeCellsEvalTimer.elapsedNanoseconds());
+
+                    );
             stats.push_back(*stat);
             stepTimer.start();
         }

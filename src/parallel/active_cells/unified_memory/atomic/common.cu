@@ -131,7 +131,7 @@ int main(int argc, char *argv[])
     dim3 gridDims(gridSize, gridSize);
 
     std::vector<StatPoint> stats;
-    Timer stepTimer, activeCellsEvalTimer, transitionTimer;
+    Timer stepTimer;
     stepTimer.start();
 
     bool isWholeGridActive = false;
@@ -141,10 +141,8 @@ int main(int argc, char *argv[])
         if (!isWholeGridActive)
         {
             devActiveCellsCount = 0;
-            activeCellsEvalTimer.start();
             findActiveCells <<< gridDims, blockSize >>>(*h_ca);
             cudaDeviceSynchronize();
-            activeCellsEvalTimer.stop();
 
             isWholeGridActive = devActiveCellsCount == ROWS * COLS;
 
@@ -158,11 +156,8 @@ int main(int argc, char *argv[])
         {
             simulationGridDims = &gridDims;
         }
-
-        transitionTimer.start();
         simulation_step_kernel <<< *simulationGridDims, blockSize >>>(*h_ca, headsWrite);
         cudaDeviceSynchronize();
-        transitionTimer.stop();
 
         double *tmpHeads = h_ca->heads;
         h_ca->heads = headsWrite;
@@ -173,9 +168,7 @@ int main(int argc, char *argv[])
             stepTimer.stop();
             auto stat = new StatPoint(
                     devActiveCellsCount / (double) (ROWS * COLS),
-                    stepTimer.elapsedNanoseconds(),
-                    transitionTimer.elapsedNanoseconds(),
-                    activeCellsEvalTimer.elapsedNanoseconds());
+                    stepTimer.elapsedNanoseconds());
             stats.push_back(*stat);
             stepTimer.start();
         }

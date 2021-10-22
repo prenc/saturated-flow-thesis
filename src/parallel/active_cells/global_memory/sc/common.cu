@@ -173,7 +173,7 @@ int main(int argc, char *argv[])
     dim3 gridDims(gridSize, gridSize);
 
     std::vector<StatPoint> stats;
-    Timer stepTimer, activeCellsEvalTimer, transitionTimer;
+    Timer stepTimer;
     stepTimer.start();
 
     bool isWholeGridActive = false;
@@ -183,12 +183,10 @@ int main(int argc, char *argv[])
     {
         if (!isWholeGridActive)
         {
-            activeCellsEvalTimer.start();
             thrust::copy_if(thrust::device, activeCellsMask.begin(), activeCellsMask.end(),
                             activeCellsIds.begin(), is_not_minus_one<int>());
             devActiveCellsCount = thrust::count_if(activeCellsIds.begin(), activeCellsIds.end(),
                                                    is_not_minus_one<int>());
-            activeCellsEvalTimer.stop();
 
             isWholeGridActive = devActiveCellsCount == ROWS * COLS;
 
@@ -196,12 +194,10 @@ int main(int argc, char *argv[])
             int activeGridSize = ceil(sqrt(activeBlockCount));
             dim3 activeGridDim(activeGridSize, activeGridSize);
 
-            transitionTimer.start();
             simulation_step_kernel <<< activeGridDim, blockSize >>>(
                     *d_ca, headsWrite, thrust::raw_pointer_cast(&activeCellsIds[0]),
                     thrust::raw_pointer_cast(&activeCellsMask[0]),
                     devActiveCellsCount);
-
 
             for (int l{}; l < EXTRA_KERNELS; ++l)
             {
@@ -219,9 +215,7 @@ int main(int argc, char *argv[])
                 dummy_kernels::dummy_all <<< gridDims, blockSize >>>(*d_ca, headsWrite);
             }
         }
-
         ERROR_CHECK(cudaDeviceSynchronize());
-        transitionTimer.stop();
 
         double *tmpHeads = d_ca->heads;
         d_ca->heads = headsWrite;
@@ -232,9 +226,7 @@ int main(int argc, char *argv[])
             stepTimer.stop();
             auto stat = new StatPoint(
                     devActiveCellsCount / (double) (ROWS * COLS),
-                    stepTimer.elapsedNanoseconds(),
-                    transitionTimer.elapsedNanoseconds(),
-                    activeCellsEvalTimer.elapsedNanoseconds());
+                    stepTimer.elapsedNanoseconds());
             stats.push_back(*stat);
             stepTimer.start();
         }

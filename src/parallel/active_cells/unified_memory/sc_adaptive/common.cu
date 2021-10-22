@@ -12,43 +12,43 @@ int main(int argc, char *argv[])
     auto h_ca = new CA();
     double *headsWrite;
     allocateManagedMemory(h_ca, headsWrite);
-
     initializeCA(h_ca);
     memcpy(headsWrite, h_ca->heads, sizeof(double) * ROWS * COLS);
-
-    thrust::device_vector<int> activeCellsMask(ROWS * COLS, -1);
-    thrust::device_vector<int> activeCellsIds(ROWS * COLS, -1);
-
-    ac_utils::mark_sources_as_active_cells(h_ca, thrust::raw_pointer_cast(&activeCellsIds[0]));
 
     dim3 blockSize(BLOCK_SIZE, BLOCK_SIZE);
     dim3 gridDims = calculate_grid_dim();
 
-    std::vector<StatPoint> stats;
-    Timer stepTimer, activeCellsEvalTimer, transitionTimer;
+    thrust::device_vector<int> activeCellsMask(ROWS * COLS, -1);
+    thrust::device_vector<int> activeCellsIds(ROWS * COLS, -1);
+
+    for (size_t i{0}; i < ROWS * COLS; ++i)
+    {
+        if (h_ca->sources[i] != 0)
+        {
+            activeCellsMask[i] = i;
+        }
+    }
 
     auto standardIterationTime = ac_utils::measure_standard_iteration_time(h_ca, headsWrite);
 
     bool isWholeGridActive = false;
     int devActiveCellsCount;
     int acIterCounter{};
+
+    std::vector<StatPoint> stats;
+    Timer stepTimer;
     stepTimer.start();
     for (int i{}; i < SIMULATION_ITERATIONS; ++i)
     {
         if (!isWholeGridActive)
         {
-            activeCellsEvalTimer.start();
             thrust::copy_if(thrust::device, activeCellsMask.begin(), activeCellsMask.end(),
                             activeCellsIds.begin(), is_not_minus_one<int>());
             devActiveCellsCount = thrust::count_if(activeCellsIds.begin(), activeCellsIds.end(),
                                                    is_not_minus_one<int>());
-            activeCellsEvalTimer.stop();
-
-            isWholeGridActive = devActiveCellsCount == ROWS * COLS;
 
             dim3 activeGridDim = calculate_grid_dim(devActiveCellsCount);
 
-            transitionTimer.start();
             ac_kernels::sc <<< activeGridDim, blockSize >>>(
                     *h_ca, headsWrite, thrust::raw_pointer_cast(&activeCellsIds[0]),
                     thrust::raw_pointer_cast(&activeCellsMask[0]),
@@ -60,49 +60,34 @@ int main(int argc, char *argv[])
                         *h_ca, headsWrite, thrust::raw_pointer_cast(&activeCellsIds[0]),
                         devActiveCellsCount);
             }
+
+            isWholeGridActive = devActiveCellsCount == ROWS * COLS;
             if (acIterCounter > 5)
             {
                 isWholeGridActive = true;
                 devActiveCellsCount = ROWS * COLS;
-                activeCellsEvalTimer.start();
-                activeCellsEvalTimer.stop();
             }
         }
         else
         {
-            transitionTimer.start();
             kernels::standard_step <<< gridDims, blockSize >>>(*h_ca, headsWrite);
-
             for (int j = 0; j < EXTRA_KERNELS; j++)
             {
                 dummy_kernels::dummy_active_naive <<< gridDims, blockSize >>>(*h_ca, headsWrite);
             }
         }
-
         ERROR_CHECK(cudaDeviceSynchronize());
-        transitionTimer.stop();
 
         std::swap(h_ca->heads, headsWrite);
+        save_step_stats(stats, stepTimer, devActiveCellsCount);
 
         if (i % STATISTICS_WRITE_FREQ == STATISTICS_WRITE_FREQ - 1)
         {
-            stepTimer.stop();
-            auto stat = new StatPoint(
-                    devActiveCellsCount / (double) (ROWS * COLS),
-                    stepTimer.elapsedNanoseconds(),
-                    transitionTimer.elapsedNanoseconds(),
-                    activeCellsEvalTimer.elapsedNanoseconds());
-            stat->adaptiveTime = standardIterationTime;
-            if (stepTimer.elapsedNanoseconds() / STATISTICS_WRITE_FREQ >= standardIterationTime)
-            {
+            if (stepTimer.elapsedNanoseconds() / STATISTICS_WRITE_FREQ >= standardIterationTime){
                 acIterCounter++;
-            }
-            else
-            {
+            }else{
                 acIterCounter = 0;
             }
-            stats.push_back(*stat);
-            stepTimer.start();
         }
     }
 

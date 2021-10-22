@@ -127,7 +127,7 @@ int main(int argc, char *argv[])
     dim3 gridDims(gridSize, gridSize);
 
     std::vector<StatPoint> stats;
-    Timer stepTimer, activeCellsEvalTimer, transitionTimer;
+    Timer stepTimer;
 
     std::vector<size_t> times{};
     for (size_t i{}; i < 5; ++i)
@@ -149,12 +149,10 @@ int main(int argc, char *argv[])
     {
         if (!isWholeGridActive)
         {
-            activeCellsEvalTimer.start();
             thrust::copy_if(thrust::device, activeCellsMask.begin(), activeCellsMask.end(),
                             activeCellsIds.begin(), is_not_minus_one<int>());
             devActiveCellsCount = thrust::count_if(activeCellsIds.begin(), activeCellsIds.end(),
                                                    is_not_minus_one<int>());
-            activeCellsEvalTimer.stop();
 
             isWholeGridActive = devActiveCellsCount == ROWS * COLS;
 
@@ -162,7 +160,7 @@ int main(int argc, char *argv[])
             int activeGridSize = ceil(sqrt(activeBlockCount));
             dim3 activeGridDim(activeGridSize, activeGridSize);
 
-            transitionTimer.start();
+
             simulation_step_kernel <<< activeGridDim, blockSize >>>(
                     *d_ca, headsWrite, thrust::raw_pointer_cast(&activeCellsIds[0]),
                     thrust::raw_pointer_cast(&activeCellsMask[0]),
@@ -181,13 +179,11 @@ int main(int argc, char *argv[])
             {
                 isWholeGridActive = true;
                 devActiveCellsCount = ROWS * COLS;
-                activeCellsEvalTimer.start();
-                activeCellsEvalTimer.stop();
             }
         }
         else
         {
-            transitionTimer.start();
+
             kernels::standard_step <<< gridDims, blockSize >>>(*d_ca, headsWrite);
             for (int l{}; l < EXTRA_KERNELS; ++l)
             {
@@ -196,7 +192,6 @@ int main(int argc, char *argv[])
         }
 
         ERROR_CHECK(cudaDeviceSynchronize());
-        transitionTimer.stop();
 
         double *tmpHeads = d_ca->heads;
         d_ca->heads = headsWrite;
@@ -207,9 +202,7 @@ int main(int argc, char *argv[])
             stepTimer.stop();
             auto stat = new StatPoint(
                     devActiveCellsCount / (double) (ROWS * COLS),
-                    stepTimer.elapsedNanoseconds(),
-                    transitionTimer.elapsedNanoseconds(),
-                    activeCellsEvalTimer.elapsedNanoseconds());
+                    stepTimer.elapsedNanoseconds());
             stat->adaptiveTime = standardIterationTime;
             if (stepTimer.elapsedNanoseconds() / STATISTICS_WRITE_FREQ >= standardIterationTime)
             {

@@ -12,13 +12,13 @@ struct StatPoint
 {
     double coverage;
     double stepTime;
-    double transitionTime;
-    double findACTime;
-    double adaptiveTime = 0;
 
     StatPoint() = default;
-    StatPoint(double coverage, double stepTime, double transitionTime, double findACTime);
+    StatPoint(double coverage, double stepTime);
 };
+
+void save_step_stats(std::vector<StatPoint> &stats, Timer *stepTimer, int stepNumber);
+void save_step_stats(std::vector<StatPoint> &stats, Timer *stepTimer, int stepNumber, int devActiveCellsCount);
 
 void writeStatisticsToFile(std::vector<StatPoint> &stats, const std::string& filename);
 
