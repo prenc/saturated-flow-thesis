@@ -10,15 +10,7 @@ __global__ void simulation_step_kernel(struct CA ca, double *headsWrite)
 
     if (idx_x < ROWS && idx_y < COLS)
     {
-        if (!(
-                ca.heads[idx_g] < INITIAL_HEAD // check if the cell's been already altered
-                || ca.sources[idx_g] != 0 // check if the cell's a source
-                // check if any of the neighbors have been altered, imitate lazy evaluation
-                || (idx_x > 0 ? ca.heads[idx_g - 1] < INITIAL_HEAD : false)
-                || (idx_y > 0 ? ca.heads[idx_g - COLS] < INITIAL_HEAD : false)
-                || (idx_x < COLS - 1 ? ca.heads[idx_g + 1] < INITIAL_HEAD : false)
-                || (idx_y < ROWS - 1 ? ca.heads[idx_g + COLS] < INITIAL_HEAD : false)
-        ))
+        if (!isActiveCell(ca, idx_x, idx_y, idx_g))
         {
             return;
         }
@@ -95,7 +87,7 @@ int main(int argc, char *argv[])
 #ifdef EXTRA_KERNELS
         for (int j = 0; j < EXTRA_KERNELS; j++)
         {
-            kernels::dummy_all <<< gridDims, blockSize >>>(*h_ca, headsWrite);
+            kernels::dummy_active_naive <<< gridDims, blockSize >>>(*h_ca, headsWrite);
         }
 #endif
         ERROR_CHECK(cudaDeviceSynchronize());
