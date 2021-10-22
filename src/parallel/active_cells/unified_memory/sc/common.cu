@@ -1,29 +1,23 @@
+#include <thrust/device_vector.h>
+
 #include "../../../common/memory_management.cuh"
 #include "../../../common/statistics.h"
 #include "../../../kernels/transition_kernels.cu"
 #include "../../../kernels/dummy_kernels.cu"
 #include "../../../kernels/ac_kernels.cu"
-
-#include <thrust/device_vector.h>
+#include "../../utils.cu"
 
 int main(int argc, char *argv[])
 {
     auto h_ca = new CA();
     double *headsWrite;
     allocateManagedMemory(h_ca, headsWrite);
+    initializeCA(h_ca);
 
     thrust::device_vector<int> activeCellsMask(ROWS * COLS, -1);
     thrust::device_vector<int> activeCellsIds(ROWS * COLS, -1);
 
-    initializeCA(h_ca);
-    memcpy(headsWrite, h_ca->heads, sizeof(double) * ROWS * COLS);
-    for (size_t i{0}; i < ROWS * COLS; ++i)
-    {
-        if (h_ca->sources[i] != 0)
-        {
-            activeCellsMask[i] = i;
-        }
-    }
+    ac_utils::mark_sources_as_active_cells(h_ca, thrust::raw_pointer_cast(&activeCellsIds[0]));
 
     dim3 blockSize(BLOCK_SIZE, BLOCK_SIZE);
     dim3 gridDims = calculate_grid_dim();
@@ -35,6 +29,7 @@ int main(int argc, char *argv[])
     bool isWholeGridActive = false;
     dim3 *simulationGridDims;
     int devActiveCellsCount;
+
     for (int i{}; i < SIMULATION_ITERATIONS; ++i)
     {
         if (!isWholeGridActive)
@@ -56,7 +51,6 @@ int main(int argc, char *argv[])
 			        thrust::raw_pointer_cast(&activeCellsMask[0]),
 			        devActiveCellsCount);
 
-#ifdef EXTRA_KERNELS
             for (int j = 0; j < EXTRA_KERNELS; j++)
             {
                 dummy_kernels::dummy_active_sc <<< *simulationGridDims, blockSize >>>(
@@ -66,19 +60,18 @@ int main(int argc, char *argv[])
                             devActiveCellsCount
                         );
             }
-#endif
         }
         else
         {
 	        transitionTimer.start();
 	        kernels::standard_step <<< gridDims, blockSize >>>(*h_ca, headsWrite);
-#ifdef EXTRA_KERNELS
+
             for (int j = 0; j < EXTRA_KERNELS; j++)
             {
                 dummy_kernels::dummy_active_naive <<< gridDims, blockSize >>>(*h_ca, headsWrite);
             }
-#endif
         }
+
         ERROR_CHECK(cudaDeviceSynchronize());
         transitionTimer.stop();
 

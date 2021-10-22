@@ -25,6 +25,7 @@ add_library(common STATIC
         parallel/kernels/utils.cu
         parallel/kernels/dummy_kernels.cu
         parallel/kernels/ac_kernels.cu
+        parallel/active_cells/utils.cu
         )
 set_target_properties(common PROPERTIES LINKER_LANGUAGE CUDA)
 

@@ -1,10 +1,10 @@
 #include <thrust/device_vector.h>
-#include <algorithm>
 #include "../../../common/memory_management.cuh"
 #include "../../../common/statistics.h"
 #include "../../../kernels/transition_kernels.cu"
 #include "../../../kernels/dummy_kernels.cu"
 #include "../../../kernels/ac_kernels.cu"
+#include "../../utils.cu"
 
 
 int main(int argc, char *argv[])
@@ -13,18 +13,13 @@ int main(int argc, char *argv[])
     double *headsWrite;
     allocateManagedMemory(h_ca, headsWrite);
 
+    initializeCA(h_ca);
+    memcpy(headsWrite, h_ca->heads, sizeof(double) * ROWS * COLS);
+
     thrust::device_vector<int> activeCellsMask(ROWS * COLS, -1);
     thrust::device_vector<int> activeCellsIds(ROWS * COLS, -1);
 
-    initializeCA(h_ca);
-    memcpy(headsWrite, h_ca->heads, sizeof(double) * ROWS * COLS);
-    for (size_t i{0}; i < ROWS * COLS; ++i)
-    {
-        if (h_ca->sources[i] != 0)
-        {
-            activeCellsMask[i] = i;
-        }
-    }
+    ac_utils::mark_sources_as_active_cells(h_ca, thrust::raw_pointer_cast(&activeCellsIds[0]));
 
     dim3 blockSize(BLOCK_SIZE, BLOCK_SIZE);
     dim3 gridDims = calculate_grid_dim();
@@ -32,17 +27,7 @@ int main(int argc, char *argv[])
     std::vector<StatPoint> stats;
     Timer stepTimer, activeCellsEvalTimer, transitionTimer;
 
-    std::vector<size_t> times{};
-    for (size_t i{}; i < 5; ++i)
-    {
-        stepTimer.start();
-        kernels::standard_step <<< gridDims, blockSize >>>(*h_ca, headsWrite);
-        ERROR_CHECK(cudaDeviceSynchronize());
-        stepTimer.stop();
-        times.push_back(stepTimer.elapsedNanoseconds());
-    }
-    std::sort(times.begin(), times.end());
-    auto standardIterationTime = times[0];
+    auto standardIterationTime = ac_utils::measure_standard_iteration_time(h_ca, headsWrite);
 
     bool isWholeGridActive = false;
     int devActiveCellsCount;
@@ -69,15 +54,12 @@ int main(int argc, char *argv[])
                     thrust::raw_pointer_cast(&activeCellsMask[0]),
                     devActiveCellsCount);
 
-#ifdef EXTRA_KERNELS
             for (int j = 0; j < EXTRA_KERNELS; j++)
             {
                 dummy_kernels::dummy_active_sc <<< activeGridDim, blockSize >>>(
                         *h_ca, headsWrite, thrust::raw_pointer_cast(&activeCellsIds[0]),
                         devActiveCellsCount);
             }
-#endif
-
             if (acIterCounter > 5)
             {
                 isWholeGridActive = true;
@@ -90,12 +72,11 @@ int main(int argc, char *argv[])
         {
             transitionTimer.start();
             kernels::standard_step <<< gridDims, blockSize >>>(*h_ca, headsWrite);
-#ifdef EXTRA_KERNELS
+
             for (int j = 0; j < EXTRA_KERNELS; j++)
             {
                 dummy_kernels::dummy_active_naive <<< gridDims, blockSize >>>(*h_ca, headsWrite);
             }
-#endif
         }
 
         ERROR_CHECK(cudaDeviceSynchronize());
