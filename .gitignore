@@ -1,6 +1,8 @@
 my_tests
 **/tags
 unical_mount_point/
+# all results files, they should not be part of the repo
+**/results
 
 
 ### Python template

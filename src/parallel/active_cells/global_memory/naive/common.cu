@@ -1,5 +1,6 @@
 #include "../../../common/memory_management.cuh"
 #include "../../../common/statistics.h"
+#include "../../../kernels/iteration_step.cu"
 
 __device__ unsigned activeCellsIdx[ROWS * COLS];
 
@@ -8,10 +9,16 @@ __global__ void simulation_step_kernel(struct CA ca, double *headsWrite)
     unsigned idx_x = blockIdx.x * blockDim.x + threadIdx.x;
     unsigned idx_y = blockIdx.y * blockDim.y + threadIdx.y;
     unsigned idx_g = idx_y * COLS + idx_x;
+    bool doit = false;
+    if (ca.sources[idx_g] != 0 || ca.heads[idx_g] < INITIAL_HEAD ) doit = true;
+    if (idx_x > 0)        if (ca.heads[idx_g - 1] < INITIAL_HEAD)   {  activeCellsIdx[idx_g] = 1; doit = true; }
+    if (idx_y > 0)        if (ca.heads[idx_g - COLS] < INITIAL_HEAD){  activeCellsIdx[idx_g] = 1; doit = true; }
+    if (idx_x < COLS - 1) if (ca.heads[idx_g + 1] < INITIAL_HEAD)   {  activeCellsIdx[idx_g] = 1; doit = true; }
+    if (idx_y < ROWS - 1) if (ca.heads[idx_g + COLS] < INITIAL_HEAD){  activeCellsIdx[idx_g] = 1; doit = true; }
 
     if (idx_x < ROWS && idx_y < COLS)
     {
-        if (activeCellsIdx[idx_g] == 1)
+        if(doit)
         {
             double Q{}, diff_head, tmp_t, ht1, ht2;
 #ifdef LOOP
@@ -60,63 +67,21 @@ __global__ void simulation_step_kernel(struct CA ca, double *headsWrite)
     }
 }
 
-__global__ void findActiveCells(struct CA d_ca)
-{
-    unsigned idx_x = blockIdx.x * blockDim.x + threadIdx.x;
-    unsigned idx_y = blockIdx.y * blockDim.y + threadIdx.y;
-    unsigned idx_g = idx_y * COLS + idx_x;
-
-    if (idx_x < ROWS && idx_y < COLS)
-    {
-        if (d_ca.heads[idx_g] < INITIAL_HEAD || d_ca.sources[idx_g] != 0)
-        {
-            activeCellsIdx[idx_g] = 1;
-            return;
-        }
-        if (idx_x > 0)
-        {
-            if (d_ca.heads[idx_g - 1] < INITIAL_HEAD)
-            {
-                activeCellsIdx[idx_g] = 1;
-                return;
-            }
-        }
-        if (idx_y > 0)
-        {
-            if (d_ca.heads[idx_g - COLS] < INITIAL_HEAD)
-            {
-                activeCellsIdx[idx_g] = 1;
-                return;
-            }
-        }
-        if (idx_x < COLS - 1)
-        {
-            if (d_ca.heads[idx_g + 1] < INITIAL_HEAD)
-            {
-                activeCellsIdx[idx_g] = 1;
-                return;
-            }
-        }
-        if (idx_y < ROWS - 1)
-        {
-            if (d_ca.heads[idx_g + COLS] < INITIAL_HEAD)
-            {
-                activeCellsIdx[idx_g] = 1;
-                return;
-            }
-        }
-        activeCellsIdx[idx_g] = 0;
-    }
-}
-
 int main(int argc, char *argv[])
 {
-    auto h_ca = new CA();
+    CA *d_ca = new CA();
+    CA *h_ca = new CA();
     double *headsWrite;
-    allocateManagedMemory(h_ca, headsWrite);
+
+    h_ca->heads = new double[ROWS * COLS]();
+    h_ca->Sy = new double[ROWS * COLS]();
+    h_ca->K = new double[ROWS * COLS]();
+    h_ca->sources = new double[ROWS * COLS]();
 
     initializeCA(h_ca);
-    memcpy(headsWrite, h_ca->heads, sizeof(double) * ROWS * COLS);
+
+    allocateMemory(d_ca, headsWrite);
+    copyDataFromCpuToGpu(h_ca, d_ca, headsWrite);
 
     dim3 blockSize(BLOCK_SIZE, BLOCK_SIZE);
     const int blockCount = ceil((double) (ROWS * COLS) / (BLOCK_SIZE * BLOCK_SIZE));
@@ -129,17 +94,24 @@ int main(int argc, char *argv[])
 
     for (int i{}; i < SIMULATION_ITERATIONS; ++i)
     {
-        findActiveCells <<< gridDims, blockSize >>>(*h_ca);
+        transitionTimer.start();
+        simulation_step_kernel <<< gridDims, blockSize >>>(*d_ca, headsWrite);
         ERROR_CHECK(cudaDeviceSynchronize());
 
-        transitionTimer.start();
-        simulation_step_kernel <<< gridDims, blockSize >>>(*h_ca, headsWrite);
+        double *tmpHeads = d_ca->heads;
+        d_ca->heads = headsWrite;
+        headsWrite = tmpHeads;
+
+        for (int l{}; l < EXTRA_KERNELS; ++l)
+        {
+            kernels::dummy_all <<< gridDims, blockSize >>>(*d_ca, headsWrite);
+            double *tmpHeads = d_ca->heads;
+            d_ca->heads = headsWrite;
+            headsWrite = tmpHeads;
+        }
+
         ERROR_CHECK(cudaDeviceSynchronize());
         transitionTimer.stop();
-
-        double *tmpHeads = h_ca->heads;
-        h_ca->heads = headsWrite;
-        headsWrite = tmpHeads;
 
         if (i % STATISTICS_WRITE_FREQ == STATISTICS_WRITE_FREQ - 1)
         {
@@ -156,6 +128,7 @@ int main(int argc, char *argv[])
 
     if (WRITE_OUTPUT_TO_FILE)
     {
+        copyDataFromGpuToCpu(h_ca, d_ca);
         saveHeadsInFile(h_ca->heads, argv[0]);
     }
 

@@ -167,6 +167,16 @@ int main(int argc, char *argv[])
                     *d_ca, headsWrite, thrust::raw_pointer_cast(&activeCellsIds[0]),
                     thrust::raw_pointer_cast(&activeCellsMask[0]),
                     devActiveCellsCount);
+
+                
+            for (int l{}; l < EXTRA_KERNELS; ++l)
+            {
+                kernels::dummy_active <<< activeGridDim, blockSize >>>(
+                    *d_ca, headsWrite, thrust::raw_pointer_cast(&activeCellsIds[0]),
+                    thrust::raw_pointer_cast(&activeCellsMask[0]),
+                    devActiveCellsCount);
+            }
+
             if (acIterCounter > 5)
             {
                 isWholeGridActive = true;
@@ -179,6 +189,10 @@ int main(int argc, char *argv[])
         {
             transitionTimer.start();
             kernels::standard_step <<< gridDims, blockSize >>>(*d_ca, headsWrite);
+            for (int l{}; l < EXTRA_KERNELS; ++l)
+            {
+                kernels::dummy_all <<< gridDims, blockSize >>>(*d_ca, headsWrite);
+            }
         }
 
         ERROR_CHECK(cudaDeviceSynchronize());
