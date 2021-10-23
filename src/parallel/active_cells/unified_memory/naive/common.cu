@@ -31,16 +31,5 @@ int main(int argc, char *argv[])
         std::swap(h_ca->heads, headsWrite);
         save_step_stats(stats, stepTimer);
     }
-
-    if (WRITE_OUTPUT_TO_FILE)
-    {
-        saveHeadsInFile(h_ca->heads, argv[0]);
-    }
-
-    if (WRITE_STATISTICS_TO_FILE)
-    {
-        writeStatisticsToFile(stats, argv[0]);
-    }
-
-    freeAllocatedMemory(h_ca, headsWrite);
+    save_output_and_free_memory(argv, h_ca, headsWrite, stats);
 }

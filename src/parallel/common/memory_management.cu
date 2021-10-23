@@ -83,3 +83,24 @@ dim3 calculate_grid_dim(int cell_count)
     return dim3(gridSize, gridSize);
 }
 
+void save_output_and_free_memory(char *argv[], struct CA *h_ca, struct CA *d_ca, double *headsWrite, std::vector<StatPoint> &stats){
+    if (WRITE_OUTPUT_TO_FILE)
+    {
+        copyDataFromGpuToCpu(h_ca, d_ca);
+    }
+    save_output_and_free_memory(argv, h_ca, headsWrite, stats)
+}
+
+void save_output_and_free_memory(char *argv[], struct CA *h_ca, double *headsWrite, std::vector<StatPoint> &stats){
+    if (WRITE_OUTPUT_TO_FILE)
+    {
+        saveHeadsInFile(h_ca->heads, argv[0]);
+    }
+
+    if (WRITE_STATISTICS_TO_FILE)
+    {
+        writeStatisticsToFile(stats, argv[0]);
+    }
+
+    freeAllocatedMemory(h_ca, headsWrite);
+}
