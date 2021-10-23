@@ -32,15 +32,16 @@ int main(int argc, char *argv[])
     auto standardIterationTime = ac_utils::measure_standard_iteration_time(h_ca, headsWrite);
 
     bool isWholeGridActive = false;
+    bool shouldAdapt = false;
     int devActiveCellsCount;
-    int acIterCounter{};
+    int sc_steps_with_higher_time_than_standard{};
 
     std::vector<StatPoint> stats;
     Timer stepTimer;
     stepTimer.start();
     for (int i{}; i < SIMULATION_ITERATIONS; ++i)
     {
-        if (!isWholeGridActive)
+        if (!isWholeGridActive && !shouldAdapt)
         {
             thrust::copy_if(thrust::device, activeCellsMask.begin(), activeCellsMask.end(),
                             activeCellsIds.begin(), is_not_minus_one<int>());
@@ -62,11 +63,6 @@ int main(int argc, char *argv[])
             }
 
             isWholeGridActive = devActiveCellsCount == ROWS * COLS;
-            if (acIterCounter > 5)
-            {
-                isWholeGridActive = true;
-                devActiveCellsCount = ROWS * COLS;
-            }
         }
         else
         {
@@ -81,14 +77,11 @@ int main(int argc, char *argv[])
         std::swap(h_ca->heads, headsWrite);
         save_step_stats(stats, stepTimer, devActiveCellsCount);
 
-        if (i % STATISTICS_WRITE_FREQ == STATISTICS_WRITE_FREQ - 1)
-        {
-            if (stepTimer.elapsedNanoseconds() / STATISTICS_WRITE_FREQ >= standardIterationTime){
-                acIterCounter++;
-            }else{
-                acIterCounter = 0;
-            }
-        }
+        ac_utils::set_sc_counter(Timer &stepTimer, i, &sc_steps_with_higher_time_than_standard);
+
+        shouldAdapt = ac_utils::check_if_model_should_adapt(
+                sc_steps_with_higher_time_than_standard,
+                &devActiveCellsCount);
     }
 
     save_output_and_free_memory(argv, h_ca, headsWrite, stats);
