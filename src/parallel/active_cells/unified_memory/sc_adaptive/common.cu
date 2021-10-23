@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
         ERROR_CHECK(cudaDeviceSynchronize());
 
         std::swap(h_ca->heads, headsWrite);
-        save_step_stats(stats, stepTimer, devActiveCellsCount);
+        save_step_stats(stats, &stepTimer, i, devActiveCellsCount);
 
         if (i % STATISTICS_WRITE_FREQ == STATISTICS_WRITE_FREQ - 1)
         {
@@ -91,15 +91,5 @@ int main(int argc, char *argv[])
         }
     }
 
-    if (WRITE_OUTPUT_TO_FILE)
-    {
-        saveHeadsInFile(h_ca->heads, argv[0]);
-    }
-
-    if (WRITE_STATISTICS_TO_FILE)
-    {
-        writeStatisticsToFile(stats, argv[0]);
-    }
-
-    freeAllocatedMemory(h_ca, headsWrite);
+    save_output_and_free_memory(argv, h_ca, headsWrite, stats);
 }
