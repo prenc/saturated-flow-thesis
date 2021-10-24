@@ -3,9 +3,9 @@
 
 #include <thrust/device_vector.h>
 #include <algorithm>
-#include "../common/memory_management.cuh"
-#include "../kernels/transition_kernels.cu"
-#include "../common/statistics.h"
+#include "../../common/memory_management.cuh"
+#include "../../kernels/transition_kernels.cu"
+#include "../../common/statistics.h"
 
 namespace ac_utils {
     size_t measure_standard_iteration_time(struct CA *h_ca, double *headsWrite){

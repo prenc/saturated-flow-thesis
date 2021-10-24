@@ -1,10 +1,10 @@
 #include <thrust/device_vector.h>
-#include "../../../common/memory_management.cuh"
-#include "../../../common/statistics.h"
-#include "../../../kernels/transition_kernels.cu"
-#include "../../../kernels/dummy_kernels.cu"
-#include "../../../kernels/ac_kernels.cu"
-#include "../../utils.cu"
+#include "../../common/memory_management.cuh"
+#include "../../common/statistics.h"
+#include "../../kernels/transition_kernels.cu"
+#include "../../kernels/dummy_kernels.cu"
+#include "../../kernels/ac_kernels.cu"
+#include "utils.cu"
 
 int main(int argc, char *argv[])
 {

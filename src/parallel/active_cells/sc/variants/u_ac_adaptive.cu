@@ -1,4 +1,4 @@
 #define STANDARD
 #define ADAPTIVE
-#include "common.cu"
+#include "../main.cu"
 

@@ -1,6 +1,6 @@
 #define LOOP
 #define GLOBAL
-#include "ac_standard.cu"
+#include "u_ac_adaptive.cu"
 
 
 

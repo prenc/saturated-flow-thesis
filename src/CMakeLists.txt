@@ -25,7 +25,7 @@ add_library(common STATIC
         parallel/kernels/utils.cu
         parallel/kernels/dummy_kernels.cu
         parallel/kernels/ac_kernels.cu
-        parallel/active_cells/utils.cu
+        parallel/active_cells/sc/utils.cu
         )
 set_target_properties(common PROPERTIES LINKER_LANGUAGE CUDA)
 
@@ -64,40 +64,40 @@ target_link_libraries(u_hybrid_stress common)
 ## UNIFIED MEMORY ##
 
 # naive
-add_executable(ac_u_naive parallel/active_cells/unified_memory/naive/ac_standard.cu)
+add_executable(ac_u_naive parallel/active_cells/naive/variants/u_ac_standard.cu)
 target_link_libraries(ac_u_naive common)
-add_executable(ac_u_naive_stress parallel/active_cells/unified_memory/naive/ac_standard_stress.cu)
+add_executable(ac_u_naive_stress parallel/active_cells/naive/variants/u_standard_stress.cu)
 target_link_libraries(ac_u_naive_stress common)
 
 # stream compaction
-add_executable(ac_u_sc parallel/active_cells/unified_memory/sc/ac_standard.cu)
+add_executable(ac_u_sc parallel/active_cells/sc/variants/u_ac_standard.cu)
 target_link_libraries(ac_u_sc common)
-add_executable(ac_u_sc_stress parallel/active_cells/unified_memory/sc/ac_standard_stress.cu)
+add_executable(ac_u_sc_stress parallel/active_cells/sc/variants/u_ac_standard_stress.cu)
 target_link_libraries(ac_u_sc_stress common)
 
 # stream compaction adaptive
-add_executable(ac_u_sc_adaptive parallel/active_cells/unified_memory/sc/ac_adaptive.cu)
+add_executable(ac_u_sc_adaptive parallel/active_cells/sc/variants/u_ac_adaptive.cu)
 target_link_libraries(ac_u_sc_adaptive common)
-add_executable(ac_u_sc_adaptive_stress parallel/active_cells/unified_memory/sc/ac_adaptive_stress.cu)
+add_executable(ac_u_sc_adaptive_stress parallel/active_cells/sc/variants/u_ac_adaptive_stress.cu)
 target_link_libraries(ac_u_sc_adaptive_stress common)
 
 
 ## GLOBAL MEMORY ##
 
 # naive
-add_executable(ac_g_naive parallel/active_cells/unified_memory/naive/g_ac_standard.cu)
+add_executable(ac_g_naive parallel/active_cells/naive/variants/g_ac_standard.cu)
 target_link_libraries(ac_g_naive common)
-add_executable(ac_g_naive_stress parallel/active_cells/unified_memory/naive/g_ac_standard_stress.cu)
+add_executable(ac_g_naive_stress parallel/active_cells/naive/variants/g_ac_standard_stress.cu)
 target_link_libraries(ac_g_naive_stress common)
 
 # stream compaction
-add_executable(ac_g_sc parallel/active_cells/unified_memory/sc/g_ac_standard.cu)
+add_executable(ac_g_sc parallel/active_cells/sc/variants/g_ac_standard.cu)
 target_link_libraries(ac_g_sc common)
-add_executable(ac_g_sc_stress parallel/active_cells/unified_memory/sc/g_ac_standard_stress.cu)
+add_executable(ac_g_sc_stress parallel/active_cells/sc/variants/g_ac_standard_stress.cu)
 target_link_libraries(ac_g_sc_stress common)
 
 # stream compaction adaptive
-add_executable(ac_g_sc_adaptive parallel/active_cells/unified_memory/sc/g_ac_adaptive.cu)
+add_executable(ac_g_sc_adaptive parallel/active_cells/sc/variants/g_ac_adaptive.cu)
 target_link_libraries(ac_g_sc_adaptive common)
-add_executable(ac_g_sc_adaptive_stress parallel/active_cells/unified_memory/sc/g_ac_adaptive_stress.cu)
+add_executable(ac_g_sc_adaptive_stress parallel/active_cells/sc/variants/g_ac_adaptive_stress.cu)
 target_link_libraries(ac_g_sc_adaptive_stress common)

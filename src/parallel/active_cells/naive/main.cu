@@ -1,9 +1,9 @@
-#include "../../../common/memory_management.cuh"
-#include "../../../common/statistics.h"
-#include "../../../kernels/transition_kernels.cu"
-#include "../../../kernels/utils.cu"
-#include "../../../kernels/dummy_kernels.cu"
-#include "../../../kernels/ac_kernels.cu"
+#include "../../common/memory_management.cuh"
+#include "../../common/statistics.h"
+#include "../../kernels/transition_kernels.cu"
+#include "../../kernels/utils.cu"
+#include "../../kernels/dummy_kernels.cu"
+#include "../../kernels/ac_kernels.cu"
 
 int main(int argc, char *argv[])
 {
