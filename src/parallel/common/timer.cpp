@@ -9,14 +9,6 @@ void Timer::start()
 void Timer::stop()
 {
     endTime = std::chrono::system_clock::now();
-}
-
-double Timer::elapsedMilliseconds()
-{
-    return std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
-}
-
-double Timer::elapsedNanoseconds()
-{
-    return std::chrono::duration_cast<std::chrono::nanoseconds>(endTime - startTime).count();
+    elapsedMilliseconds=std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
+    elapsedNanoseconds=std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
 }

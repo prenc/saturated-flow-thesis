@@ -11,9 +11,9 @@ public:
 
     void stop();
 
-    double elapsedMilliseconds();
+    double elapsedMilliseconds;
 
-    double elapsedNanoseconds();
+    double elapsedNanoseconds;
 
 private:
     std::chrono::time_point<std::chrono::system_clock> startTime;

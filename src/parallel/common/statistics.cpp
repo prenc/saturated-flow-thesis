@@ -13,7 +13,7 @@ void save_step_stats(std::vector<StatPoint> &stats, Timer *stepTimer, int stepNu
         stepTimer->stop();
         auto stat = new StatPoint(
                 devActiveCellsCount / (double) (ROWS * COLS),
-                stepTimer->elapsedNanoseconds());
+                stepTimer->elapsedNanoseconds);
         stats.push_back(*stat);
         stepTimer->start();
     }
