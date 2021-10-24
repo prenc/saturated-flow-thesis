@@ -84,12 +84,6 @@ target_link_libraries(ac_u_sc_adaptive_stress common)
 
 ## GLOBAL MEMORY ##
 
-# atomic (deprecated)
-add_executable(ac_g_atomic parallel/active_cells/global_memory/atomic/ac_standard.cu)
-target_link_libraries(ac_g_atomic common)
-add_executable(ac_g_atomic_stress parallel/active_cells/global_memory/atomic/ac_standard_stress.cu)
-target_link_libraries(ac_g_atomic_stress common)
-
 # naive
 add_executable(ac_g_naive parallel/active_cells/global_memory/naive/ac_standard.cu)
 target_link_libraries(ac_g_naive common)
@@ -97,13 +91,13 @@ add_executable(ac_g_naive_stress parallel/active_cells/global_memory/naive/ac_st
 target_link_libraries(ac_g_naive_stress common)
 
 # stream compaction
-add_executable(ac_g_sc parallel/active_cells/global_memory/sc/ac_standard.cu)
+add_executable(ac_g_sc parallel/active_cells/unified_memory/sc/g_ac_standard.cu)
 target_link_libraries(ac_g_sc common)
-add_executable(ac_g_sc_stress parallel/active_cells/global_memory/sc/ac_standard_stress.cu)
+add_executable(ac_g_sc_stress parallel/active_cells/unified_memory/sc/g_ac_standard_stress.cu)
 target_link_libraries(ac_g_sc_stress common)
 
 # stream compaction adaptive
-add_executable(ac_g_sc_adaptive parallel/active_cells/global_memory/sc_adaptive/ac_standard.cu)
+add_executable(ac_g_sc_adaptive parallel/active_cells/unified_memory/sc/g_ac_adaptive.cu)
 target_link_libraries(ac_g_sc_adaptive common)
-add_executable(ac_g_sc_adaptive_stress parallel/active_cells/global_memory/sc_adaptive/ac_standard_stress.cu)
+add_executable(ac_g_sc_adaptive_stress parallel/active_cells/unified_memory/sc/g_ac_adaptive_stress.cu)
 target_link_libraries(ac_g_sc_adaptive_stress common)

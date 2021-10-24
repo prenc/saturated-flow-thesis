@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
             stepTimer.stop();
             auto stat = new StatPoint(
                     -1,
-                    stepTimer.elapsedNanoseconds());
+                    stepTimer.elapsedNanoseconds);
             stats.push_back(*stat);
             stepTimer.start();
         }

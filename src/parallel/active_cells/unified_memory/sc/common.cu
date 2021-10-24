@@ -6,14 +6,27 @@
 #include "../../../kernels/ac_kernels.cu"
 #include "../../utils.cu"
 
-
 int main(int argc, char *argv[])
 {
-    auto h_ca = new CA();
+    auto d_ca = new CA();
     double *headsWrite;
-    allocateManagedMemory(h_ca, headsWrite);
+
+#ifdef GLOBAL
+    CA *h_ca = new CA();
+
+    h_ca->heads = new double[ROWS * COLS]();
+    h_ca->Sy = new double[ROWS * COLS]();
+    h_ca->K = new double[ROWS * COLS]();
+    h_ca->sources = new double[ROWS * COLS]();
+
     initializeCA(h_ca);
-    memcpy(headsWrite, h_ca->heads, sizeof(double) * ROWS * COLS);
+
+    allocateMemory(d_ca, headsWrite);
+    copyDataFromCpuToGpu(h_ca, d_ca, headsWrite);
+#else
+    allocateManagedMemory(d_ca, headsWrite);
+    initializeCA(d_ca);
+#endif
 
     dim3 blockSize(BLOCK_SIZE, BLOCK_SIZE);
     dim3 gridDims = calculate_grid_dim();
@@ -23,23 +36,28 @@ int main(int argc, char *argv[])
 
     for (size_t i{0}; i < ROWS * COLS; ++i)
     {
+#ifdef GLOBAL
         if (h_ca->sources[i] != 0)
+#else
+        if (d_ca->sources[i] != 0)
+#endif
         {
             activeCellsMask[i] = i;
         }
     }
 
 #ifdef ADAPTIVE
-    auto standardIterationTime = ac_utils::measure_standard_iteration_time(h_ca, headsWrite);
+    auto standardIterationTime = ac_utils::measure_standard_iteration_time(d_ca, headsWrite);
     int sc_steps_with_higher_time_than_standard{};
+    bool shouldAdapt = false;
 #endif
 
     bool isWholeGridActive = false;
-    bool shouldAdapt = false;
     int devActiveCellsCount;
 
     std::vector<StatPoint> stats;
     Timer stepTimer;
+
     stepTimer.start();
     for (int i{}; i < SIMULATION_ITERATIONS; ++i)
     {
@@ -49,10 +67,10 @@ int main(int argc, char *argv[])
         if (isWholeGridActive)
 #endif
         {
-            kernels::standard_step <<< gridDims, blockSize >>>(*h_ca, headsWrite);
+            kernels::standard_step <<< gridDims, blockSize >>>(*d_ca, headsWrite);
             for (int j = 0; j < EXTRA_KERNELS; j++)
             {
-                dummy_kernels::dummy_active_naive <<< gridDims, blockSize >>>(*h_ca, headsWrite);
+                dummy_kernels::dummy_active_naive <<< gridDims, blockSize >>>(*d_ca, headsWrite);
             }
         }
         else
@@ -65,14 +83,14 @@ int main(int argc, char *argv[])
             dim3 activeGridDim = calculate_grid_dim(devActiveCellsCount);
 
             ac_kernels::sc <<< activeGridDim, blockSize >>>(
-                    *h_ca, headsWrite, thrust::raw_pointer_cast(&activeCellsIds[0]),
+                    *d_ca, headsWrite, thrust::raw_pointer_cast(&activeCellsIds[0]),
                             thrust::raw_pointer_cast(&activeCellsMask[0]),
                             devActiveCellsCount);
 
             for (int j = 0; j < EXTRA_KERNELS; j++)
             {
                 dummy_kernels::dummy_active_sc <<< activeGridDim, blockSize >>>(
-                        *h_ca, headsWrite, thrust::raw_pointer_cast(&activeCellsIds[0]),
+                        *d_ca, headsWrite, thrust::raw_pointer_cast(&activeCellsIds[0]),
                                 devActiveCellsCount);
             }
 
@@ -80,7 +98,7 @@ int main(int argc, char *argv[])
         }
         ERROR_CHECK(cudaDeviceSynchronize());
 
-        std::swap(h_ca->heads, headsWrite);
+        std::swap(d_ca->heads, headsWrite);
         save_step_stats(stats, &stepTimer, i, devActiveCellsCount);
 
 #ifdef ADAPTIVE
@@ -91,5 +109,9 @@ int main(int argc, char *argv[])
 #endif
     }
 
-    save_output_and_free_memory(argv, h_ca, headsWrite, stats);
+#ifdef GLOBAL
+    save_output_and_free_memory(argv, h_ca, d_ca, headsWrite, stats);
+#else
+    save_output_and_free_memory(argv, d_ca, headsWrite, stats);
+#endif
 }
