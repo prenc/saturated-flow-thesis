@@ -1,11 +1,13 @@
 #ifndef AC_KERNELS
 #define AC_KERNELS
 
+#include "../active_cells_impl/utils.cu"
 #include "./utils.cu"
+
 #include "./transition_kernels.cu"
 #include "./dummy_kernels.cu"
 
-#include "../common/memory_management.cuh"
+#include "../utils/memory_management.cuh"
 #include <thrust/device_vector.h>
 #include <algorithm>
 
@@ -35,8 +37,8 @@ namespace ac_kernels
             int idx_g = activeCellsIds[ac_idx_g];
             int idx_x = idx_g % COLS;
             int idx_y = idx_g / COLS;
-            device_utils::calc_global_mem_tranistion(ca, headsWrite, idx_x, idx_y, idx_g);
-            device_utils::mark_cell_neighbours_as_active(headsWrite, activeCellsMask, idx_x, idx_y, idx_g);
+            device_utils::calc_global_mem_transition(ca, headsWrite, idx_x, idx_y, idx_g);
+            ac_utils::mark_cell_neighbours_as_active(headsWrite, activeCellsMask, idx_x, idx_y, idx_g);
         }
     }
 
@@ -48,11 +50,11 @@ namespace ac_kernels
 
         if (idx_x < ROWS && idx_y < COLS)
         {
-            if (!device_utils::isActiveCell(ca, idx_x, idx_y, idx_g))
+            if (!ac_utils::isActiveCell(ca, idx_x, idx_y, idx_g))
             {
                 return;
             }
-            device_utils::calc_global_mem_tranistion(ca, headsWrite, idx_x, idx_y, idx_g);
+            device_utils::calc_global_mem_transition(ca, headsWrite, idx_x, idx_y, idx_g);
         }
     }
 }

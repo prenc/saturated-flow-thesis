@@ -1,9 +1,5 @@
-#include "../../common/memory_management.cuh"
-#include "../../common/statistics.h"
-#include "../../kernels/transition_kernels.cu"
-#include "../../kernels/utils.cu"
-#include "../../kernels/dummy_kernels.cu"
-#include "../../kernels/ac_kernels.cu"
+#include "../kernels/transition_kernels.cu"
+#include "../utils/statistics.h"
 
 int main(int argc, char *argv[])
 {
@@ -31,15 +27,21 @@ int main(int argc, char *argv[])
     dim3 gridDims = calculate_grid_dim();
 
     std::vector<StatPoint> stats;
-    Timer stepTimer;
+    Timer stepTimer, transitionTimer;
     stepTimer.start();
-    for (int i{}; i < SIMULATION_ITERATIONS; ++i)
+
+    for (unsigned i{}; i < SIMULATION_ITERATIONS; ++i)
     {
-        ac_kernels::naive <<< gridDims, blockSize >>>(*d_ca, headsWrite);
-        for (int j = 0; j < EXTRA_KERNELS; j++)
-        {
-            dummy_kernels::dummy_active_naive <<< gridDims, blockSize >>>(*d_ca, headsWrite);
-        }
+
+#ifdef STANDARD
+        kernels::standard_step <<< gridDims, blockSize >>>(*d_ca, headsWrite);
+#endif
+#ifdef HYBRID
+        kernels::hybrid_step <<< gridDims, blockSize >>>(*d_ca, headsWrite);
+#endif
+#ifdef SHARED
+        kernels::shared_step <<< gridDims, blockSize >>>(*d_ca, headsWrite);
+#endif
         ERROR_CHECK(cudaDeviceSynchronize());
 
         std::swap(d_ca->heads, headsWrite);

@@ -1,13 +1,13 @@
-#ifndef AC_UTILS
-#define AC_UTILS
+#ifndef SC_UTILS
+#define SC_UTILS
 
 #include <thrust/device_vector.h>
 #include <algorithm>
-#include "../../common/memory_management.cuh"
+#include "../../utils/memory_management.cuh"
 #include "../../kernels/transition_kernels.cu"
-#include "../../common/statistics.h"
+#include "../../utils/statistics.h"
 
-namespace ac_utils {
+namespace sc_utils {
     size_t measure_standard_iteration_time(struct CA *h_ca, double *headsWrite){
         Timer stepTimer;
         std::vector<size_t> times{};

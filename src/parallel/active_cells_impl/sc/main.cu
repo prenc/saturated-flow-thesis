@@ -1,6 +1,6 @@
 #include <thrust/device_vector.h>
-#include "../../common/memory_management.cuh"
-#include "../../common/statistics.h"
+#include "../../utils/memory_management.cuh"
+#include "../../utils/statistics.h"
 #include "../../kernels/transition_kernels.cu"
 #include "../../kernels/dummy_kernels.cu"
 #include "../../kernels/ac_kernels.cu"
@@ -26,6 +26,7 @@ int main(int argc, char *argv[])
 #else
     allocateManagedMemory(d_ca, headsWrite);
     initializeCA(d_ca);
+    memcpy(headsWrite, d_ca->heads, sizeof(double) * ROWS * COLS);
 #endif
 
     dim3 blockSize(BLOCK_SIZE, BLOCK_SIZE);
@@ -47,7 +48,7 @@ int main(int argc, char *argv[])
     }
 
 #ifdef ADAPTIVE
-    auto standardIterationTime = ac_utils::measure_standard_iteration_time(d_ca, headsWrite);
+    auto standardIterationTime = sc_utils::measure_standard_iteration_time(d_ca, headsWrite);
     int sc_steps_with_higher_time_than_standard{};
     bool shouldAdapt = false;
 #endif
@@ -63,7 +64,7 @@ int main(int argc, char *argv[])
     {
 #ifdef ADAPTIVE
         if (isWholeGridActive || shouldAdapt)
-#elif
+#else
         if (isWholeGridActive)
 #endif
         {
@@ -102,8 +103,8 @@ int main(int argc, char *argv[])
         save_step_stats(stats, &stepTimer, i, devActiveCellsCount);
 
 #ifdef ADAPTIVE
-        ac_utils::set_sc_counter(stepTimer, i, &sc_steps_with_higher_time_than_standard, standardIterationTime);
-        shouldAdapt = ac_utils::check_if_model_should_adapt(
+        sc_utils::set_sc_counter(stepTimer, i, &sc_steps_with_higher_time_than_standard, standardIterationTime);
+        shouldAdapt = sc_utils::check_if_model_should_adapt(
                 sc_steps_with_higher_time_than_standard,
                 &devActiveCellsCount);
 #endif

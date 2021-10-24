@@ -1,7 +1,7 @@
 #ifndef DUMMY_KERNELS
 #define DUMMY_KERNELS
-#include "./utils.cu"
-#include "../common/memory_management.cuh"
+#include "../active_cells_impl/utils.cu"
+#include "../utils/memory_management.cuh"
 
 namespace dummy_kernels
 {
@@ -66,7 +66,7 @@ namespace dummy_kernels
         unsigned idx_g = idx_y * COLS + idx_x;
 
         if (idx_x < COLS && idx_y < ROWS) {
-            if(device_utils::isActiveCell(ca, idx_x, idx_y, idx_g)){
+            if(ac_utils::isActiveCell(ca, idx_x, idx_y, idx_g)){
                 int dummy = dummy_computations(ca.heads[idx_g]);
                 headsWrite[idx_g] += dummy;
             }

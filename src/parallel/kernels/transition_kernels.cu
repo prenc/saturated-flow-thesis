@@ -1,7 +1,8 @@
 #ifndef SATURATED_FLOW_ITERATION_STEP_CU
 #define SATURATED_FLOW_ITERATION_STEP_CU
 
-#include "../common/memory_management.cuh"
+#include "../utils/memory_management.cuh"
+#include "../active_cells_impl/utils.cu"
 #include "./utils.cu"
 
 namespace kernels
@@ -13,7 +14,7 @@ namespace kernels
         unsigned idx_g = idx_y * COLS + idx_x;
 
         if (idx_x < COLS && idx_y < ROWS) {
-            device_utils::calc_global_mem_tranistion(ca, headsWrite, idx_x, idx_y, idx_g);
+            device_utils::calc_global_mem_transition(ca, headsWrite, idx_x, idx_y, idx_g);
         }
     }
 
