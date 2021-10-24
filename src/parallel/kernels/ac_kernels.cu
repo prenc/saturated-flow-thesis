@@ -2,7 +2,12 @@
 #define AC_KERNELS
 
 #include "./utils.cu"
+#include "./transition_kernels.cu"
+#include "./dummy_kernels.cu"
+
 #include "../common/memory_management.cuh"
+#include <thrust/device_vector.h>
+#include <algorithm>
 
 template<typename T>
 struct is_not_minus_one
@@ -50,7 +55,6 @@ namespace ac_kernels
             device_utils::calc_global_mem_tranistion(ca, headsWrite, idx_x, idx_y, idx_g);
         }
     }
-
 }
 
 #endif

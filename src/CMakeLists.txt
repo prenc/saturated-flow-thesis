@@ -63,12 +63,6 @@ target_link_libraries(u_hybrid_stress common)
 
 ## UNIFIED MEMORY ##
 
-# atomic
-add_executable(ac_u_atomic parallel/active_cells/unified_memory/atomic/ac_standard.cu)
-target_link_libraries(ac_u_atomic common)
-add_executable(ac_u_atomic_stress parallel/active_cells/unified_memory/atomic/ac_standard_stress.cu)
-target_link_libraries(ac_u_atomic_stress common)
-
 # naive
 add_executable(ac_u_naive parallel/active_cells/unified_memory/naive/ac_standard.cu)
 target_link_libraries(ac_u_naive common)
@@ -82,9 +76,9 @@ add_executable(ac_u_sc_stress parallel/active_cells/unified_memory/sc/ac_standar
 target_link_libraries(ac_u_sc_stress common)
 
 # stream compaction adaptive
-add_executable(ac_u_sc_adaptive parallel/active_cells/unified_memory/sc_adaptive/ac_standard.cu)
+add_executable(ac_u_sc_adaptive parallel/active_cells/unified_memory/sc/ac_adaptive.cu)
 target_link_libraries(ac_u_sc_adaptive common)
-add_executable(ac_u_sc_adaptive_stress parallel/active_cells/unified_memory/sc_adaptive/ac_standard_stress.cu)
+add_executable(ac_u_sc_adaptive_stress parallel/active_cells/unified_memory/sc/ac_adaptive_stress.cu)
 target_link_libraries(ac_u_sc_adaptive_stress common)
 
 
