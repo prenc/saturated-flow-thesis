@@ -2,13 +2,13 @@
     "output": {
         "params": {
             "ca_size": [
-                2000, 4000
+                2000
             ],
             "simulation_iterations": [
                 1000
             ],
             "wells_dim": [
-                4, 8
+                4
             ],
             "wells_QW": [
                 0.001
@@ -17,14 +17,13 @@
                 1
             ],
             "WRITE_STATISTICS_TO_FILE": [
-                0
+                1
             ]
         },
         "targets": [
             "ac_u_sc",
-            "ac_u_sc_one_kernel_adaptive",
+            "ac_u_sc_adaptive",
             "ac_u_naive",
-            "ac_u_atomic",
             "u_hybrid",
             "u_shared",
             "u_standard"
@@ -33,13 +32,13 @@
     "output_stress": {
         "params": {
             "ca_size": [
-                2000, 4000
+                2000
             ],
             "simulation_iterations": [
                 1000
             ],
             "wells_dim": [
-                4, 8
+                4
             ],
             "wells_QW": [
                 0.001
@@ -48,14 +47,13 @@
                 1
             ],
             "WRITE_STATISTICS_TO_FILE": [
-                0
+                1
             ]
         },
         "targets": [
             "ac_u_sc_stress",
-            "ac_u_sc_one_kernel_adaptive_stress",
+            "ac_u_sc_adaptive_stress",
             "ac_u_naive_stress",
-            "ac_u_atomic_stress",
             "u_hybrid_stress",
             "u_shared_stress",
             "u_standard_stress"
