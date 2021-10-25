@@ -5,19 +5,25 @@
 #include <algorithm>
 #include "../../utils/memory_management.cuh"
 #include "../../kernels/transition_kernels.cu"
+#include "../../kernels/dummy_kernels.cu"
+
 #include "../../utils/statistics.h"
 
 namespace sc_utils {
-    size_t measure_standard_iteration_time(struct CA *h_ca, double *headsWrite){
+    size_t measure_standard_iteration_time(struct CA *d_ca, double *headsWrite){
         Timer stepTimer;
         std::vector<size_t> times{};
         dim3 blockSize(BLOCK_SIZE, BLOCK_SIZE);
         dim3 gridDims = calculate_grid_dim();
 
-        for (size_t i{}; i < 5; ++i)
+        for (size_t i{}; i < STANDARD_IMPL_TIME_MEASURE; ++i)
         {
             stepTimer.start();
-            kernels::standard_step <<< gridDims, blockSize >>>(*h_ca, headsWrite);
+            kernels::standard_step <<< gridDims, blockSize >>>(*d_ca, headsWrite);
+            for (int j = 0; j < EXTRA_KERNELS; j++)
+            {
+                dummy_kernels::dummy_active_naive <<< gridDims, blockSize >>>(*d_ca, headsWrite);
+            }
             ERROR_CHECK(cudaDeviceSynchronize());
             stepTimer.stop();
             times.push_back(stepTimer.elapsedNanoseconds);
