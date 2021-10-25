@@ -1,5 +1,5 @@
-#include "../parallel/common/unified_memory_management.cuh"
-#include "../parallel/common/statistics.h"
+#include "../parallel/utils/unified_memory_management.cuh"
+#include "../parallel/utils/statistics.h"
 
 double river_heads[] = RIVER_HEADS;
 

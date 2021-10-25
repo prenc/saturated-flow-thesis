@@ -38,7 +38,7 @@ LATEX_DUMP = os.getenv("MY_DUMP", "latex")
 Place to store latex code which is latex table made based on the summary file
 """
 
-TIMES_EACH_PROGRAM_IS_RUN = 5
+TIMES_EACH_PROGRAM_IS_RUN = 1
 """
 Defines how many times each program is run before an execution time is saved
 (takes the smallest one from all results)
@@ -51,7 +51,7 @@ Path to log file which is used during running tests
 
 PARAMS_PATH = "../src/params.h"
 """
-Mandatory file, common for all CUDA C and C implementations, allows
+Mandatory file, utils for all CUDA C and C implementations, allows
 for changing iterations number, CA dimensions, block size during running tests
 """
 
