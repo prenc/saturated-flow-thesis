@@ -314,39 +314,7 @@
         ]
     },
 
-    "ac_ca_size_atomic": {
-        "params": {
-            "ca_size": [
-                4000, 5000, 6000, 7000, 8000
-            ],
-            "simulation_iterations": [
-                4500
-            ],
-            "wells_dim": [
-                8, 10, 12, 14, 16
-            ],
-            "wells_QW": [
-                0.001
-            ],
-            "WRITE_OUTPUT_TO_FILE": [
-                0
-            ],
-            "WRITE_STATISTICS_TO_FILE": [
-                1
-            ]
-        },
-        "chart_params": {
-            "title": "Active cells atomic",
-            "x_axis": "ca_size",
-            "x_axis_label": "CA dimension"
-        },
-        "targets": [
-            "ac_u_atomic",
-            "ac_u_atomic_stress"
-        ]
-    },
-
-    "jocs_1": {
+    "dummy_kernel": {
         "params": {
             "ca_size": [
                 4000
@@ -357,130 +325,20 @@
             "wells_dim": [
                 8
             ],
-            "EXTRA_KERNELS": [
-                1, 5, 10, 20
-            ],
             "wells_QW": [
                 0.001
             ],
-            "WRITE_OUTPUT_TO_FILE": [
-                0
-            ],
-            "WRITE_STATISTICS_TO_FILE": [
-                1
-            ]
-        },
-        "chart_params": {
-            "title": "Active cells stress test",
-            "x_axis": "ca_size",
-            "x_axis_label": "CA dimension"
-        },
-        "targets": [
-            "ac_u_naive",
-            "ac_u_sc",
-            "ac_u_sc_adaptive"
-        ]
-    },
-
-    "jocs_2": {
-        "params": {
-            "ca_size": [
-                8000
-            ],
-            "simulation_iterations": [
-                4500
-            ],
-            "wells_dim": [
-                16
-            ],
             "EXTRA_KERNELS": [
-                1, 5, 10, 20
-            ],
-            "wells_QW": [
-                0.001
-            ],
-            "WRITE_OUTPUT_TO_FILE": [
-                0
-            ],
-            "WRITE_STATISTICS_TO_FILE": [
-                1
-            ]
-        },
-        "chart_params": {
-            "title": "Active cells stress test",
-            "x_axis": "ca_size",
-            "x_axis_label": "CA dimension"
-        },
-        "targets": [
-            "ac_u_naive",
-            "ac_u_sc",
-            "ac_u_sc_adaptive"
-        ]
-    },
-
-    "jocs_ac_1": {
-        "params": {
-            "ca_size": [
-                4000, 5000, 6000, 7000, 8000
-            ],
-            "simulation_iterations": [
-                4500
-            ],
-            "wells_dim": [
-                8, 10, 12, 14, 16
-            ],
-            "EXTRA_KERNELS": [
-                1
-            ],
-            "wells_QW": [
-                0.001
-            ],
-            "WRITE_OUTPUT_TO_FILE": [
-                0
-            ],
-            "WRITE_STATISTICS_TO_FILE": [
                 1
             ],
             "LOOP_DUMMY_COMPUTATION": [
                 1
-            ]
-        },
-        "chart_params": {
-            "title": "Active cells stress test",
-            "x_axis": "ca_size",
-            "x_axis_label": "CA dimension"
-        },
-        "targets": [
-            "ac_u_naive",
-            "ac_u_sc",
-            "ac_u_sc_adaptive"
-        ]
-    },
-    "jocs_ac_10": {
-        "params": {
-            "ca_size": [
-                4000, 5000, 6000, 7000, 8000
-            ],
-            "simulation_iterations": [
-                4500
-            ],
-            "wells_dim": [
-                8, 10, 12, 14, 16
-            ],
-            "EXTRA_KERNELS": [
-                10
-            ],
-            "wells_QW": [
-                0.001
             ],
             "WRITE_OUTPUT_TO_FILE": [
                 0
             ],
             "WRITE_STATISTICS_TO_FILE": [
                 1
-            ],
-            "LOOP_DUMMY_COMPUTATION": [
-                1
             ]
         },
         "chart_params": {
@@ -489,161 +347,7 @@
             "x_axis_label": "CA dimension"
         },
         "targets": [
-            "ac_u_naive",
-            "ac_u_sc",
-            "ac_u_sc_adaptive"
-        ]
-    },
-    "jocs_ac_100": {
-        "params": {
-            "ca_size": [
-                4000, 5000, 6000, 7000, 8000
-            ],
-            "simulation_iterations": [
-                4500
-            ],
-            "wells_dim": [
-                8, 10, 12, 14, 16
-            ],
-            "EXTRA_KERNELS": [
-                100
-            ],
-            "wells_QW": [
-                0.001
-            ],
-            "WRITE_OUTPUT_TO_FILE": [
-                0
-            ],
-            "WRITE_STATISTICS_TO_FILE": [
-                1
-            ],
-            "LOOP_DUMMY_COMPUTATION": [
-                1
-            ]
-        },
-        "chart_params": {
-            "title": "Active cells stress test",
-            "x_axis": "ca_size",
-            "x_axis_label": "CA dimension"
-        },
-        "targets": [
-            "ac_u_naive",
-            "ac_u_sc",
-            "ac_u_sc_adaptive"
-        ]
-    },
-    "jocs_ac_500": {
-        "params": {
-            "ca_size": [
-                4000, 5000, 6000, 7000, 8000
-            ],
-            "simulation_iterations": [
-                4500
-            ],
-            "wells_dim": [
-                8, 10, 12, 14, 16
-            ],
-            "EXTRA_KERNELS": [
-                500
-            ],
-            "wells_QW": [
-                0.001
-            ],
-            "WRITE_OUTPUT_TO_FILE": [
-                0
-            ],
-            "WRITE_STATISTICS_TO_FILE": [
-                1
-            ],
-            "LOOP_DUMMY_COMPUTATION": [
-                1
-            ]
-        },
-        "chart_params": {
-            "title": "Active cells stress test",
-            "x_axis": "ca_size",
-            "x_axis_label": "CA dimension"
-        },
-        "targets": [
-            "ac_u_naive",
-            "ac_u_sc",
-            "ac_u_sc_adaptive"
-        ]
-    },
-    "jocs_ac_1000": {
-        "params": {
-            "ca_size": [
-                4000, 5000, 6000, 7000, 8000
-            ],
-            "simulation_iterations": [
-                4500
-            ],
-            "wells_dim": [
-                8, 10, 12, 14, 16
-            ],
-            "EXTRA_KERNELS": [
-                1000
-            ],
-            "wells_QW": [
-                0.001
-            ],
-            "WRITE_OUTPUT_TO_FILE": [
-                0
-            ],
-            "WRITE_STATISTICS_TO_FILE": [
-                1
-            ],
-            "LOOP_DUMMY_COMPUTATION": [
-                1
-            ]
-        },
-        "chart_params": {
-            "title": "Active cells stress test",
-            "x_axis": "ca_size",
-            "x_axis_label": "CA dimension"
-        },
-        "targets": [
-            "ac_u_naive",
-            "ac_u_sc",
-            "ac_u_sc_adaptive"
-        ]
-    },
-    "jocs_ac_low_coverage_100": {
-        "params": {
-            "ca_size": [
-                4000, 5000, 6000, 7000, 8000
-            ],
-            "simulation_iterations": [
-                4500
-            ],
-            "wells_dim": [
-                4, 5, 6, 7, 8
-            ],
-            "EXTRA_KERNELS": [
-                100
-            ],
-            "wells_QW": [
-                0.001
-            ],
-            "WRITE_OUTPUT_TO_FILE": [
-                0
-            ],
-            "WRITE_STATISTICS_TO_FILE": [
-                1
-            ],
-            "LOOP_DUMMY_COMPUTATION": [
-                1
-            ]
-        },
-        "chart_params": {
-            "title": "Active cells stress test",
-            "x_axis": "ca_size",
-            "x_axis_label": "CA dimension"
-        },
-        "targets": [
-            "ac_u_naive",
-            "ac_u_sc",
-            "ac_u_sc_adaptive"
+            "ac_u_naive"
         ]
     }
 }
