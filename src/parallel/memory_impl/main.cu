@@ -1,4 +1,5 @@
 #include "../kernels/transition_kernels.cu"
+#include "../kernels/dummy_kernels.cu"
 #include "../utils/statistics.h"
 
 int main(int argc, char *argv[])
@@ -35,13 +36,15 @@ int main(int argc, char *argv[])
 
 #ifdef STANDARD
         kernels::standard_step <<< gridDims, blockSize >>>(*d_ca, headsWrite);
-#endif
-#ifdef HYBRID
+#elif HYBRID
         kernels::hybrid_step <<< gridDims, blockSize >>>(*d_ca, headsWrite);
-#endif
-#ifdef SHARED
+#elif SHARED
         kernels::shared_step <<< gridDims, blockSize >>>(*d_ca, headsWrite);
 #endif
+        for (int j = 0; j < EXTRA_KERNELS; j++)
+        {
+            dummy_kernels::dummy_all <<< gridDims, blockSize >>>(*d_ca, headsWrite);
+        }
         ERROR_CHECK(cudaDeviceSynchronize());
 
         std::swap(d_ca->heads, headsWrite);
