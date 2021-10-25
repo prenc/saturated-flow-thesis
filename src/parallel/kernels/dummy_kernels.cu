@@ -36,7 +36,7 @@ namespace dummy_kernels
             m = pow(b, l);
             z = 1 - (1 / n1);
             n2 = pow((1 - m), z) + dd;
-            k = pow(2, active_cell_value + d + u + n2);
+            k = pow(active_cell_value + d + u + n2, 2);
         }
 
         return (int)k % 10;
