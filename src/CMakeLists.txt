@@ -81,6 +81,9 @@ target_link_libraries(ac_u_sc_adaptive common)
 add_executable(ac_u_sc_adaptive_stress parallel/active_cells_impl/sc/variants/u_ac_adaptive_stress.cu)
 target_link_libraries(ac_u_sc_adaptive_stress common)
 
+# stream compaction adaptive naive
+add_executable(ac_u_sc_adaptive_naive parallel/active_cells_impl/sc/variants/u_ac_adaptive_naive.cu)
+target_link_libraries(ac_u_sc_adaptive_naive common)
 
 ## GLOBAL MEMORY ##
 

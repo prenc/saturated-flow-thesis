@@ -68,7 +68,11 @@ int main(int argc, char *argv[])
         if (isWholeGridActive)
 #endif
         {
+#ifdef NAIVE
+            ac_kernels::naive <<< gridDims, blockSize >>>(*d_ca, headsWrite);
+#else
             kernels::standard_step <<< gridDims, blockSize >>>(*d_ca, headsWrite);
+#endif
             for (int j = 0; j < EXTRA_KERNELS; j++)
             {
                 dummy_kernels::dummy_active_naive <<< gridDims, blockSize >>>(*d_ca, headsWrite);
