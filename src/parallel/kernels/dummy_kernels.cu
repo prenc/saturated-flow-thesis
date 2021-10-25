@@ -5,7 +5,7 @@
 
 namespace dummy_kernels
 {
-    __device__ int dummy_computations(double active_cell_value){
+    __device__ void dummy_computations(double active_cell_value){
         double a, b, c = 734, k, d;
         double n1 = 1.982, e;
         double f, g, h, j;
@@ -39,7 +39,6 @@ namespace dummy_kernels
             k = pow(active_cell_value + d + u + n2, 2);
         }
 
-        return (int)k % 10;
     }
 
     __global__ void dummy_active_sc(CA ca,
@@ -54,8 +53,7 @@ namespace dummy_kernels
         if (ac_idx_g < acNumber)
         {
             int idx_g = activeCellsIds[ac_idx_g];
-            int dummy = dummy_computations(ca.heads[idx_g]);
-            headsWrite[idx_g] += dummy;
+            dummy_computations(ca.heads[idx_g]);
         }
     }
 
@@ -67,8 +65,7 @@ namespace dummy_kernels
 
         if (idx_x < COLS && idx_y < ROWS) {
             if(ac_utils::isActiveCell(ca, idx_x, idx_y, idx_g)){
-                int dummy = dummy_computations(ca.heads[idx_g]);
-                //headsWrite[idx_g] += dummy;
+                dummy_computations(ca.heads[idx_g]);
             }
         }
     }
@@ -80,8 +77,7 @@ namespace dummy_kernels
         unsigned idx_g = idx_y * COLS + idx_x;
 
         if (idx_x < COLS && idx_y < ROWS) {
-            int dummy = dummy_computations(ca.heads[idx_g]);
-            headsWrite[idx_g] += dummy;
+            dummy_computations(ca.heads[idx_g]);
         }
     }
 
