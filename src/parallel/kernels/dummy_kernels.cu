@@ -68,7 +68,7 @@ namespace dummy_kernels
         if (idx_x < COLS && idx_y < ROWS) {
             if(ac_utils::isActiveCell(ca, idx_x, idx_y, idx_g)){
                 int dummy = dummy_computations(ca.heads[idx_g]);
-                headsWrite[idx_g] += dummy;
+                //headsWrite[idx_g] += dummy;
             }
         }
     }
